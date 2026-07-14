@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2e5e3a">
+<meta name="description" content="Site officiel du REMAO, Réseau des Étudiants en Médecine d'Afrique de l'Ouest. 8 pays membres, les Assises, actualités et délégations.">
 <title>REMAO — Réseau des Étudiants en Médecine d'Afrique de l'Ouest</title>
 
 <style>
@@ -401,25 +408,58 @@
   .reveal.in { opacity:1; transform:none; filter:none; }
   @media (prefers-reduced-motion: reduce){ .reveal { opacity:1; transform:none; filter:none; transition:none; } }
 
+  /* décalage d'ancrage sous la barre de navigation flottante */
+  .section, #contact { scroll-margin-top:90px; }
+
   @media (max-width:1080px){
     .stats, .countries { grid-template-columns:repeat(2,1fr); }
     .partners { grid-template-columns:repeat(3,1fr); }
   }
   @media (max-width:900px){
     .nav-links { display:none; } .burger { display:block; } .nav-cta .btn-red { display:none; }
-    .hero-grid { grid-template-columns:1fr; } .hero-seal { order:-1; max-width:340px; margin:0 auto; }
+    .hero-grid { grid-template-columns:1fr; }
+    .hero-seal { order:-1; max-width:260px; margin:0 auto; }
     .about-grid, .assises-inner, .join { grid-template-columns:1fr; }
     .grid-3, .pillars, .team { grid-template-columns:1fr; }
     .foot-grid { grid-template-columns:1fr 1fr; }
-    .hero-photo::after { background:linear-gradient(0deg, var(--paper) 8%, color-mix(in srgb,var(--paper) 55%,transparent) 60%, transparent 100%); }
+    .hero-photo::after { background:linear-gradient(0deg, var(--paper) 10%, color-mix(in srgb,var(--paper) 55%,transparent) 62%, transparent 100%); }
+    /* Performance mobile : on coupe les effets coûteux (batterie / GPU / 3G) */
+    .seal-halo { animation:none; opacity:.14; }
+    .reveal { filter:none; transition:opacity .6s var(--ease-out), transform .6s var(--ease-out); }
+    .reveal.in { filter:none; }
   }
   @media (max-width:560px){
+    :root { --pad:18px; }
     .stats, .countries, .partners, .grid-2, .foot-grid { grid-template-columns:1fr; }
     .countdown { grid-template-columns:repeat(2,1fr); }
     .prog-row { grid-template-columns:1fr; gap:6px; }
     .foot-bottom { flex-direction:column; }
+    .section { padding-block:clamp(48px,12vw,72px); }
+    .section-head { margin-bottom:34px; }
+    .hero { padding-top:24px; }
+    .hero-seal { max-width:212px; }
+    .hero-copy h1 { font-size:clamp(31px,8.6vw,44px); }
+    .hero-lede { font-size:16.5px; margin:18px 0 24px; }
+    .hero-actions { gap:12px; }
+    .hero-actions .btn { width:100%; justify-content:space-between; }
+    .hero-trust { flex-wrap:wrap; gap:10px; font-size:12.5px; }
+    .nav { padding:8px 8px 8px 14px; gap:10px; }
+    .brand .txt span { display:none; }
+    .seal-badge { padding:9px 12px; }
+    .seal-badge .n { font-size:18px; }
+    .assises { padding:28px 20px; }
+    .cd-cell { padding:16px 6px; }
+    .join, .about-media { border-radius:24px; }
+  }
+  /* Écrans tactiles : pas d'effet de survol qui « colle » après le tap */
+  @media (hover:none){
+    .card:hover, .stat:hover, .country:hover, .news-card:hover,
+    .btn:hover, .partner:hover, .socials a:hover { transform:none; }
+    * { -webkit-tap-highlight-color:rgba(46,94,58,.12); }
   }
 </style>
+</head>
+<body>
 
 <!-- =================== NAV =================== -->
 <div class="nav-shell">
@@ -1193,3 +1233,5 @@
   })();
 })();
 </script>
+</body>
+</html>

@@ -181,7 +181,22 @@
     .stat-grid{grid-template-columns:repeat(2,1fr);}
     .role-badge{display:none;}
   }
-  @media (max-width:560px){ .stat-grid{grid-template-columns:1fr;} .content{padding:18px;} }
+  @media (max-width:560px){
+    .stat-grid{grid-template-columns:1fr;}
+    .content{padding:16px;}
+    .page-head h1{font-size:21px;}
+    /* Lignes de liste : on empile proprement l'action sous le contenu */
+    .row{flex-wrap:wrap;row-gap:10px;padding:14px 16px;}
+    .row .info{flex:1 1 55%;}
+    .row-actions{flex:1 1 100%;order:3;justify-content:flex-end;}
+    .row-actions .btn-sm{flex:1;justify-content:center;}
+    .form-grid{max-width:100%;}
+    .drop.has img{max-height:150px;}
+    .modal{padding:12px;}
+    .form-actions{flex-wrap:wrap;}
+    .form-actions .btn{flex:1;justify-content:center;}
+  }
+  @media (hover:none){ * { -webkit-tap-highlight-color:rgba(46,94,58,.12); } .btn:hover,.stat-card:hover{transform:none;} }
 </style>
 </head>
 <body>
