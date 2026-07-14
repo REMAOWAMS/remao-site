@@ -418,7 +418,8 @@
   @media (max-width:900px){
     .nav-links { display:none; } .burger { display:block; } .nav-cta .btn-red { display:none; }
     .hero-grid { grid-template-columns:1fr; }
-    .hero-seal { order:-1; max-width:260px; margin:0 auto; }
+    .hero-seal { order:-1; width:100%; max-width:none; margin:0; justify-items:center; }
+    .seal-frame { width:min(280px,66vw); }
     .seal-badge { display:none; }
     .about-grid, .assises-inner, .join { grid-template-columns:1fr; }
     .grid-3, .pillars, .team { grid-template-columns:1fr; }
@@ -438,7 +439,7 @@
     .section { padding-block:clamp(48px,12vw,72px); }
     .section-head { margin-bottom:34px; }
     .hero { padding-top:24px; }
-    .hero-seal { max-width:212px; }
+    .seal-frame { width:min(230px,62vw); }
     .hero-copy h1 { font-size:clamp(31px,8.6vw,44px); }
     .hero-lede { font-size:16.5px; margin:18px 0 24px; }
     .hero-actions { gap:12px; }
