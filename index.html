@@ -905,6 +905,8 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script>
 (function(){
   "use strict";
@@ -985,7 +987,8 @@
   function newsCardEl(n){
     var el = document.createElement("article");
     el.className = "card news-card reveal in";
-    el.innerHTML = '<div class="thumb"><span class="cat'+(n.red?' red':'')+'">'+n.cat+'</span><span class="scene" style="background:'+sceneBg(n.scene)+'"></span></div>'+
+    var thumbBg = n.image ? ('var(--card-2) center/cover no-repeat url('+JSON.stringify(n.image)+')') : sceneBg(n.scene);
+    el.innerHTML = '<div class="thumb"><span class="cat'+(n.red?' red':'')+'">'+n.cat+'</span><span class="scene" style="background:'+thumbBg+'"></span></div>'+
       '<div class="body"><time>'+n.date+'</time><h3>'+n.title+'</h3><p>'+n.excerpt+'</p>'+
       '<span class="more">Lire la suite <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>';
     el.addEventListener("click", function(){ openArticle(n.id); });
@@ -1009,9 +1012,12 @@
   });
 
   /* ---------- Render news (home + all + assises) ---------- */
-  var nh = document.getElementById("newsHome"); news.slice(0,3).forEach(function(n){ nh.appendChild(newsCardEl(n)); });
-  var na = document.getElementById("newsAll"); news.forEach(function(n){ na.appendChild(newsCardEl(n)); });
-  var an = document.getElementById("assisesNews"); news.filter(function(n){return n.cat==="Assises";}).forEach(function(n){ an.appendChild(newsCardEl(n)); });
+  function renderNews(){
+    var nh = document.getElementById("newsHome"); nh.innerHTML=""; news.slice(0,3).forEach(function(n){ nh.appendChild(newsCardEl(n)); });
+    var na = document.getElementById("newsAll"); na.innerHTML=""; news.forEach(function(n){ na.appendChild(newsCardEl(n)); });
+    var an = document.getElementById("assisesNews"); an.innerHTML=""; news.filter(function(n){return n.cat==="Assises";}).forEach(function(n){ an.appendChild(newsCardEl(n)); });
+  }
+  renderNews();
 
   /* ---------- Render commissions (qsn) ---------- */
   var com = document.getElementById("commissions");
@@ -1022,11 +1028,15 @@
   });
 
   /* ---------- Contact chips builder ---------- */
-  function contactChips(){
-    return '<div class="contact-row">'+
-      '<span class="chip-c ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L20 13l1 4a2 2 0 0 1-2 2 16 16 0 0 1-15-15 2 2 0 0 1 2-2z"/></svg>Téléphone à ajouter</span>'+
-      '<span class="chip-c ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email à ajouter</span></div>';
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  var SVG_TEL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L20 13l1 4a2 2 0 0 1-2 2 16 16 0 0 1-15-15 2 2 0 0 1 2-2z"/></svg>';
+  var SVG_MAIL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>';
+  function contactChipsFor(tel,mail){
+    var phone = tel ? '<a class="chip-c mail" href="tel:'+esc(tel)+'">'+SVG_TEL+esc(tel)+'</a>' : '<span class="chip-c ph">'+SVG_TEL+'Téléphone à ajouter</span>';
+    var email = mail ? '<a class="chip-c mail" href="mailto:'+esc(mail)+'">'+SVG_MAIL+esc(mail)+'</a>' : '<span class="chip-c ph">'+SVG_MAIL+'Email à ajouter</span>';
+    return '<div class="contact-row">'+phone+email+'</div>';
   }
+  function contactChips(){ return contactChipsFor("",""); }
 
   /* ---------- Theme toggle ---------- */
   document.getElementById("themeBtn").addEventListener("click", function(){
@@ -1083,19 +1093,23 @@
     document.querySelectorAll(".nav-links a").forEach(function(a){ a.classList.remove("active"); });
     if(!(opts && opts.noScroll)) window.scrollTo({ top:0, behavior: reduce?"auto":"smooth" });
   }
+  var paysOverride = {};
   function openCountry(code){
     var c = countries[code]; if(!c) return;
+    var o = paysOverride[code] || {};
     document.getElementById("paysFlag").innerHTML = flags[code];
     document.getElementById("paysName").textContent = c.name;
     document.getElementById("paysCrumb").textContent = c.name;
     document.getElementById("paysLede").textContent = "Cellule nationale du REMAO · "+c.cap+". "+c.activite+".";
-    document.getElementById("paysAbout").textContent = c.about;
+    if(o.texte){ document.getElementById("paysAbout").innerHTML = o.texte; } else { document.getElementById("paysAbout").textContent = c.about; }
     document.getElementById("paysCap").textContent = c.cap+", "+c.name;
+    var photo = document.querySelector("#view-pays .ph-box");
+    if(photo){ if(o.image){ photo.innerHTML='<img src="'+esc(o.image)+'" alt="Cellule '+esc(c.name)+'" style="width:100%;height:100%;object-fit:cover">'; } }
     var bw = document.getElementById("paysBureau"); bw.innerHTML = "";
-    var roles = [["Président","P",false],["Secrétaire général","SG",false],["Chargé de communication","C",true]];
+    var roles = [["Président","P",false,o.president,o.tel_pres,o.mail_pres],["Secrétaire général","SG",false,o.sg,"",""],["Chargé de communication","C",true,o.com,"",""]];
     roles.forEach(function(r){
       var el=document.createElement("div"); el.className="card member"+(r[2]?" red":"");
-      el.innerHTML='<div class="av">'+r[1]+'</div><div class="role">'+r[0]+'</div><b>'+r[0]+'</b><small>Cellule '+c.name+'</small>'+contactChips();
+      el.innerHTML='<div class="av">'+r[1]+'</div><div class="role">'+r[0]+'</div><b>'+esc(r[3]||r[0])+'</b><small>Cellule '+esc(c.name)+'</small>'+contactChipsFor(r[4],r[5]);
       bw.appendChild(el);
     });
     showView("pays");
@@ -1106,9 +1120,10 @@
     document.getElementById("artTitle").textContent = n.title;
     document.getElementById("artCat").textContent = n.cat;
     document.getElementById("artDate").textContent = n.date;
-    document.getElementById("artScene").style.background = sceneBg(n.scene);
+    document.getElementById("artScene").style.background = n.image ? ('var(--card-2) center/cover no-repeat url('+JSON.stringify(n.image)+')') : sceneBg(n.scene);
     var b = document.getElementById("artBody"); b.innerHTML = "";
-    n.body.forEach(function(p){ var el=document.createElement("p"); el.textContent=p; b.appendChild(el); });
+    if(n.bodyHtml){ b.innerHTML = n.bodyHtml; }
+    else { (n.body||[]).forEach(function(p){ var el=document.createElement("p"); el.textContent=p; b.appendChild(el); }); }
     showView("article");
   }
 
@@ -1135,5 +1150,46 @@
       return;
     }
   });
+
+  /* ---------- Chargement des contenus réels depuis Supabase ---------- */
+  (function loadSupabase(){
+    if(!window.supabase || !window.SUPA_URL){ return; }
+    var SB = window.supabase.createClient(window.SUPA_URL, window.SUPA_KEY);
+    var MOIS=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+    function fmtDate(d){ if(!d) return ""; var p=String(d).split("-"); if(p.length<3) return d; return parseInt(p[2],10)+" "+MOIS[parseInt(p[1],10)-1]+" "+p[0]; }
+    function strip(html){ var t=document.createElement("div"); t.innerHTML=html||""; return (t.textContent||"").replace(/\s+/g," ").trim(); }
+    var nameToCode={}; Object.keys(countries).forEach(function(k){ nameToCode[countries[k].name]=k; });
+
+    SB.from("contenus").select("*").order("created_at",{ascending:false}).then(function(res){
+      if(res.error || !res.data){ if(res.error) console.warn("Supabase:", res.error.message); return; }
+      var by={}; res.data.forEach(function(r){ (by[r.type]=by[r.type]||[]).push(r); });
+
+      if(by.actualite && by.actualite.length){
+        news.length=0;
+        by.actualite.forEach(function(r){ var d=r.data||{};
+          news.push({ id:r.id, cat:(d.categorie||"Actualité"), red:(d.categorie==="Communiqué"),
+            date:fmtDate(d.date), scene:"green", image:d.image||"", title:d.titre||"(sans titre)",
+            excerpt:strip(d.texte).slice(0,150), bodyHtml:d.texte||"" });
+        });
+        renderNews();
+      }
+
+      if(by.partenaire && by.partenaire.length){
+        var pc=document.querySelector(".partners");
+        if(pc){ pc.innerHTML="";
+          by.partenaire.forEach(function(r){ var d=r.data||{};
+            var node=document.createElement(d.lien?"a":"div"); node.className="partner";
+            if(d.lien){ node.href=d.lien; node.target="_blank"; node.rel="noopener"; }
+            node.innerHTML = d.image ? ('<img src="'+esc(d.image)+'" alt="'+esc(d.titre||"")+'" style="max-height:64px;max-width:82%;object-fit:contain">') : esc(d.titre||"Partenaire");
+            pc.appendChild(node);
+          });
+        }
+      }
+
+      if(by.pays && by.pays.length){
+        by.pays.forEach(function(r){ var d=r.data||{}; var code=nameToCode[d.titre]; if(code){ paysOverride[code]=d; } });
+      }
+    });
+  })();
 })();
 </script>
