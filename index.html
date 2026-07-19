@@ -576,7 +576,7 @@
           <div>
             <span class="eyebrow"><span class="dot"></span>Événement phare · Édition en cours</span>
             <h2 id="homeAssisesTitre">21<sup>es</sup> Assises du REMAO</h2>
-            <div class="host"><b id="homeAssisesVille">Conakry, Guinée</b><span>·</span><span id="homeAssisesDates">Octobre 2026</span></div>
+            <div class="host"><b id="homeAssisesVille">Conakry, Guinée</b><span>·</span><span id="homeAssisesDates">13 au 22 octobre 2026</span></div>
             <p class="theme-line" id="homeAssisesTheme">Des centaines d'étudiants réunis autour de communications scientifiques, de compétitions sportives et de soirées culturelles.</p>
             <div class="assises-actions">
               <a class="btn btn-red" data-view="assises">Voir les Assises
@@ -778,7 +778,7 @@
           <div>
             <span class="eyebrow"><span class="dot"></span>Ville hôte</span>
             <h2 id="assisesVille">Conakry, Guinée</h2>
-            <p class="theme-line" id="assisesDates">Une première pour la cellule Guinée, qui accueille le réseau après Thiès (20e, 2025).</p>
+            <p class="theme-line" id="assisesDates">Du 13 au 22 octobre 2026.</p>
           </div>
           <div class="countdown" id="countdown2">
             <div class="cd-cell"><div class="v" data-cd="days">--</div><div class="k">Jours</div></div>
@@ -925,13 +925,13 @@
       </div>
       <div class="note-band" style="margin-top:24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Noms et coordonnées à compléter par le Bureau Exécutif.</span></div>
       <div class="grid-2" style="margin-top:8px">
-        <div class="card member"><div class="av">P</div><div class="role">Direction</div><b>Président du REMAO</b><small>Bureau Exécutif · Niamey</small>
+        <div class="card member"><div class="av">P</div><div class="role">Direction</div><b>Président du Bureau Exécutif</b><small>Représentant du réseau</small>
           <div class="contact-row">
             <span class="chip-c ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L20 13l1 4a2 2 0 0 1-2 2 16 16 0 0 1-15-15 2 2 0 0 1 2-2z"/></svg>Téléphone à ajouter</span>
             <span class="chip-c ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email à ajouter</span>
           </div>
         </div>
-        <div class="card member red"><div class="av">C</div><div class="role">Communication</div><b>Commissaire à la Communication</b><small>Bureau Exécutif</small>
+        <div class="card member red"><div class="av">E</div><div class="role">Commission E</div><b>Président de la Commission E</b><small>Communication et relations extérieures</small>
           <div class="contact-row">
             <span class="chip-c ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L20 13l1 4a2 2 0 0 1-2 2 16 16 0 0 1-15-15 2 2 0 0 1 2-2z"/></svg>Téléphone à ajouter</span>
             <span class="chip-c ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email à ajouter</span>
@@ -1032,7 +1032,7 @@
       excerpt:"Du Bénin au Togo, les délégations multiplient les initiatives locales.",
       body:["Partout dans la sous-région, les cellules nationales du REMAO mènent des activités scientifiques, culturelles et solidaires tout au long de l'année.",
         "Ces actions locales nourrissent la dynamique du réseau et préparent le terrain des rencontres annuelles.",
-        "Envoyez les actualités de votre cellule au Commissaire à la Communication pour qu'elles soient relayées ici."] }
+        "Envoyez les actualités de votre cellule à la Commission E (communication et relations extérieures) pour qu'elles soient relayées ici."] }
   ];
 
   function sceneBg(t){
@@ -1133,7 +1133,8 @@
   } else { document.querySelectorAll("[data-count]").forEach(animateCount); }
 
   /* ---------- Countdown ---------- */
-  var target = new Date("2026-10-15T09:00:00+00:00").getTime();
+  // Ouverture des 21es Assises de Conakry : 13 octobre 2026 (clôture le 22). Heure de Conakry = UTC.
+  var target = new Date("2026-10-13T09:00:00+00:00").getTime();
   function tick(){
     var d = target - Date.now(); if(d<0) d=0;
     var days=Math.floor(d/864e5), hours=Math.floor(d%864e5/36e5), mins=Math.floor(d%36e5/6e4), secs=Math.floor(d%6e4/1e3);
@@ -1250,22 +1251,61 @@
         by.pays.forEach(function(r){ var d=r.data||{}; var code=nameToCode[d.titre]; if(code){ paysOverride[code]=d; } });
       }
 
-      /* --- Membres du Bureau --- */
+      /* --- Membres du Bureau ---
+         Les postes viennent d'une liste fermée côté admin (Statuts, art. 10/11/13/19/22).
+         On en déduit le groupe et l'ordre protocolaire, sans champ supplémentaire. */
       if(by.membre && by.membre.length){
-        var grid=document.getElementById("bureauTeam"), fb=document.getElementById("bureauFallback");
-        if(grid){
-          grid.innerHTML="";
-          by.membre.forEach(function(r){ var d=r.data||{};
+        var host=document.getElementById("bureauTeam"), fb=document.getElementById("bureauFallback");
+        if(host){
+          var ORDRE=["Président","Vice-président","Secrétaire administratif",
+            "Premier secrétaire administratif adjoint","Deuxième secrétaire administratif adjoint",
+            "Président de la Commission A","Président de la Commission B","Président de la Commission C",
+            "Président de la Commission D","Président de la Commission E","Président de la Commission F",
+            "Commissaire principal au contrôle","Commissaire adjoint au contrôle"];
+          var GROUPES=[
+            { titre:"Direction", test:function(p){ return /^(Président|Vice-président)$/.test(p); } },
+            { titre:"Secrétariat administratif", test:function(p){ return /secrétaire administratif/i.test(p); } },
+            { titre:"Présidents des commissions permanentes", test:function(p){ return /^Président de la Commission/i.test(p); } },
+            { titre:"Commissariat au contrôle", test:function(p){ return /au contrôle$/i.test(p); } },
+            { titre:"Commissaires", test:function(){ return true; } }
+          ];
+          // On retient le libellé le plus long qui préfixe le poste : sinon « Président de la
+          // Commission E » matcherait « Président » et toutes les commissions auraient le même rang.
+          var rang=function(p){ var best=99, len=-1;
+            for(var i=0;i<ORDRE.length;i++){ if(p.indexOf(ORDRE[i])===0 && ORDRE[i].length>len){ len=ORDRE[i].length; best=i; } }
+            return best; };
+          var membres=by.membre.map(function(r){ var d=r.data||{}; d.poste=d.poste||""; return d; })
+                               .sort(function(a,b){ return rang(a.poste)-rang(b.poste); });
+
+          var carte=function(d){
             var nom=d.titre||"", poste=d.poste||"Bureau Exécutif";
+            var parts=poste.split("—");
+            var court=parts[0].trim(), detail=parts.length>1?parts[1].trim():"";
+            var bas=[detail,d.pays].filter(Boolean).join(" · ") || "Bureau Exécutif";
             var initiales=nom.trim().split(/\s+/).slice(0,2).map(function(m){ return m.charAt(0).toUpperCase(); }).join("");
             var av = d.image
               ? '<div class="av photo" style="background-image:url('+JSON.stringify(d.image)+')" role="img" aria-label="'+esc(nom)+'"></div>'
               : '<div class="av">'+esc(initiales||"?")+'</div>';
-            var el=document.createElement("div"); el.className="card member";
-            el.innerHTML = av+'<div class="role">'+esc(poste)+'</div><b>'+esc(nom)+'</b><small>'+esc(d.pays||"Bureau Exécutif")+'</small>';
-            grid.appendChild(el);
+            var el=document.createElement("div");
+            el.className="card member"+(/Commission E/i.test(poste)?" red":"");
+            el.innerHTML = av+'<div class="role">'+esc(court)+'</div><b>'+esc(nom)+'</b><small>'+esc(bas)+'</small>';
+            return el;
+          };
+
+          host.innerHTML=""; host.className=""; host.removeAttribute("style");
+          var restants=membres.slice();
+          GROUPES.forEach(function(g){
+            var lot=restants.filter(function(d){ return g.test(d.poste); });
+            if(!lot.length) return;
+            restants=restants.filter(function(d){ return lot.indexOf(d)===-1; });
+            var h=document.createElement("h3");
+            h.setAttribute("style","font-size:16px;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin:0 0 18px");
+            h.textContent=g.titre;
+            var grid=document.createElement("div");
+            grid.className="team"; grid.setAttribute("style","margin-bottom:34px");
+            lot.forEach(function(d){ grid.appendChild(carte(d)); });
+            host.appendChild(h); host.appendChild(grid);
           });
-          grid.style.display="";
           if(fb) fb.style.display="none";
         }
       }

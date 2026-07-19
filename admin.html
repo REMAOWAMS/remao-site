@@ -276,6 +276,23 @@
     membre:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>'
   };
   var PAYS8=["Bénin","Burkina Faso","Côte d'Ivoire","Guinée","Mali","Niger","Sénégal","Togo"];
+  // Postes officiels, conformes aux Statuts et au Règlement intérieur (art. 10, 11, 13, 19, 22).
+  var POSTES=[
+    "Président",
+    "Vice-président",
+    "Secrétaire administratif",
+    "Premier secrétaire administratif adjoint",
+    "Deuxième secrétaire administratif adjoint",
+    "Président de la Commission A — Journées scientifiques, culturelles et sportives",
+    "Président de la Commission B — Conférences sous-régionales",
+    "Président de la Commission C — Études et gestion des projets",
+    "Président de la Commission D — Finances",
+    "Président de la Commission E — Communication et relations extérieures",
+    "Président de la Commission F — Scientifique, culturelle et sportive",
+    "Commissaire principal au contrôle",
+    "Commissaire adjoint au contrôle",
+    "Commissaire (assistant de commission)"
+  ];
   var types={
     actualite:{ label:"Actualités", singular:"une actualité", icon:ICON.actualite,
       fields:[{k:"titre",l:"Titre",t:"text",req:true},{k:"image",l:"Image de couverture",t:"image"},{k:"categorie",l:"Catégorie",t:"select",opt:["Assises","Vie des cellules","Santé publique","Communiqué"]},{k:"texte",l:"Texte de l'article",t:"rich"},{k:"date",l:"Date de publication",t:"date"}],
@@ -293,7 +310,7 @@
       fields:[{k:"titre",l:"Nom du partenaire",t:"text",req:true},{k:"image",l:"Logo",t:"image"},{k:"lien",l:"Lien vers le site",t:"text"},{k:"categorie",l:"Catégorie",t:"select",opt:["Institutionnel","Sponsor","Académique"]}],
       title:"titre", meta:"lien", badge:"categorie" },
     membre:{ label:"Membres du Bureau", singular:"un membre", icon:ICON.membre,
-      fields:[{k:"titre",l:"Nom complet",t:"text",req:true},{k:"image",l:"Photo",t:"image"},{k:"poste",l:"Poste / commission",t:"text"},{k:"pays",l:"Pays d'origine",t:"select",opt:PAYS8}],
+      fields:[{k:"titre",l:"Nom complet",t:"text",req:true},{k:"image",l:"Photo",t:"image"},{k:"poste",l:"Poste officiel",t:"select",opt:POSTES,req:true},{k:"pays",l:"Pays d'origine",t:"select",opt:PAYS8}],
       title:"titre", meta:"poste", badge:null }
   };
 
@@ -459,12 +476,12 @@
     crumb.textContent="Rôles & accès";
     content.innerHTML='<div class="page-head"><div><h1>Rôles &amp; accès</h1><p>Publication centralisée (cahier des charges, section 7.2).</p></div></div>'+
       '<div class="panel"><div class="row"><div class="thumb" style="background:var(--green-tint);color:var(--green)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="info"><b>Président(e) du REMAO</b><small>Accès total : contenus, réglages, comptes</small></div><span class="pill green">Super administrateur</span></div>'+
-      '<div class="row"><div class="thumb" style="background:var(--red-tint);color:var(--red)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="info"><b>Commissaire à la Communication</b><small>Crée et publie tous les contenus</small></div><span class="pill red">Éditeur de contenu</span></div></div>'+
-      '<div class="info-banner" style="margin-top:20px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><div>Les comptes se créent dans <b>Supabase → Authentication → Users</b>. Les cellules nationales n\'ont aucun accès : elles transmettent leurs contenus au Commissaire.</div></div>';
+      '<div class="row"><div class="thumb" style="background:var(--red-tint);color:var(--red)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="info"><b>Commission E — Communication et relations extérieures</b><small>Crée et publie tous les contenus</small></div><span class="pill red">Éditeur de contenu</span></div></div>'+
+      '<div class="info-banner" style="margin-top:20px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><div>Les comptes se créent dans <b>Supabase → Authentication → Users</b>. Les cellules nationales n\'ont aucun accès : elles transmettent leurs contenus à la Commission E.</div></div>';
   }
   function renderRemontee(){
     crumb.textContent="Remontées cellules";
-    content.innerHTML='<div class="page-head"><div><h1>Remontées des cellules</h1><p>Contenus soumis par les délégations (section 7.4).</p></div></div><div class="panel"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v12H8l-4 4z"/></svg><div>Aucune soumission en attente.</div><div style="font-size:12.5px;margin-top:6px">Les cellules envoient leurs infos par le formulaire public. Le Commissaire les met en ligne depuis « Contenus ».</div></div></div>';
+    content.innerHTML='<div class="page-head"><div><h1>Remontées des cellules</h1><p>Contenus soumis par les délégations (section 7.4).</p></div></div><div class="panel"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v12H8l-4 4z"/></svg><div>Aucune soumission en attente.</div><div style="font-size:12.5px;margin-top:6px">Les cellules envoient leurs infos par le formulaire public. La Commission E les met en ligne depuis « Contenus ».</div></div></div>';
   }
 
   var toastT;
