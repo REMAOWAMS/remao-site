@@ -370,6 +370,19 @@
   .member.red .role { color:var(--red); }
   .member b { display:block; font-size:16px; margin:6px 0 2px; }
   .member small { color:var(--gray); font-size:12.5px; }
+  .member .av.photo { background:var(--paper-2) center / cover no-repeat; }
+
+  /* Documents officiels */
+  .docs { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .doc-item { display:flex; align-items:center; gap:14px; padding:18px 20px; border:1px solid var(--line);
+    border-radius:var(--r-md); background:var(--card); box-shadow:var(--shadow-sm); text-decoration:none; color:inherit;
+    transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+  .doc-item:hover { border-color:var(--green); box-shadow:var(--shadow-md); transform:translateY(-2px); }
+  .doc-item .di-ic { width:42px; height:42px; flex:none; border-radius:12px; display:grid; place-items:center;
+    background:linear-gradient(140deg,var(--green),var(--green-700)); color:#fff; }
+  .doc-item .di-ic svg { width:20px; height:20px; }
+  .doc-item b { display:block; font-size:15px; }
+  .doc-item small { color:var(--gray); font-size:12.5px; }
   .contact-row { display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
   .chip-c { display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; padding:8px 13px;
     border-radius:999px; border:1px solid var(--line-strong); background:var(--paper-2); color:var(--ink-soft);
@@ -417,7 +430,7 @@
     .hero-seal { order:-1; width:100%; max-width:none; margin:0; justify-items:center; }
     .seal-frame { width:min(280px,66vw); }
     .about-grid, .assises-inner, .join { grid-template-columns:1fr; }
-    .grid-3, .pillars, .team { grid-template-columns:1fr; }
+    .grid-3, .pillars, .team, .docs { grid-template-columns:1fr; }
     .foot-grid { grid-template-columns:1fr 1fr; }
     .hero-photo::after { background:linear-gradient(0deg, var(--paper) 10%, color-mix(in srgb,var(--paper) 55%,transparent) 62%, transparent 100%); }
     /* Performance mobile : on coupe les effets coûteux (batterie / GPU / 3G) */
@@ -562,9 +575,9 @@
         <div class="assises-inner">
           <div>
             <span class="eyebrow"><span class="dot"></span>Événement phare · Édition en cours</span>
-            <h2>21<sup>es</sup> Assises du REMAO</h2>
-            <div class="host"><b>Conakry, Guinée</b><span>·</span><span>Octobre 2026</span></div>
-            <p class="theme-line">Des centaines d'étudiants réunis autour de communications scientifiques, de compétitions sportives et de soirées culturelles.</p>
+            <h2 id="homeAssisesTitre">21<sup>es</sup> Assises du REMAO</h2>
+            <div class="host"><b id="homeAssisesVille">Conakry, Guinée</b><span>·</span><span id="homeAssisesDates">Octobre 2026</span></div>
+            <p class="theme-line" id="homeAssisesTheme">Des centaines d'étudiants réunis autour de communications scientifiques, de compétitions sportives et de soirées culturelles.</p>
             <div class="assises-actions">
               <a class="btn btn-red" data-view="assises">Voir les Assises
                 <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
@@ -700,25 +713,38 @@
   <section class="section" style="padding-top:0">
     <div class="wrap">
       <div class="section-head"><span class="eyebrow"><span class="dot"></span>Gouvernance</span><h2 style="font-size:clamp(26px,3.5vw,40px);font-weight:800;margin-top:14px">Le Bureau Exécutif actuel</h2><p>Le réseau est dirigé par un Bureau Exécutif, appuyé par un secrétariat administratif et six commissions.</p></div>
-      <div class="note-band"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Noms, photos et intitulés exacts des commissions à compléter par le Bureau Exécutif (cf. checklist des contenus du cahier des charges).</span></div>
+      <!-- Rempli depuis l'admin (type « Membres du Bureau »). Vide = on affiche le repli ci-dessous. -->
+      <div class="team" id="bureauTeam" style="display:none"></div>
 
-      <h3 style="font-size:16px;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin:0 0 18px">Direction</h3>
-      <div class="team" style="margin-bottom:34px">
-        <div class="card member"><div class="av">P</div><div class="role">Direction</div><b>Président</b><small>Bureau Exécutif</small></div>
-        <div class="card member"><div class="av">VP</div><div class="role">Direction</div><b>Vice-président</b><small>Bureau Exécutif</small></div>
+      <div id="bureauFallback">
+        <div class="note-band"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Noms, photos et intitulés exacts des commissions à compléter par le Bureau Exécutif (cf. checklist des contenus du cahier des charges).</span></div>
+
+        <h3 style="font-size:16px;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin:0 0 18px">Direction</h3>
+        <div class="team" style="margin-bottom:34px">
+          <div class="card member"><div class="av">P</div><div class="role">Direction</div><b>Président</b><small>Bureau Exécutif</small></div>
+          <div class="card member"><div class="av">VP</div><div class="role">Direction</div><b>Vice-président</b><small>Bureau Exécutif</small></div>
+        </div>
+
+        <h3 style="font-size:16px;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin:0 0 18px">Secrétariat administratif</h3>
+        <div class="team" style="margin-bottom:34px">
+          <div class="card member"><div class="av">S1</div><div class="role">Secrétariat</div><b>Membre 1</b><small>Secrétariat administratif</small></div>
+          <div class="card member"><div class="av">S2</div><div class="role">Secrétariat</div><b>Membre 2</b><small>Secrétariat administratif</small></div>
+          <div class="card member"><div class="av">S3</div><div class="role">Secrétariat</div><b>Membre 3</b><small>Secrétariat administratif</small></div>
+        </div>
+
+        <h3 style="font-size:16px;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin:0 0 18px">Présidents des commissions</h3>
+        <div class="team" id="commissions"></div>
       </div>
-
-      <h3 style="font-size:16px;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin:0 0 18px">Secrétariat administratif</h3>
-      <div class="team" style="margin-bottom:34px">
-        <div class="card member"><div class="av">S1</div><div class="role">Secrétariat</div><b>Membre 1</b><small>Secrétariat administratif</small></div>
-        <div class="card member"><div class="av">S2</div><div class="role">Secrétariat</div><b>Membre 2</b><small>Secrétariat administratif</small></div>
-        <div class="card member"><div class="av">S3</div><div class="role">Secrétariat</div><b>Membre 3</b><small>Secrétariat administratif</small></div>
-      </div>
-
-      <h3 style="font-size:16px;text-transform:uppercase;letter-spacing:.1em;color:var(--gray);margin:0 0 18px">Présidents des commissions</h3>
-      <div class="team" id="commissions"></div>
     </div>
   </section>
+  <!-- Documents officiels : rempli depuis l'admin (type « Documents »). Masqué tant qu'il n'y a rien. -->
+  <section class="section" style="padding-top:0" id="docsSection" hidden>
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow"><span class="dot"></span>Textes du réseau</span><h2 style="font-size:clamp(26px,3.5vw,40px);font-weight:800;margin-top:14px">Documents officiels</h2><p>Statuts, règlement intérieur et comptes-rendus, en libre téléchargement.</p></div>
+      <div class="docs" id="docsList"></div>
+    </div>
+  </section>
+
   <section class="section" style="padding-top:0"><div class="wrap"><a class="btn btn-ghost" data-nav="home">Retour à l'accueil <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span></a></div></section>
 </div>
 
@@ -728,15 +754,15 @@
     <div class="wrap">
       <div class="breadcrumb"><a data-nav="home">Accueil</a> <span>/</span> <span>Assises du REMAO</span></div>
       <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-        <div class="assises-logo-slot ph-box" aria-hidden="true"><div class="ph-fill"></div><span class="ph-label" style="inset:auto 8px 8px 8px;font-size:10px;padding:5px 9px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 7"/></svg>Logo</span></div>
+        <div class="assises-logo-slot ph-box" id="assisesLogo" aria-hidden="true"><div class="ph-fill"></div><span class="ph-label" style="inset:auto 8px 8px 8px;font-size:10px;padding:5px 9px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-5-5-9 7"/></svg>Logo</span></div>
         <div>
-          <span class="eyebrow"><span class="dot"></span>21<sup>e</sup> édition · Édition en cours</span>
-          <h1 style="margin-top:10px">Les Assises de Conakry, 2026.</h1>
+          <span class="eyebrow"><span class="dot"></span><span id="assisesEyebrow">21<sup>e</sup> édition · Édition en cours</span></span>
+          <h1 style="margin-top:10px" id="assisesTitre">Les Assises de Conakry, 2026.</h1>
         </div>
       </div>
-      <p class="lede" style="margin-top:18px">Le grand rendez-vous annuel du réseau : trois volets, un même souffle. La science, la culture et le sport réunissent des centaines d'étudiants venus des huit pays membres. Chaque édition a son identité visuelle et son logo dédié (emplacement réservé ci-dessus).</p>
+      <p class="lede" style="margin-top:18px" id="assisesTheme">Le grand rendez-vous annuel du réseau : trois volets, un même souffle. La science, la culture et le sport réunissent des centaines d'étudiants venus des huit pays membres. Chaque édition a son identité visuelle et son logo dédié (emplacement réservé ci-dessus).</p>
       <div class="hero-actions" style="margin-top:26px">
-        <a class="btn btn-red" href="#" onclick="return false">S'inscrire aux Assises
+        <a class="btn btn-red" id="assisesCta" href="#" onclick="return false">S'inscrire aux Assises
           <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
         <a class="btn btn-ghost" data-nav="home">Retour à l'accueil
           <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span></a>
@@ -751,8 +777,8 @@
         <div class="assises-inner">
           <div>
             <span class="eyebrow"><span class="dot"></span>Ville hôte</span>
-            <h2>Conakry, Guinée</h2>
-            <p class="theme-line">Une première pour la cellule Guinée, qui accueille le réseau après Thiès (20e, 2025).</p>
+            <h2 id="assisesVille">Conakry, Guinée</h2>
+            <p class="theme-line" id="assisesDates">Une première pour la cellule Guinée, qui accueille le réseau après Thiès (20e, 2025).</p>
           </div>
           <div class="countdown" id="countdown2">
             <div class="cd-cell"><div class="v" data-cd="days">--</div><div class="k">Jours</div></div>
@@ -775,7 +801,7 @@
   <section class="section" style="padding-top:0">
     <div class="wrap">
       <div class="section-head"><span class="eyebrow"><span class="dot"></span>Programme indicatif</span><h2 style="font-size:clamp(26px,3.5vw,40px);font-weight:800;margin-top:14px">Une semaine, trois temps forts.</h2></div>
-      <div class="prog">
+      <div class="prog" id="assisesProg">
         <div class="prog-row"><span class="day">Jour 1-2</span><div><b>Ouverture & journées scientifiques</b><p>Cérémonie d'ouverture, communications, ateliers et conférences des invités.</p></div></div>
         <div class="prog-row"><span class="day">Jour 3-4</span><div><b>Compétitions sportives & Génie Médical</b><p>Football, basketball, handball, lutte, et le concours de connaissances médicales entre délégations.</p></div></div>
         <div class="prog-row"><span class="day">Jour 5</span><div><b>Soirées culturelles & Miss/Mister REMAO</b><p>Tenues traditionnelles, danse, slam et célébration de la diversité de la sous-région.</p></div></div>
@@ -1222,6 +1248,80 @@
 
       if(by.pays && by.pays.length){
         by.pays.forEach(function(r){ var d=r.data||{}; var code=nameToCode[d.titre]; if(code){ paysOverride[code]=d; } });
+      }
+
+      /* --- Membres du Bureau --- */
+      if(by.membre && by.membre.length){
+        var grid=document.getElementById("bureauTeam"), fb=document.getElementById("bureauFallback");
+        if(grid){
+          grid.innerHTML="";
+          by.membre.forEach(function(r){ var d=r.data||{};
+            var nom=d.titre||"", poste=d.poste||"Bureau Exécutif";
+            var initiales=nom.trim().split(/\s+/).slice(0,2).map(function(m){ return m.charAt(0).toUpperCase(); }).join("");
+            var av = d.image
+              ? '<div class="av photo" style="background-image:url('+JSON.stringify(d.image)+')" role="img" aria-label="'+esc(nom)+'"></div>'
+              : '<div class="av">'+esc(initiales||"?")+'</div>';
+            var el=document.createElement("div"); el.className="card member";
+            el.innerHTML = av+'<div class="role">'+esc(poste)+'</div><b>'+esc(nom)+'</b><small>'+esc(d.pays||"Bureau Exécutif")+'</small>';
+            grid.appendChild(el);
+          });
+          grid.style.display="";
+          if(fb) fb.style.display="none";
+        }
+      }
+
+      /* --- Documents officiels --- */
+      if(by.document && by.document.length){
+        var dsec=document.getElementById("docsSection"), dlist=document.getElementById("docsList");
+        var withFile=by.document.filter(function(r){ return (r.data||{}).fichier; });
+        if(dsec && dlist && withFile.length){
+          dlist.innerHTML="";
+          withFile.forEach(function(r){ var d=r.data||{};
+            var a=document.createElement("a"); a.className="doc-item";
+            a.href=d.fichier; a.target="_blank"; a.rel="noopener";
+            a.innerHTML='<span class="di-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></span>'
+              + '<span><b>'+esc(d.titre||"Document")+'</b><small>'+esc(d.categorie||"Document")+' · PDF</small></span>';
+            dlist.appendChild(a);
+          });
+          dsec.hidden=false;
+        }
+      }
+
+      /* --- Édition des Assises (celle « En cours », sinon « À venir », sinon la plus récente) --- */
+      if(by.assises && by.assises.length){
+        var pick=null, order=["En cours","À venir"];
+        for(var i=0;i<order.length && !pick;i++){
+          pick=by.assises.filter(function(r){ return (r.data||{}).statut===order[i]; })[0]||null;
+        }
+        if(!pick) pick=by.assises[0];
+        var a=pick.data||{};
+        var setTxt=function(id,val){ var el=document.getElementById(id); if(el && val) el.textContent=val; };
+
+        setTxt("assisesTitre", a.titre);
+        setTxt("assisesVille", a.ville);
+        setTxt("assisesDates", a.dates);
+        setTxt("assisesTheme", a.theme);
+        setTxt("homeAssisesTitre", a.titre);
+        setTxt("homeAssisesVille", a.ville);
+        setTxt("homeAssisesDates", a.dates);
+        setTxt("homeAssisesTheme", a.theme);
+
+        var eb=document.getElementById("assisesEyebrow");
+        if(eb && (a.ville||a.statut)) eb.textContent=[a.ville,a.statut].filter(Boolean).join(" · ");
+
+        if(a.image){
+          var slot=document.getElementById("assisesLogo");
+          if(slot){ slot.classList.remove("ph-box");
+            slot.innerHTML='<img src="'+esc(a.image)+'" alt="Affiche de l\'édition" style="width:100%;height:100%;object-fit:cover;border-radius:22px">'; }
+        }
+        if(a.lien){
+          var cta=document.getElementById("assisesCta");
+          if(cta){ cta.href=a.lien; cta.target="_blank"; cta.rel="noopener"; cta.onclick=null; cta.removeAttribute("onclick"); }
+        }
+        if(a.texte && strip(a.texte)){
+          var prog=document.getElementById("assisesProg");
+          if(prog) prog.innerHTML='<div class="prog-row" style="display:block"><div>'+a.texte+'</div></div>';
+        }
       }
     });
   })();
