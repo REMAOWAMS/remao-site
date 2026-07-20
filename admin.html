@@ -456,12 +456,23 @@
       pilote.addEventListener("change",maj); maj();
     });
     content.querySelectorAll(".rich-tool button").forEach(function(b){ b.addEventListener("click",function(){ document.execCommand(b.getAttribute("data-cmd"),false,null); b.closest(".field").querySelector(".rich").focus(); }); });
+    // Un collage depuis Word ou WhatsApp emporte styles inline, <font> et classes :
+    // on ne stocke que la structure (gras, italique, listes, liens), la mise en
+    // forme est celle du site. Le même nettoyage existe côté public (index.html).
+    function nettoyerHtml(html){
+      var t=document.createElement("div"); t.innerHTML=html||"";
+      t.querySelectorAll("*").forEach(function(el){
+        ["style","class","face","color","size","align","width","height","bgcolor","lang","dir"]
+          .forEach(function(a){ el.removeAttribute(a); });
+      });
+      return t.innerHTML;
+    }
     document.getElementById("cancel").addEventListener("click",function(){ go("type:"+t); });
     document.getElementById("theForm").addEventListener("submit",async function(e){
       e.preventDefault();
       var obj={};
       cfg.fields.forEach(function(f){
-        if(f.t==="rich"){ obj[f.k]=document.getElementById("f_"+f.k).innerHTML; }
+        if(f.t==="rich"){ obj[f.k]=nettoyerHtml(document.getElementById("f_"+f.k).innerHTML); }
         else if(f.t==="image"||f.t==="file"){ obj[f.k]=document.getElementById("d_"+f.k).getAttribute("data-val")||""; }
         else if(f.t==="photos"){ try{ obj[f.k]=JSON.parse(document.getElementById("p_"+f.k).getAttribute("data-photos")||"[]"); }catch(e){ obj[f.k]=[]; } }
         else { var n=document.getElementById("f_"+f.k); obj[f.k]=n?n.value:""; }

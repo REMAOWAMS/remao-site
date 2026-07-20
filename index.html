@@ -1308,6 +1308,17 @@
   // Définie ici et non dans le chargeur Supabase : renderAssises s'en sert, et une
   // ReferenceError dans une promesse passe totalement inaperçue.
   function strip(html){ var t=document.createElement("div"); t.innerHTML=html||""; return (t.textContent||"").replace(/\s+/g," ").trim(); }
+  // Un texte collé dans l'admin depuis Word ou WhatsApp embarque tout son habillage
+  // (style inline, font-size, <font color>, classes Word). On ne garde que la structure
+  // (gras, italique, listes, liens) : la mise en forme vient du site, pas du collage.
+  function nettoyerHtml(html){
+    var t=document.createElement("div"); t.innerHTML=html||"";
+    Array.prototype.forEach.call(t.querySelectorAll("*"), function(el){
+      ["style","class","face","color","size","align","width","height","bgcolor","lang","dir"]
+        .forEach(function(a){ el.removeAttribute(a); });
+    });
+    return t.innerHTML;
+  }
 
   function renderAssises(d){
     if(!d) return;
@@ -1389,7 +1400,7 @@
       : "Une semaine, trois temps forts.");
     var prog=document.getElementById("assisesProg");
     if(prog && d.texte && strip(d.texte)){
-      prog.innerHTML='<div class="prog-row" style="display:block"><div class="contenu-admin">'+d.texte+'</div></div>';
+      prog.innerHTML='<div class="prog-row" style="display:block"><div class="contenu-admin">'+nettoyerHtml(d.texte)+'</div></div>';
     }
     var ps=document.getElementById("assisesProgSection");
     if(ps) ps.style.display = (archivee && !(d.texte && strip(d.texte))) ? "none" : "";
@@ -1480,7 +1491,7 @@
     document.getElementById("paysName").textContent = c.name;
     document.getElementById("paysCrumb").textContent = c.name;
     document.getElementById("paysLede").textContent = "Cellule nationale du REMAO · "+c.cap+". "+c.activite+".";
-    if(o.texte){ document.getElementById("paysAbout").innerHTML = o.texte; } else { document.getElementById("paysAbout").textContent = c.about; }
+    if(o.texte){ document.getElementById("paysAbout").innerHTML = nettoyerHtml(o.texte); } else { document.getElementById("paysAbout").textContent = c.about; }
     document.getElementById("paysCap").textContent = c.cap+", "+c.name;
     var photo = document.querySelector("#view-pays .ph-box");
     if(photo){ if(o.image){ photo.innerHTML='<img src="'+esc(o.image)+'" alt="Cellule '+esc(c.name)+'" style="width:100%;height:100%;object-fit:cover">'; } }
@@ -1580,7 +1591,7 @@
         by.actualite.forEach(function(r){ var d=r.data||{};
           news.push({ id:r.id, cat:(d.categorie||"Actualité"), red:(d.categorie==="Communiqué"),
             date:fmtDate(d.date), scene:"green", image:d.image||"", title:d.titre||"(sans titre)",
-            excerpt:strip(d.texte).slice(0,150), bodyHtml:d.texte||"" });
+            excerpt:strip(d.texte).slice(0,150), bodyHtml:nettoyerHtml(d.texte) });
         });
         renderNews();
         // Lien direct vers un article : les actualités arrivent après le chargement de la page,
