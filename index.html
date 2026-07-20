@@ -368,7 +368,14 @@
   .view.active { display:block; animation:fade .6s var(--ease-out); }
   #view-home.active { animation:none; }
   @keyframes fade { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
-  .subhero { padding-top:40px; }
+  .subhero { padding-top:40px; position:relative; }
+  /* Fond photo du sous-hero : voile clair par-dessus, sinon le titre en encre
+     sombre devient illisible dès que l'image est chargée. */
+  .subhero-photo { position:absolute; inset:0; z-index:0; background:var(--paper-2) center / cover no-repeat; }
+  .subhero-photo::after { content:""; position:absolute; inset:0;
+    background:linear-gradient(90deg, var(--paper) 22%, color-mix(in srgb,var(--paper) 55%,transparent) 55%, color-mix(in srgb,var(--paper) 25%,transparent) 100%),
+      linear-gradient(0deg, var(--paper) 4%, transparent 45%); }
+  .subhero .wrap { position:relative; z-index:1; }
   .breadcrumb { display:flex; align-items:center; gap:8px; color:var(--gray); font-size:13px; margin-bottom:22px; flex-wrap:wrap; }
   .breadcrumb a { cursor:pointer; } .breadcrumb a:hover { color:var(--green); }
   .subhero h1 { font-size:clamp(34px,5.5vw,60px); font-weight:800; margin:14px 0; }
@@ -737,6 +744,8 @@
 <!-- =================== QUI SOMMES-NOUS =================== -->
 <div id="view-qsn" class="view">
   <section class="section subhero">
+    <!-- Fond illustratif posé depuis l'admin (Images du site → Bannière « Qui sommes-nous »). -->
+    <div class="subhero-photo" id="qsnPhoto" aria-hidden="true" hidden></div>
     <div class="wrap">
       <div class="breadcrumb"><a data-nav="home">Accueil</a> <span>/</span> <span>Qui sommes-nous</span></div>
       <span class="eyebrow"><span class="dot"></span>Le réseau</span>
@@ -1616,6 +1625,10 @@
           scene.style.background="var(--card-2) center / cover no-repeat url("+JSON.stringify(illu)+")";
           media.classList.add("has-photo");
         }
+
+        var bq=img("Bannière « Qui sommes-nous »");
+        var zq=document.getElementById("qsnPhoto");
+        if(bq && zq){ zq.style.backgroundImage="url("+JSON.stringify(bq)+")"; zq.hidden=false; }
       }
 
       /* --- Membres du Bureau ---
