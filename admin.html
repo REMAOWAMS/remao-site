@@ -332,7 +332,47 @@
   };
 
   function rowToItem(r){ var o=Object.assign({},r.data||{}); o.id=r.id; return o; }
-  async function list(type){ var res=await SB.from("contenus").select("*").eq("type",type).order("created_at",{ascending:false}); if(res.error) throw res.error; return res.data.map(rowToItem); }
+  /* Ordre d'affichage des listes de l'admin.
+     La date d'ajout dans la base n'a aucun sens pour l'utilisateur : une actualité
+     antidatée ou saisie en retard se retrouvait au mauvais endroit. Chaque type est
+     donc trié sur ce qui le caractérise vraiment. Les fiches sans valeur passent
+     en dernier, et created_at ne sert plus que de départage. */
+  function txt(v){ return String(v==null?"":v); }
+  function parDateDesc(cle){
+    return function(a,b){
+      var x=txt(a[cle]), y=txt(b[cle]);
+      if(!x && !y) return 0;
+      if(!x) return 1;      // sans date : à la fin
+      if(!y) return -1;
+      return y.localeCompare(x);  // format AAAA-MM-JJ, comparable en texte
+    };
+  }
+  var TRI={
+    actualite: parDateDesc("date"),                                     // date de l'article
+    assises:   function(a,b){ return (parseInt(b.numero,10)||0)-(parseInt(a.numero,10)||0); },
+    membre:    function(a,b){ return rangPoste(a.poste)-rangPoste(b.poste); },  // ordre protocolaire
+    pays:      function(a,b){ return txt(a.titre).localeCompare(txt(b.titre),"fr"); },
+    document:  function(a,b){ return txt(a.titre).localeCompare(txt(b.titre),"fr"); },
+    partenaire:function(a,b){ return txt(a.titre).localeCompare(txt(b.titre),"fr"); }
+    // banniere : pas de tri, la plus récemment ajoutée gagne sur le site, l'ordre
+    // d'ajout est donc l'information utile.
+  };
+  // Le libellé le plus long qui préfixe le poste, sinon « Président de la Commission E »
+  // matcherait « Président » et toutes les commissions auraient le même rang.
+  function rangPoste(p){
+    p=txt(p); var best=99, len=-1;
+    for(var i=0;i<POSTES.length;i++){
+      if(p.indexOf(POSTES[i])===0 && POSTES[i].length>len){ len=POSTES[i].length; best=i; }
+    }
+    return best;
+  }
+  async function list(type){
+    var res=await SB.from("contenus").select("*").eq("type",type).order("created_at",{ascending:false});
+    if(res.error) throw res.error;
+    var l=res.data.map(rowToItem);
+    if(TRI[type]) l.sort(TRI[type]);
+    return l;
+  }
   async function insert(type,data){ var res=await SB.from("contenus").insert({type:type,data:data}); if(res.error) throw res.error; }
   async function update(id,data){ var res=await SB.from("contenus").update({data:data,updated_at:new Date().toISOString()}).eq("id",id); if(res.error) throw res.error; }
   async function remove(id){ var res=await SB.from("contenus").delete().eq("id",id); if(res.error) throw res.error; }
@@ -401,17 +441,27 @@
       var recent=acts.slice(0,4).map(function(it){return rowHTML("actualite",it);}).join("")||'<div class="empty">Aucune actualité.</div>';
       content.innerHTML='<div class="page-head"><div><h1>Bonjour, Bureau Exécutif 👋</h1><p>État des contenus du site.</p></div></div>'+infoBanner+
         '<div class="stat-grid">'+cards+'</div><div class="panel"><div class="panel-head"><h3>Dernières actualités</h3><div style="margin-left:auto"><button class="btn btn-green btn-sm" data-add="actualite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Ajouter</button></div></div>'+recent+'</div>';
-      wireList();
+      wireList(); poserFonds(content);
       content.querySelectorAll("[data-goto]").forEach(function(c){ c.addEventListener("click",function(){ go(c.getAttribute("data-goto")); }); });
     }catch(e){ showErr(e); }
   }
 
   function badgeClass(t,val){ if(t==="assises") return val==="En cours"?"green":val==="À venir"?"amber":"gray"; if(val==="Communiqué"||val==="Sponsor") return "red"; return "green"; }
+  // Ne JAMAIS écrire une URL d'image dans un attribut style="..." : les guillemets de
+  // l'URL referment l'attribut, le navigateur jette la règle sans aucune erreur console
+  // et l'aperçu reste vide. On la fait transiter par data-bg puis on la pose via le DOM.
+  function poserFonds(racine){
+    (racine||document).querySelectorAll("[data-bg]").forEach(function(el){
+      var u=el.getAttribute("data-bg");
+      if(u) el.style.backgroundImage='url("'+u.replace(/"/g,"%22")+'")';
+      el.removeAttribute("data-bg");
+    });
+  }
   function rowHTML(t,it){
     var cfg=types[t], title=it[cfg.title]||"(sans titre)";
     var meta=cfg.meta?(it[cfg.meta]||""):"";
     var badge=cfg.badge&&it[cfg.badge]?'<span class="pill '+badgeClass(t,it[cfg.badge])+'">'+esc(it[cfg.badge])+'</span>':"";
-    var thumb=it.image?'<div class="thumb" style="background-image:url('+JSON.stringify(it.image)+')"></div>':
+    var thumb=it.image?'<div class="thumb" data-bg="'+esc(it.image)+'"></div>':
       (it.fichier?'<div class="thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></div>':'<div class="thumb">'+cfg.icon+'</div>');
     return '<div class="row" data-id="'+it.id+'" data-type="'+t+'">'+thumb+'<div class="info"><b>'+esc(title)+'</b><small>'+esc(meta||cfg.label)+'</small></div>'+badge+
       '<div class="row-actions"><button class="btn btn-ghost btn-sm" data-prev="'+it.id+'">Aperçu</button><button class="btn btn-ghost btn-sm" data-edit="'+it.id+'">Modifier</button>'+
@@ -426,7 +476,7 @@
       var l=await list(t); cache[t]=l;
       var rows=l.length?l.map(function(it){return rowHTML(t,it);}).join(""):'<div class="empty">'+cfg.icon+'<div>Aucun élément pour le moment.</div></div>';
       content.innerHTML=headHTML(cfg,t)+infoBanner+'<div class="panel">'+rows+'</div>';
-      wireList();
+      wireList(); poserFonds(content);
     }catch(e){ showErr(e); }
   }
   function findItem(t,id){ return (cache[t]||[]).filter(function(x){return x.id===id;})[0]; }
@@ -568,7 +618,7 @@
 
   function preview(t,id){
     var cfg=types[t], it=findItem(t,id); if(!it) return;
-    var img=it.image?'<div class="prev-img" style="background-image:url('+JSON.stringify(it.image)+')"></div>':"";
+    var img=it.image?'<div class="prev-img" data-bg="'+esc(it.image)+'"></div>':"";
     var badge=cfg.badge&&it[cfg.badge]?'<span class="pill '+badgeClass(t,it[cfg.badge])+'">'+esc(it[cfg.badge])+'</span>':"";
     var extra="";
     if(t==="pays"){ extra='<div class="prev-body">'+(it.texte||"")+'</div><p><b>Président :</b> '+esc(it.president||"—")+' · '+esc(it.tel_pres||"tél. à compléter")+'</p><p><b>Secrétaire général :</b> '+esc(it.sg||"—")+'</p><p><b>Chargé de com. :</b> '+esc(it.com||"—")+'</p>'; }
@@ -577,6 +627,7 @@
     else if(it.lien){ extra='<p><b>Lien :</b> '+esc(it.lien)+'</p>'; }
     document.getElementById("modalTitle").textContent="Aperçu · "+cfg.label;
     document.getElementById("modalBody").innerHTML=img+'<div class="prev-meta">'+badge+'<span>'+esc(it[cfg.meta]||"")+'</span></div><div class="prev-title">'+esc(it[cfg.title]||"(sans titre)")+'</div>'+extra;
+    poserFonds(document.getElementById("modalBody"));
     document.getElementById("modal").classList.add("open");
   }
   async function del(t,id){
