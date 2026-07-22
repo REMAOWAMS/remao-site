@@ -4,8 +4,8 @@ Site web officiel du **Réseau des Étudiants en Médecine de l'Afrique de l'Oue
 
 Site statique (HTML/CSS/JS) adossé à Supabase pour les contenus et l'espace d'administration. Identité dérivée du sceau officiel du réseau.
 
-- Site public : https://remaowams.github.io/remao-site/
-- Administration : https://remaowams.github.io/remao-site/admin.html
+- Site public : https://remao.org/
+- Administration : https://remao.org/admin.html
 
 ## Pages
 - Accueil (chiffres clés, Assises, délégations, actualités, adhésion)
