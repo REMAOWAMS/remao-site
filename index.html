@@ -941,6 +941,13 @@
       <div class="section-head"><span class="eyebrow"><span class="dot"></span>En images</span><h2 style="font-size:clamp(26px,3.5vw,40px);font-weight:800;margin-top:14px" id="assisesGalerieTitre">L'édition en photos.</h2></div>
     </div>
     <div class="galerie" id="assisesGalerie" style="margin-top:8px"></div>
+    <!-- Album complet hébergé ailleurs (Google Photos, Drive) : le site n'affiche qu'une
+         sélection, l'intégralité d'une édition pèse trop lourd pour le stockage du réseau. -->
+    <div class="wrap" id="assisesAlbumZone" style="margin-top:34px" hidden>
+      <a class="btn btn-green" id="assisesAlbum" target="_blank" rel="noopener">Voir toutes les photos de l'édition
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <p style="color:var(--gray);font-size:13.5px;margin:12px 0 0">L'album complet s'ouvre dans un nouvel onglet.</p>
+    </div>
   </section>
 
   <section class="section" style="padding-top:0" id="assisesProgSection">
@@ -1371,6 +1378,9 @@
   // Un texte collé dans l'admin depuis Word ou WhatsApp embarque tout son habillage
   // (style inline, font-size, <font color>, classes Word). On ne garde que la structure
   // (gras, italique, listes, liens) : la mise en forme vient du site, pas du collage.
+  // Une adresse saisie dans l'admin ne devient un lien que si c'est bien une adresse web :
+  // un « javascript: » collé par erreur ou par malveillance ne doit jamais devenir cliquable.
+  function lienExterne(u){ u=String(u==null?"":u).trim(); return /^https?:\/\//i.test(u) ? u : ""; }
   function nettoyerHtml(html){
     var t=document.createElement("div"); t.innerHTML=html||"";
     Array.prototype.forEach.call(t.querySelectorAll("*"), function(el){
@@ -1435,11 +1445,17 @@
     var ns=document.getElementById("assisesNewsSection");
     if(ns) ns.style.display = (assisesVedette && d.id===assisesVedette.id) ? "" : "none";
 
-    // Galerie photos : uniquement pour une édition archivée qui a des photos.
+    // Galerie photos d'une édition archivée : une sélection sur le site, et le lien
+    // vers l'album complet hébergé ailleurs. L'un ou l'autre suffit à ouvrir la section.
     var gs=document.getElementById("assisesGalerieSection"), gz=document.getElementById("assisesGalerie");
     var photos = Array.isArray(d.photos) ? d.photos.filter(Boolean).slice(0,30) : [];
+    var album = lienExterne(d.album);
+    var az=document.getElementById("assisesAlbumZone"), al=document.getElementById("assisesAlbum");
+    if(az && al){
+      if(archivee && album){ al.href=album; az.hidden=false; } else { az.hidden=true; al.removeAttribute("href"); }
+    }
     if(gs && gz){
-      if(archivee && photos.length){
+      if(archivee && (photos.length || album)){
         setTxt("assisesGalerieTitre","L'édition de "+(d.ville||"cette année")+" en photos.");
         gz.innerHTML="";
         // Trois rangées servies en alternance ; chaque rangée est doublée pour que la
