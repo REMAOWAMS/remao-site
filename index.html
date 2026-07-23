@@ -1022,13 +1022,6 @@
     <div class="wrap">
       <div class="revue-filtres" id="revueFiltres"></div>
       <div id="revueGroupes"></div>
-      <!-- Tant qu'aucun travail n'est publié : on le dit, plutôt que d'afficher une page vide. -->
-      <div id="revueVide" class="card" style="padding:44px 30px;text-align:center">
-        <b style="display:block;font-size:18px">Aucun travail publié pour le moment.</b>
-        <p style="color:var(--gray);margin:12px auto 22px;max-width:52ch">Les communications scientifiques des Assises seront mises en ligne ici. Cellules et auteurs : transmettez vos travaux à la Commission E (communication et relations extérieures).</p>
-        <a class="btn btn-ghost" data-view="membre">Contacter le réseau
-          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-      </div>
     </div>
   </section>
 </div>
@@ -1539,11 +1532,9 @@
 
   function renderRevue(){
     var zoneG=document.getElementById("revueGroupes"),
-        zoneF=document.getElementById("revueFiltres"),
-        vide=document.getElementById("revueVide");
+        zoneF=document.getElementById("revueFiltres");
     if(!zoneG || !zoneF) return;
-    if(!publications.length){ zoneG.innerHTML=""; zoneF.innerHTML=""; if(vide) vide.hidden=false; return; }
-    if(vide) vide.hidden=true;
+    if(!publications.length){ zoneG.innerHTML=""; zoneF.innerHTML=""; return; }
 
     var groupes={}, cles=[];
     publications.forEach(function(p){
