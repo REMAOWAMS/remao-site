@@ -326,7 +326,7 @@
   ];
   var types={
     actualite:{ label:"Actualités", singular:"une actualité", icon:ICON.actualite,
-      fields:[{k:"titre",l:"Titre",t:"text",req:true},{k:"image",l:"Image de couverture",t:"image"},{k:"categorie",l:"Catégorie",t:"select",opt:["Assises","Vie des cellules","Santé publique","Communiqué"]},{k:"texte",l:"Texte de l'article",t:"rich"},{k:"date",l:"Date de publication",t:"date"}],
+      fields:[{k:"titre",l:"Titre",t:"text",req:true},{k:"image",l:"Image de couverture",t:"image"},{k:"categorie",l:"Catégorie",t:"select",opt:["Assises","Vie des cellules","Santé publique","Communiqué"]},{k:"assises_id",l:"Édition des Assises concernée",t:"ref",ref:"assises",lk:"assises_label",si:{champ:"categorie",vaut:"Assises"}},{k:"texte",l:"Texte de l'article",t:"rich"},{k:"date",l:"Date de publication",t:"date"}],
       title:"titre", meta:"date", badge:"categorie" },
     pays:{ label:"Pages Pays", singular:"une page pays", icon:ICON.pays,
       fields:[{k:"titre",l:"Pays / délégation",t:"select",opt:PAYS8,req:true},{k:"image",l:"Photo de la cellule",t:"image"},{k:"texte",l:"Présentation",t:"rich"},{k:"president",l:"Président (nom)",t:"text"},{k:"photo_pres",l:"Photo du président",t:"image"},{k:"tel_pres",l:"Téléphone du président",t:"text"},{k:"mail_pres",l:"Email du président",t:"text"},{k:"sg",l:"Secrétaire général (nom)",t:"text"},{k:"photo_sg",l:"Photo du secrétaire général",t:"image"},{k:"tel_sg",l:"Téléphone du secrétaire général",t:"text"},{k:"mail_sg",l:"Email du secrétaire général",t:"text"},{k:"com",l:"Chargé de communication (nom)",t:"text"},{k:"photo_com",l:"Photo du chargé de communication",t:"image"},{k:"tel_com",l:"Téléphone du chargé de communication",t:"text"},{k:"mail_com",l:"Email du chargé de communication",t:"text"}],
@@ -811,6 +811,7 @@
     if(t==="pays"){ extra='<div class="prev-body">'+(it.texte||"")+'</div><p><b>Président :</b> '+esc(it.president||"—")+' · '+esc(it.tel_pres||"tél. à compléter")+'</p><p><b>Secrétaire général :</b> '+esc(it.sg||"—")+'</p><p><b>Chargé de com. :</b> '+esc(it.com||"—")+'</p>'; }
     else if(t==="assises"){ extra='<p><b>Ville :</b> '+esc(it.ville||"—")+' · '+esc(it.dates||"")+'</p><p><b>Thème :</b> '+esc(it.theme||"—")+'</p><div class="prev-body">'+(it.texte||"")+'</div>'; }
     else if(t==="publication"){ extra='<p><b>Auteur(s) :</b> '+esc(it.auteurs||"—")+'</p><p><b>Édition :</b> '+esc(it.assises_label||"—")+'</p><p><b>Cellule :</b> '+(it.pays?"Cellule REMAO "+esc(it.pays):"—")+'</p>'+(it.resume?'<div class="prev-body">'+it.resume+'</div>':'')+(it.fichier?'<p><b>Document :</b> <a href="'+esc(it.fichier)+'" target="_blank" rel="noopener">ouvrir le PDF</a></p>':'<p style="color:var(--red)"><b>Aucun PDF joint.</b></p>'); }
+    else if(t==="actualite"){ extra=(it.categorie==="Assises"?'<p><b>Édition :</b> '+esc(it.assises_label||"non rattachée")+'</p>':"")+'<div class="prev-body">'+(it.texte||"")+'</div>'; }
     else if(it.texte){ extra='<div class="prev-body">'+it.texte+'</div>'; }
     else if(it.lien){ extra='<p><b>Lien :</b> '+esc(it.lien)+'</p>'; }
     document.getElementById("modalTitle").textContent="Aperçu · "+cfg.label;

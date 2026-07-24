@@ -1397,7 +1397,9 @@
   function renderNews(){
     var nh = document.getElementById("newsHome"); nh.innerHTML=""; news.slice(0,3).forEach(function(n){ nh.appendChild(newsCardEl(n)); });
     var na = document.getElementById("newsAll"); na.innerHTML=""; news.forEach(function(n){ na.appendChild(newsCardEl(n)); });
-    var an = document.getElementById("assisesNews"); an.innerHTML=""; news.filter(function(n){return n.cat==="Assises";}).forEach(function(n){ an.appendChild(newsCardEl(n)); });
+    // Le fil des Assises n'est plus rempli ici : il dépend de l'édition consultée
+    // et se construit dans renderAssisesNews(), appelé par renderAssises().
+    if(assisesCourante) renderAssisesNews(assisesCourante);
   }
   renderNews();
 
@@ -1596,9 +1598,8 @@
     }
     if(!archivee) majDateAssises(d.date_debut);
 
-    // Le fil d'actualités ne concerne que l'édition mise en avant.
-    var ns=document.getElementById("assisesNewsSection");
-    if(ns) ns.style.display = (assisesVedette && d.id===assisesVedette.id) ? "" : "none";
+    // Chaque édition affiche ses propres actualités (y compris une fois archivée).
+    renderAssisesNews(d);
 
     // Galerie photos d'une édition archivée : une sélection sur le site, et le lien
     // vers l'album complet hébergé ailleurs. L'un ou l'autre suffit à ouvrir la section.
@@ -1779,6 +1780,28 @@
     if(!lot.length){ sec.hidden=true; return; }
     lot.slice(0,6).forEach(function(p){ zone.appendChild(pubCardEl(p)); });
     sec.hidden=false;
+  }
+
+  // Fil d'actualités d'une édition : chaque édition n'affiche QUE ses propres
+  // actualités, y compris une fois archivée. Les actualités « Assises » saisies
+  // sans édition rattachée (anciennes fiches) sont rattachées par défaut à
+  // l'édition mise en avant, le temps qu'on les édite pour leur donner une édition.
+  function renderAssisesNews(d){
+    var sec=document.getElementById("assisesNewsSection");
+    var an=document.getElementById("assisesNews");
+    if(!sec||!an||!d) return;
+    var estVedette = !!(assisesVedette && d.id===assisesVedette.id);
+    var lot = news.filter(function(n){
+      if(n.cat!=="Assises") return false;
+      return n.assises_id ? (n.assises_id===d.id) : estVedette;
+    });
+    an.innerHTML="";
+    if(!lot.length){ sec.style.display="none"; return; }
+    lot.forEach(function(n){ an.appendChild(newsCardEl(n)); });
+    setTxt("assisesNewsTitre", estVedette
+      ? "Suivez l'édition en cours, jour après jour."
+      : "Les temps forts de l'édition de "+(d.ville||"cette année")+".");
+    sec.style.display="";
   }
 
   function openPublication(id, opts){
@@ -1988,6 +2011,7 @@
         by.actualite.forEach(function(r){ var d=r.data||{};
           news.push({ id:r.id, cat:(d.categorie||"Actualité"), red:(d.categorie==="Communiqué"),
             date:fmtDate(d.date), scene:"green", image:d.image||"", title:d.titre||"(sans titre)",
+            assises_id:d.assises_id||"",
             excerpt:strip(d.texte).slice(0,150), bodyHtml:nettoyerHtml(d.texte) });
         });
         renderNews();
