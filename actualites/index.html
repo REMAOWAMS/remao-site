@@ -306,6 +306,22 @@
   .news-card p { color:var(--gray); font-size:14.5px; margin:0; }
   .news-card .more { margin-top:16px; color:var(--green); font-weight:600; font-size:14px; display:inline-flex; align-items:center; gap:6px; }
 
+  /* Barre de filtres des actualités */
+  .news-bar { display:flex; flex-wrap:wrap; gap:14px 18px; align-items:center; justify-content:space-between; margin-bottom:30px; }
+  .news-filtres { display:flex; flex-wrap:wrap; gap:9px; }
+  .chip-f { font-size:13.5px; font-weight:600; padding:8px 16px; border-radius:999px; cursor:pointer;
+    background:var(--card); color:var(--gray); border:1px solid var(--line); box-shadow:var(--shadow-sm);
+    transition:color .25s, background .25s, border-color .25s; }
+  .chip-f:hover { color:var(--green); border-color:var(--green-300); }
+  .chip-f.on { background:var(--green); color:#fff; border-color:var(--green); box-shadow:var(--shadow-green); }
+  .news-search { position:relative; flex:0 1 260px; }
+  .news-search input { width:100%; font-size:14.5px; padding:10px 16px 10px 40px; border-radius:999px;
+    background:var(--card); color:var(--ink); border:1px solid var(--line); box-shadow:var(--shadow-sm); }
+  .news-search input::placeholder { color:var(--gray-soft); }
+  .news-search svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--gray-soft); pointer-events:none; }
+  .news-vide { grid-column:1/-1; text-align:center; color:var(--gray); padding:40px 0; font-size:15px; }
+  @media (max-width:560px){ .news-search { flex-basis:100%; } }
+
   /* Pillars */
   .pillars { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
   .pillar { padding:30px 26px; }
@@ -965,6 +981,7 @@
     <div class="wrap">
       <div class="section-head"><span class="eyebrow"><span class="dot"></span>Toute l'actualité des Assises</span><h2 style="font-size:clamp(26px,3.5vw,40px);font-weight:800;margin-top:14px" id="assisesNewsTitre">Suivez l'édition 2026, jour après jour.</h2></div>
       <div class="grid-3" id="assisesNews"></div>
+      <div id="assisesNewsPlus" style="margin-top:26px;display:none"><a class="btn btn-ghost" data-view="actualites">Voir toutes les actualités <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
     </div>
   </section>
 
@@ -1122,7 +1139,16 @@
     </div>
   </section>
   <section class="section" style="padding-top:0">
-    <div class="wrap"><div class="grid-3" id="newsAll"></div></div>
+    <div class="wrap">
+      <div class="news-bar">
+        <div class="news-filtres" id="newsFiltres"></div>
+        <div class="news-search">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          <input type="search" id="newsSearch" placeholder="Rechercher une actualité" aria-label="Rechercher une actualité">
+        </div>
+      </div>
+      <div class="grid-3" id="newsAll"></div>
+    </div>
   </section>
 </div>
 
@@ -1394,13 +1420,49 @@
   });
 
   /* ---------- Render news (home + all + assises) ---------- */
+  // Filtre de la page Actualités : catégorie active + recherche texte.
+  var newsFiltre = { cat:"", q:"" };
+  function renderNewsFiltres(){
+    var bar = document.getElementById("newsFiltres"); if(!bar) return;
+    var cats = []; news.forEach(function(n){ if(n.cat && cats.indexOf(n.cat)<0) cats.push(n.cat); });
+    // Une seule catégorie (ou aucune) : le filtre n'apporte rien, on n'affiche rien.
+    if(cats.length<2){ bar.innerHTML=""; return; }
+    var chips = ['<button type="button" class="chip-f'+(newsFiltre.cat===""?" on":"")+'" data-catf="">Toutes</button>'];
+    cats.forEach(function(c){ chips.push('<button type="button" class="chip-f'+(newsFiltre.cat===c?" on":"")+'" data-catf="'+esc(c)+'">'+esc(c)+'</button>'); });
+    bar.innerHTML = chips.join("");
+  }
+  function renderNewsAll(){
+    var na = document.getElementById("newsAll"); if(!na) return;
+    var q = (newsFiltre.q||"").trim().toLowerCase();
+    var lot = news.filter(function(n){
+      if(newsFiltre.cat && n.cat!==newsFiltre.cat) return false;
+      if(q){ return ((n.title||"")+" "+(n.excerpt||"")).toLowerCase().indexOf(q)>=0; }
+      return true;
+    });
+    na.innerHTML = "";
+    if(!lot.length){ na.innerHTML = '<p class="news-vide">Aucune actualité ne correspond à votre recherche.</p>'; return; }
+    lot.forEach(function(n){ na.appendChild(newsCardEl(n)); });
+  }
   function renderNews(){
     var nh = document.getElementById("newsHome"); nh.innerHTML=""; news.slice(0,3).forEach(function(n){ nh.appendChild(newsCardEl(n)); });
-    var na = document.getElementById("newsAll"); na.innerHTML=""; news.forEach(function(n){ na.appendChild(newsCardEl(n)); });
+    renderNewsFiltres();
+    renderNewsAll();
     // Le fil des Assises n'est plus rempli ici : il dépend de l'édition consultée
     // et se construit dans renderAssisesNews(), appelé par renderAssises().
     if(assisesCourante) renderAssisesNews(assisesCourante);
   }
+  // Câblage une seule fois : la barre et le champ sont des éléments fixes, les
+  // boutons de catégorie sont reconstruits, d'où la délégation sur la barre.
+  (function wireNewsFiltres(){
+    var bar = document.getElementById("newsFiltres");
+    if(bar) bar.addEventListener("click", function(e){
+      var b = e.target.closest("[data-catf]"); if(!b) return;
+      newsFiltre.cat = b.getAttribute("data-catf");
+      renderNewsFiltres(); renderNewsAll();
+    });
+    var s = document.getElementById("newsSearch");
+    if(s) s.addEventListener("input", function(){ newsFiltre.q = s.value; renderNewsAll(); });
+  })();
   renderNews();
 
   /* ---------- Render commissions (qsn) ---------- */
@@ -1797,10 +1859,14 @@
     });
     an.innerHTML="";
     if(!lot.length){ sec.style.display="none"; return; }
-    lot.forEach(function(n){ an.appendChild(newsCardEl(n)); });
+    // On ne montre que les trois plus récentes pour ne pas surcharger la page ;
+    // la page Actualités (filtrable) donne accès à l'ensemble.
+    lot.slice(0,3).forEach(function(n){ an.appendChild(newsCardEl(n)); });
     setTxt("assisesNewsTitre", estVedette
       ? "Suivez l'édition en cours, jour après jour."
       : "Les temps forts de l'édition de "+(d.ville||"cette année")+".");
+    var plus=document.getElementById("assisesNewsPlus");
+    if(plus) plus.style.display = lot.length>3 ? "" : "none";
     sec.style.display="";
   }
 
