@@ -142,9 +142,27 @@
   .loading{padding:50px;text-align:center;color:var(--gray);}
 
   .form-grid{display:grid;gap:18px;max-width:640px;}
+  /* Le chronogramme a besoin de plus d'air que les autres formulaires. */
+  .form-grid:has([data-chrono]){max-width:880px;}
   .field label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:7px;}
   .field .req{color:var(--red);}
   .field .hint{font-size:12px;color:var(--gray-soft);margin-top:6px;}
+  /* Editeur de chronogramme : un bloc par journee, une ligne par creneau. */
+  .chr-jours{display:grid;gap:12px;}
+  .chr-jour{border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--card);padding:14px;}
+  .chr-head{display:grid;grid-template-columns:150px 1fr auto auto;gap:8px;align-items:center;}
+  .chr-creneaux{display:grid;gap:7px;margin:12px 0 10px;}
+  .chr-cre{display:grid;grid-template-columns:140px 1fr auto auto;gap:8px;align-items:center;}
+  .chr-case{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-soft);white-space:nowrap;margin:0;}
+  .chr-case input{margin:0;}
+  .chr-actions{display:flex;gap:4px;}
+  .chr-x{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);cursor:pointer;font-size:14px;line-height:1;}
+  .chr-x:hover{background:var(--paper-2);}
+  .chr-add{padding:7px 12px;font-size:12.5px;}
+  @media (max-width:720px){
+    .chr-head,.chr-cre{grid-template-columns:1fr;}
+    .chr-actions{justify-content:flex-end;}
+  }
   .rich-tool{display:flex;gap:4px;padding:8px;background:var(--paper-2);border:1px solid var(--line-strong);border-bottom:none;border-radius:var(--r-sm) var(--r-sm) 0 0;}
   .rich-tool button{width:32px;height:30px;border-radius:7px;border:1px solid transparent;background:transparent;cursor:pointer;color:var(--ink-soft);font-weight:700;}
   .rich-tool button:hover{background:var(--card);border-color:var(--line);}
@@ -314,7 +332,7 @@
       fields:[{k:"titre",l:"Pays / délégation",t:"select",opt:PAYS8,req:true},{k:"image",l:"Photo de la cellule",t:"image"},{k:"texte",l:"Présentation",t:"rich"},{k:"president",l:"Président (nom)",t:"text"},{k:"photo_pres",l:"Photo du président",t:"image"},{k:"tel_pres",l:"Téléphone du président",t:"text"},{k:"mail_pres",l:"Email du président",t:"text"},{k:"sg",l:"Secrétaire général (nom)",t:"text"},{k:"photo_sg",l:"Photo du secrétaire général",t:"image"},{k:"tel_sg",l:"Téléphone du secrétaire général",t:"text"},{k:"mail_sg",l:"Email du secrétaire général",t:"text"},{k:"com",l:"Chargé de communication (nom)",t:"text"},{k:"photo_com",l:"Photo du chargé de communication",t:"image"},{k:"tel_com",l:"Téléphone du chargé de communication",t:"text"},{k:"mail_com",l:"Email du chargé de communication",t:"text"}],
       title:"titre", meta:"president", badge:null },
     assises:{ label:"Éditions Assises", singular:"une édition", icon:ICON.assises,
-      fields:[{k:"titre",l:"Titre de l'édition",t:"text",req:true,ph:"ex. 21es Assises du REMAO"},{k:"numero",l:"Numéro de l'édition",t:"text",req:true,ph:"ex. 21"},{k:"image",l:"Affiche / logo",t:"image"},{k:"ville",l:"Ville hôte",t:"text"},{k:"dates",l:"Dates (texte affiché)",t:"text",ph:"ex. du 13 au 22 octobre 2026"},{k:"date_debut",l:"Date d'ouverture (pilote le compte à rebours)",t:"date"},{k:"theme",l:"Thème",t:"text"},{k:"texte",l:"Programme (édition à venir) ou bilan (édition archivée)",t:"rich"},{k:"statut",l:"Statut",t:"select",opt:["À venir","En cours","Archivée"]},{k:"photos",l:"Photos de l'édition (jusqu'à 30, affichées en galerie défilante)",t:"photos",si:{champ:"statut",vaut:"Archivée"}},{k:"album",l:"Lien de l'album photo complet (album partagé Google Photos, de préférence)",t:"text",ph:"ex. https://photos.app.goo.gl/xxxxx",si:{champ:"statut",vaut:"Archivée"}},{k:"lien",l:"Lien d'inscription en ligne (laisser vide si l'inscription passe par les cellules)",t:"text"}],
+      fields:[{k:"titre",l:"Titre de l'édition",t:"text",req:true,ph:"ex. 21es Assises du REMAO"},{k:"numero",l:"Numéro de l'édition",t:"text",req:true,ph:"ex. 21"},{k:"image",l:"Affiche / logo",t:"image"},{k:"ville",l:"Ville hôte",t:"text"},{k:"dates",l:"Dates (texte affiché)",t:"text",ph:"ex. du 13 au 22 octobre 2026"},{k:"date_debut",l:"Date d'ouverture (pilote le compte à rebours)",t:"date"},{k:"theme",l:"Thème",t:"text"},{k:"chrono",l:"Chronogramme jour par jour",t:"chrono"},{k:"chrono_note",l:"Note sous le chronogramme",t:"text",ph:"ex. Chronogramme provisoire : certaines activités restent à confirmer."},{k:"texte",l:"Bilan de l'édition (édition archivée) ou programme en texte libre",t:"rich"},{k:"statut",l:"Statut",t:"select",opt:["À venir","En cours","Archivée"]},{k:"photos",l:"Photos de l'édition (jusqu'à 30, affichées en galerie défilante)",t:"photos",si:{champ:"statut",vaut:"Archivée"}},{k:"album",l:"Lien de l'album photo complet (album partagé Google Photos, de préférence)",t:"text",ph:"ex. https://photos.app.goo.gl/xxxxx",si:{champ:"statut",vaut:"Archivée"}},{k:"lien",l:"Lien d'inscription en ligne (laisser vide si l'inscription passe par les cellules)",t:"text"}],
       title:"titre", meta:"ville", badge:"statut" },
     document:{ label:"Documents", singular:"un document", icon:ICON.document,
       fields:[{k:"titre",l:"Titre du document",t:"text",req:true},{k:"fichier",l:"Fichier PDF",t:"file"},{k:"categorie",l:"Catégorie",t:"select",opt:["Statuts","Règlement intérieur","Compte-rendu","Autre"]}],
@@ -507,6 +525,7 @@
       '<div class="form-actions"><button type="submit" class="btn btn-green" id="saveBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 6"/></svg>Publier</button><button type="button" class="btn btn-ghost" id="cancel">Annuler</button></div></form></div></div>';
     content.querySelectorAll("[data-drop]").forEach(wireDrop);
     content.querySelectorAll("[data-photos]").forEach(function(z){ wirePhotos(z,t); });
+    content.querySelectorAll("[data-chrono]").forEach(wireChrono);
     content.querySelectorAll("[data-ref]").forEach(remplirRef);
     // Champs conditionnels (f.si) : visibles seulement quand le champ pilote a la bonne valeur.
     cfg.fields.forEach(function(f){
@@ -538,6 +557,7 @@
         if(f.t==="rich"){ obj[f.k]=nettoyerHtml(document.getElementById("f_"+f.k).innerHTML); }
         else if(f.t==="image"||f.t==="file"){ obj[f.k]=document.getElementById("d_"+f.k).getAttribute("data-val")||""; }
         else if(f.t==="photos"){ try{ obj[f.k]=JSON.parse(document.getElementById("p_"+f.k).getAttribute("data-photos")||"[]"); }catch(e){ obj[f.k]=[]; } }
+        else if(f.t==="chrono"){ var z=document.getElementById("c_"+f.k); obj[f.k]=z?lireChrono(z):[]; }
         // On enregistre l'identifiant ET le libellé : si l'édition est supprimée un jour,
         // le travail garde la trace de l'édition où il a été présenté.
         else if(f.t==="ref"){
@@ -562,6 +582,20 @@
     // l'affichage du formulaire, on garde la valeur enregistrée le temps de l'aller-retour.
     if(f.t==="ref") return field(f,'<select class="inp" id="f_'+f.k+'" data-ref="'+esc(f.ref)+'" data-val="'+esc(val)+'"><option value="">— Chargement… —</option></select>');
     if(f.t==="rich") return field(f,'<div class="rich-tool"><button type="button" data-cmd="bold" style="font-weight:800">B</button><button type="button" data-cmd="italic" style="font-style:italic">I</button><button type="button" data-cmd="insertUnorderedList">&#8226;</button></div><div class="rich" id="f_'+f.k+'" contenteditable="true" data-ph="Rédige ici, comme dans Word...">'+val+'</div>');
+    // Chronogramme : une carte par jour, plusieurs créneaux par jour. Le tout est
+    // stocké tel quel (tableau d'objets) et rendu par le site avec sa propre mise
+    // en forme : rien à mettre en page ici, seulement à décrire.
+    if(f.t==="chrono"){
+      var jours=[]; if(Array.isArray(val)) jours=val; else { try{ jours=JSON.parse(val||"[]"); }catch(e){} }
+      return field(f,'<div id="c_'+f.k+'" data-chrono>'
+        +'<datalist id="dl_moments"><option>Matin</option><option>Après-midi</option><option>Journée</option><option>Soir</option><option>En continu</option><option>Nuit</option></datalist>'
+        +'<div class="chr-jours">'+jours.map(chronoJourHTML).join("")+'</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px">'
+        +'<button type="button" class="btn btn-green" data-ajout-jour>Ajouter un jour</button>'
+        +'<button type="button" class="btn btn-ghost" data-import-chrono>Reprendre le chronogramme affiché sur le site</button>'
+        +'</div>'
+        +'<div class="hint">Les jours cochés « arrivée ou départ » ne sont pas numérotés : la numérotation J1, J2, J3 ne compte que les journées d\'Assises.</div></div>');
+    }
     if(f.t==="photos"){
       var urls=[]; try{ urls=JSON.parse(val||"[]"); }catch(e){} if(Array.isArray(val)) urls=val;
       var vignettes=urls.map(function(u){
@@ -597,6 +631,121 @@
       }).join("");
     }catch(e){ console.error(e); sel.innerHTML='<option value="">— Liste indisponible —</option>'; }
   }
+  /* ---------- Chronogramme ----------
+     Un jour = une date affichée, un intitulé, et une liste de créneaux (moment +
+     activité). La saisie ne redessine rien : seules les actions de structure
+     (ajouter, supprimer, déplacer) relisent le formulaire et le réaffichent, pour
+     ne jamais faire perdre le curseur à celui qui écrit. */
+  function chronoCreneauHTML(c){
+    c=c||{};
+    return '<div class="chr-cre">'
+      +'<input class="inp" list="dl_moments" data-f="q" placeholder="Matin" value="'+esc(c.q||"")+'">'
+      +'<input class="inp" data-f="t" placeholder="Activité prévue" value="'+esc(c.t||"")+'">'
+      +'<label class="chr-case"><input type="checkbox" data-f="acf"'+(c.acf?" checked":"")+'> à confirmer</label>'
+      +'<button type="button" class="chr-x" data-suppr-cre title="Retirer ce créneau">&times;</button>'
+      +'</div>';
+  }
+  function chronoJourHTML(j){
+    j=j||{};
+    var creneaux=(j.creneaux||[]).map(chronoCreneauHTML).join("");
+    return '<div class="chr-jour">'
+      +'<div class="chr-head">'
+      +'<input class="inp" data-f="date" placeholder="ex. Mar. 13 oct." value="'+esc(j.date||"")+'">'
+      +'<input class="inp" data-f="titre" placeholder="Intitulé de la journée" value="'+esc(j.titre||"")+'">'
+      +'<label class="chr-case"><input type="checkbox" data-f="hors"'+(j.hors?" checked":"")+'> arrivée ou départ</label>'
+      +'<span class="chr-actions">'
+      +'<button type="button" class="chr-x" data-monter title="Monter">&#8593;</button>'
+      +'<button type="button" class="chr-x" data-descendre title="Descendre">&#8595;</button>'
+      +'<button type="button" class="chr-x" data-suppr-jour title="Supprimer la journée">&times;</button>'
+      +'</span></div>'
+      +'<div class="chr-creneaux">'+creneaux+'</div>'
+      +'<button type="button" class="btn btn-ghost chr-add" data-ajout-cre>Ajouter un créneau</button>'
+      +'</div>';
+  }
+  function lireChrono(zone){
+    return Array.prototype.map.call(zone.querySelectorAll(".chr-jour"),function(bj){
+      return {
+        date:(bj.querySelector('[data-f="date"]')||{}).value||"",
+        titre:(bj.querySelector('[data-f="titre"]')||{}).value||"",
+        hors:!!(bj.querySelector('[data-f="hors"]')||{}).checked,
+        creneaux:Array.prototype.map.call(bj.querySelectorAll(".chr-cre"),function(bc){
+          return {
+            q:(bc.querySelector('[data-f="q"]')||{}).value||"",
+            t:(bc.querySelector('[data-f="t"]')||{}).value||"",
+            acf:!!(bc.querySelector('[data-f="acf"]')||{}).checked
+          };
+        }).filter(function(c){ return c.q||c.t; })
+      };
+    }).filter(function(j){ return j.date||j.titre||j.creneaux.length; });
+  }
+  function wireChrono(zone){
+    var liste=zone.querySelector(".chr-jours");
+    function redessiner(jours){ liste.innerHTML=jours.map(chronoJourHTML).join(""); }
+    zone.addEventListener("click",function(e){
+      var b=e.target.closest("button"); if(!b||!zone.contains(b)) return;
+      var jours=lireChrono(zone);
+      var bloc=b.closest(".chr-jour");
+      var i=bloc ? Array.prototype.indexOf.call(liste.children,bloc) : -1;
+      if(b.hasAttribute("data-ajout-jour")){ jours.push({date:"",titre:"",hors:false,creneaux:[{q:"",t:"",acf:false}]}); redessiner(jours); return; }
+      if(i<0) return;
+      // lireChrono écarte les lignes vides : sur un jour tout juste ajouté, l'index
+      // du DOM ne pointe plus la bonne entrée, on repart alors du DOM complet.
+      if(jours.length!==liste.children.length) jours=lireChronoBrut(zone);
+      if(b.hasAttribute("data-suppr-jour")){ jours.splice(i,1); redessiner(jours); }
+      else if(b.hasAttribute("data-monter") && i>0){ jours.splice(i-1,0,jours.splice(i,1)[0]); redessiner(jours); }
+      else if(b.hasAttribute("data-descendre") && i<jours.length-1){ jours.splice(i+1,0,jours.splice(i,1)[0]); redessiner(jours); }
+      else if(b.hasAttribute("data-ajout-cre")){ jours[i].creneaux.push({q:"",t:"",acf:false}); redessiner(jours); }
+      else if(b.hasAttribute("data-suppr-cre")){
+        var bc=b.closest(".chr-cre");
+        var k=Array.prototype.indexOf.call(bloc.querySelectorAll(".chr-cre"),bc);
+        if(k>=0){ jours[i].creneaux.splice(k,1); redessiner(jours); }
+      }
+    });
+    // Le chronogramme affiché aujourd'hui vit dans le code du site. Ce bouton le
+    // recopie dans le formulaire : on part de l'existant au lieu de tout ressaisir.
+    var imp=zone.querySelector("[data-import-chrono]");
+    if(imp) imp.addEventListener("click",async function(){
+      if(lireChrono(zone).length && !confirm("Remplacer le chronogramme saisi ici par celui affiché sur le site ?")) return;
+      imp.disabled=true; var lib=imp.textContent; imp.textContent="Lecture du site…";
+      try{
+        var html=await (await fetch("index.html",{cache:"no-store"})).text();
+        var doc=new DOMParser().parseFromString(html,"text/html");
+        var jours=Array.prototype.map.call(doc.querySelectorAll("#assisesProg .chrono-jour"),function(el){
+          return {
+            date:(el.querySelector(".chrono-tete b")||{}).textContent||"",
+            titre:(el.querySelector(".chrono-tete span")||{}).textContent||"",
+            hors:el.classList.contains("hors"),
+            creneaux:Array.prototype.map.call(el.querySelectorAll(".chrono-creneaux li"),function(li){
+              var p=li.querySelector("p"), acf=p&&p.querySelector(".acf");
+              if(acf) acf.remove();
+              return { q:((li.querySelector(".q")||{}).textContent||"").trim(), t:((p||{}).textContent||"").trim(), acf:!!acf };
+            })
+          };
+        });
+        if(!jours.length){ toast("Aucun chronogramme trouvé sur le site",true); }
+        else { redessiner(jours); toast(jours.length+" journées reprises du site"); }
+      }catch(err){ showToastErr(err); }
+      imp.disabled=false; imp.textContent=lib;
+    });
+  }
+  // Variante sans filtrage : sert quand une ligne vide vient d'être ajoutée.
+  function lireChronoBrut(zone){
+    return Array.prototype.map.call(zone.querySelectorAll(".chr-jour"),function(bj){
+      return {
+        date:(bj.querySelector('[data-f="date"]')||{}).value||"",
+        titre:(bj.querySelector('[data-f="titre"]')||{}).value||"",
+        hors:!!(bj.querySelector('[data-f="hors"]')||{}).checked,
+        creneaux:Array.prototype.map.call(bj.querySelectorAll(".chr-cre"),function(bc){
+          return {
+            q:(bc.querySelector('[data-f="q"]')||{}).value||"",
+            t:(bc.querySelector('[data-f="t"]')||{}).value||"",
+            acf:!!(bc.querySelector('[data-f="acf"]')||{}).checked
+          };
+        })
+      };
+    });
+  }
+
   function field(f,inner){ return '<div class="field"><label>'+esc(f.l)+(f.req?' <span class="req">*</span>':'')+'</label>'+inner+(f.t==="rich"?'<div class="hint">Éditeur simplifié : gras, italique, listes.</div>':'')+'</div>'; }
   // Galerie multi-photos (plafond 30). Les URL vivent dans data-photos (JSON).
   function wirePhotos(zone,t){

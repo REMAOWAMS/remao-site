@@ -1519,7 +1519,31 @@
 
   // Copie du chronogramme écrit en dur, mise de côté avant d'être remplacée par un
   // programme saisi dans l'admin : la navigation entre éditions doit pouvoir y revenir.
-  var progRepli=null;
+  var progRepli=null, noteRepli=null;
+
+  /* Chronogramme saisi dans l'admin : une liste de jours, chacun avec ses créneaux.
+     Les jours d'arrivée et de départ (cochés « hors programme ») ne sont pas numérotés
+     et portent une flèche : la numérotation J1, J2… ne compte que les jours d'Assises. */
+  function rendreChrono(jours){
+    if(!Array.isArray(jours)) return "";
+    var utiles=jours.filter(function(j){ return j && (j.date || j.titre || (j.creneaux||[]).length); });
+    if(!utiles.length) return "";
+    var n=0, commence=false;
+    var html=utiles.map(function(j){
+      var hors=!!j.hors, puce;
+      if(hors){ puce = commence ? "←" : "→"; }
+      else { n++; commence=true; puce="J"+n; }
+      var creneaux=(j.creneaux||[]).filter(function(c){ return c && (c.q || c.t); }).map(function(c){
+        return '<li><span class="q">'+esc(c.q||"")+'</span><p>'+esc(c.t||"")
+          +(c.acf?'<em class="acf">à confirmer</em>':'')+'</p></li>';
+      }).join("");
+      return '<li class="chrono-jour'+(hors?" hors":"")+'" data-jour="'+esc(puce)+'">'
+        +'<div class="chrono-tete"><b>'+esc(j.date||"")+'</b><span>'+esc(j.titre||"")+'</span></div>'
+        +(creneaux?'<ul class="chrono-creneaux">'+creneaux+'</ul>':'')
+        +'</li>';
+    }).join("");
+    return '<ol class="chrono">'+html+'</ol>';
+  }
 
   function renderAssises(d){
     if(!d) return;
@@ -1614,19 +1638,35 @@
       : "Science, sport et culture, jour après jour.");
     var prog=document.getElementById("assisesProg");
     var note=document.getElementById("assisesProgNote");
-    var saisi = !!(d.texte && strip(d.texte));
-    // Le chronogramme écrit en dur ne vaut que pour l'édition qu'il décrit : sous une
-    // autre édition sans programme saisi, mieux vaut ne rien afficher.
+    // Trois sources possibles, dans cet ordre : le chronogramme saisi jour par jour
+    // dans l'admin, le texte libre (bilan d'une édition passée), et à défaut le
+    // chronogramme écrit en dur. Ce dernier ne vaut que pour l'édition qu'il décrit :
+    // sous une autre édition restée sans programme, mieux vaut ne rien afficher.
+    var chrono = rendreChrono(d.chrono);
+    var texte = (d.texte && strip(d.texte)) ? d.texte : "";
+    var saisi = !!(chrono || texte);
     var repliValable = !!(prog && prog.getAttribute("data-edition") && String(d.numero||"")===prog.getAttribute("data-edition"));
     if(prog){
       if(saisi){
         if(progRepli===null) progRepli=prog.innerHTML;
-        prog.innerHTML='<div class="prog-row" style="display:block"><div class="contenu-admin">'+nettoyerHtml(d.texte)+'</div></div>';
+        prog.innerHTML = chrono
+          ? chrono
+          : '<div class="prog-row" style="display:block"><div class="contenu-admin">'+nettoyerHtml(texte)+'</div></div>';
       } else if(progRepli!==null){
         prog.innerHTML=progRepli;  // retour au repli après affichage d'une autre édition
       }
     }
-    if(note) note.hidden = saisi || !repliValable;
+    // Note de bas de section : celle saisie dans l'admin, sinon celle écrite en dur,
+    // qui ne vaut que pour l'édition décrite par le chronogramme de repli.
+    if(note){
+      var noteAdmin = (d.chrono_note||"").trim();
+      if(noteAdmin){ note.textContent=noteAdmin; note.hidden=!chrono; }
+      else {
+        if(noteRepli===null) noteRepli=note.textContent;
+        note.textContent=noteRepli;
+        note.hidden = !repliValable || !!texte;
+      }
+    }
     var ps=document.getElementById("assisesProgSection");
     if(ps) ps.style.display = (saisi || (!archivee && repliValable)) ? "" : "none";
 
