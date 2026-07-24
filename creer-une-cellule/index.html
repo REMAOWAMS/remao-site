@@ -4,8 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2e5e3a">
-<meta name="description" content="Site officiel du REMAO, Réseau des Étudiants en Médecine de l'Afrique de l'Ouest. 8 pays membres, les Assises, actualités et délégations.">
-<title>REMAO — Réseau des Étudiants en Médecine de l'Afrique de l'Ouest</title>
+<!-- ==========================================================================
+     Le bloc encadré ci-dessous est propre à chaque page : sync-pages.sh le réécrit
+     dans chaque copie (assises/index.html, pays/ci/index.html, etc.). Modifier une
+     copie ne sert à rien, elle est regénérée depuis ce fichier.
+     Pourquoi un bloc par page : les robots de WhatsApp, Facebook et LinkedIn
+     n'exécutent pas le JavaScript, ils lisent le HTML livré tel quel. Sans titre
+     écrit ici, le partage de /assises affiche l'aperçu de l'accueil.
+     Les titres eux-mêmes se modifient dans sync-pages.sh, pas ici.
+     ========================================================================== -->
+<!-- SEO:DEBUT -->
+<title>Créer une cellule nationale — REMAO</title>
+<meta name="description" content="La démarche pour créer une cellule du REMAO dans son pays et rejoindre le réseau.">
+<link rel="canonical" href="https://remao.org/creer-une-cellule/">
+<meta property="og:title" content="Créer une cellule nationale — REMAO">
+<meta property="og:description" content="La démarche pour créer une cellule du REMAO dans son pays et rejoindre le réseau.">
+<meta property="og:url" content="https://remao.org/creer-une-cellule/">
+<!-- SEO:FIN -->
 <!-- Toujours déclarer les icônes : sans cela, le navigateur retombe sur le favicon mis en
      cache pour l'origine github.io du compte, celui d'un autre site.
      Monogramme aux petites tailles où le sceau est illisible, sceau au-delà. -->
@@ -16,14 +31,36 @@
      Les URL doivent être absolues, les réseaux ne résolvent pas le relatif. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="REMAO">
-<meta property="og:title" content="REMAO — Réseau des Étudiants en Médecine de l'Afrique de l'Ouest">
-<meta property="og:description" content="8 pays membres, 5 observateurs. Les Assises, les délégations nationales et l'actualité du réseau.">
-<meta property="og:url" content="https://remao.org/">
 <meta property="og:image" content="https://remao.org/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
+<!-- Données structurées : ce que Google lit pour reconnaître le réseau comme une
+     organisation et non comme un site quelconque. C'est ce qui permet l'encadré
+     latéral dans les résultats de recherche. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Réseau des Étudiants en Médecine de l'Afrique de l'Ouest",
+  "alternateName": ["REMAO", "WAMS-Web", "West African Medical Students Web"],
+  "url": "https://remao.org/",
+  "logo": "https://remao.org/logo-web.png",
+  "image": "https://remao.org/og-image.jpg",
+  "description": "Réseau sous-régional des étudiants en médecine de l'Afrique de l'Ouest, fondé en 1997 à Ouagadougou. Huit pays membres et cinq pays observateurs.",
+  "foundingDate": "1997",
+  "foundingLocation": { "@type": "Place", "name": "Ouagadougou, Burkina Faso" },
+  "email": "remao.wams@gmail.com",
+  "telephone": "+22799320761",
+  "address": { "@type": "PostalAddress", "addressLocality": "Niamey", "addressCountry": "NE" },
+  "areaServed": ["BJ", "BF", "CI", "GN", "ML", "NE", "SN", "TG"],
+  "sameAs": [
+    "https://www.facebook.com/profile.php?id=61573645100563",
+    "https://www.instagram.com/remao.off"
+  ]
+}
+</script>
 
 <style>
   /* ============================================================
@@ -1566,6 +1603,17 @@
   // Définie ici et non dans le chargeur Supabase : renderAssises s'en sert, et une
   // ReferenceError dans une promesse passe totalement inaperçue.
   function strip(html){ var t=document.createElement("div"); t.innerHTML=html||""; return (t.textContent||"").replace(/\s+/g," ").trim(); }
+  // Coupe au dernier mot entier : un texte tronqué en plein milieu d'un mot se voit
+  // sur les vignettes d'actualité comme dans les résultats de recherche Google, qui
+  // reprennent ce résumé.
+  function resumer(txt, n){
+    txt = (txt||"").trim();
+    if(txt.length<=n) return txt;
+    var bout = txt.slice(0, n);
+    var esp = bout.lastIndexOf(" ");
+    if(esp > n*0.6) bout = bout.slice(0, esp);
+    return bout.replace(/[\s,;:.…]+$/, "")+"…";
+  }
   // Un texte collé dans l'admin depuis Word ou WhatsApp embarque tout son habillage
   // (style inline, font-size, <font color>, classes Word). On ne garde que la structure
   // (gras, italique, listes, liens) : la mise en forme vient du site, pas du collage.
@@ -1899,10 +1947,81 @@
   var views = { home:"view-home", qsn:"view-qsn", assises:"view-assises", actualites:"view-actualites",
     article:"view-article", revue:"view-revue", publication:"view-publication",
     pays:"view-pays", membre:"view-membre", cellule:"view-cellule" };
+
+  /* ---------- Titre et adresse canonique, vue par vue ----------
+     Le bloc SEO:DEBUT en tête de fichier règle le cas des pages qui ont leur propre
+     fichier. Restent les articles et les travaux de la revue, dont l'adresse dépend
+     d'un identifiant tiré de la base : aucun fichier ne peut leur être dédié, leur
+     titre ne peut donc être posé qu'ici. Google exécute le JavaScript et lit ce qui suit ;
+     les robots de WhatsApp et Facebook, non. Un article partagé garde donc l'aperçu
+     générique du site tant que les pages ne sont pas prégénérées. */
+  var SITE = "https://remao.org";
+  var SEO_VUES = {
+    home:["REMAO — Réseau des Étudiants en Médecine de l'Afrique de l'Ouest",
+      "Site officiel du REMAO, Réseau des Étudiants en Médecine de l'Afrique de l'Ouest. 8 pays membres, les Assises, actualités et délégations."],
+    qsn:["Qui sommes-nous — REMAO",
+      "Histoire du REMAO depuis sa fondation en 1997 à Ouagadougou, mission du réseau et composition du Bureau Exécutif."],
+    assises:["Assises du REMAO — 21es Assises, Conakry 2026",
+      "Le grand rendez-vous annuel du réseau : science, sport et culture. Les 21es Assises se tiennent à Conakry, en Guinée, en octobre 2026."],
+    revue:["Revue scientifique — REMAO",
+      "Les travaux scientifiques des étudiants présentés aux Assises du REMAO, rangés par édition."],
+    actualites:["Actualités — REMAO",
+      "Communiqués officiels, vie du réseau et actualités des cellules nationales du REMAO."],
+    membre:["Devenir membre — REMAO",
+      "Rejoindre le REMAO en passant par la cellule nationale de son pays. Les contacts des huit délégations."],
+    cellule:["Créer une cellule nationale — REMAO",
+      "La démarche pour créer une cellule du REMAO dans son pays et rejoindre le réseau."]
+  };
+  function poserMeta(sel, valeur){
+    var el = document.querySelector(sel);
+    if(el && valeur) el.setAttribute("content", valeur);
+  }
+  function majSeo(name, param){
+    var t = null, d = null;
+    if(name==="article" && param){
+      var n = news.filter(function(x){ return String(x.id)===String(param); })[0];
+      if(n) { t = n.title+" — REMAO"; d = n.excerpt || SEO_VUES.actualites[1]; }
+    } else if(name==="publication" && param){
+      var p = pubParId[param];
+      if(p) { t = p.titre+" — Revue scientifique du REMAO";
+              d = [p.auteurs, pubEditionLibelle(p)].filter(Boolean).join(" · ") || SEO_VUES.revue[1]; }
+    } else if(name==="assises"){
+      // Une édition archivée doit porter son propre titre, sinon toutes les éditions
+      // s'annoncent comme celle de Conakry.
+      var a = (param && assisesParId[param]) || assisesCourante;
+      if(a && a.titre){
+        t = a.titre.replace(/\.$/, "")+" — REMAO";
+        d = a.theme || [a.ville, a.dates].filter(Boolean).join(", ") || SEO_VUES.assises[1];
+      } else {
+        t = SEO_VUES.assises[0]; d = SEO_VUES.assises[1];
+      }
+    } else if(name==="pays" && param && countries[param]){
+      var c = countries[param];
+      t = "Cellule REMAO "+c.name+" — "+c.cap;
+      // « en Côte d'Ivoire », mais « au Bénin » : les deux pays féminins font exception.
+      var prep = (param==="ci" || param==="gn") ? "en " : "au ";
+      d = "La délégation du REMAO "+prep+c.name+", basée à "+c.cap+". "+c.activite+".";
+    } else if(SEO_VUES[name]){
+      t = SEO_VUES[name][0]; d = SEO_VUES[name][1];
+    }
+    if(!t) return;
+    document.title = t;
+    // Google coupe au-delà d'environ 160 caractères : autant maîtriser la coupe.
+    d = resumer(d, 165);
+    poserMeta('meta[name="description"]', d);
+    poserMeta('meta[property="og:title"]', t);
+    poserMeta('meta[property="og:description"]', d);
+    var url = SITE + urlDe(name, param);
+    poserMeta('meta[property="og:url"]', url);
+    var can = document.querySelector('link[rel="canonical"]');
+    if(can && routageChemin) can.setAttribute("href", url);
+  }
+
   function showView(name, opts){
     Object.keys(views).forEach(function(k){ document.getElementById(views[k]).classList.toggle("active", k===name); });
     document.body.classList.remove("menu-open");
     document.querySelectorAll(".nav-links a").forEach(function(a){ a.classList.remove("active"); });
+    majSeo(name, opts && opts.param);
     if(!(opts && opts.noScroll)) window.scrollTo({ top:0, behavior: reduce?"auto":"smooth" });
     // Le site est une application à page unique : sans cette ligne, l'URL ne change jamais
     // et le bouton Retour du navigateur fait sortir du site au lieu de revenir en arrière.
@@ -1938,6 +2057,14 @@
   function allerVers(etat){
     if(!etat || !etat.vue || !views[etat.vue]) { showView("home",{fromHistory:true}); return; }
     if(etat.vue==="pays" && etat.param) return openCountry(etat.param,{fromHistory:true});
+    // /pays sans code de pays n'a rien à montrer : la vue attend une délégation.
+    // On renvoie à l'accueil, où la carte des cellules donne accès aux huit pages.
+    // Remplacement et non empilement, sinon le bouton Retour ramène sur cette adresse morte.
+    if(etat.vue==="pays"){
+      if(routageChemin) history.replaceState({vue:"home",param:null},"","/");
+      showView("home",{fromHistory:true});
+      return;
+    }
     if(etat.vue==="article" && etat.param) return openArticle(etat.param,{fromHistory:true});
     if(etat.vue==="publication" && etat.param) return openPublication(etat.param,{fromHistory:true});
     if(etat.vue==="assises"){
@@ -2078,7 +2205,7 @@
           news.push({ id:r.id, cat:(d.categorie||"Actualité"), red:(d.categorie==="Communiqué"),
             date:fmtDate(d.date), scene:"green", image:d.image||"", title:d.titre||"(sans titre)",
             assises_id:d.assises_id||"",
-            excerpt:strip(d.texte).slice(0,150), bodyHtml:nettoyerHtml(d.texte) });
+            excerpt:resumer(strip(d.texte),150), bodyHtml:nettoyerHtml(d.texte) });
         });
         renderNews();
         // Lien direct vers un article : les actualités arrivent après le chargement de la page,

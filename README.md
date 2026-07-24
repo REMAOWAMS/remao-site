@@ -29,10 +29,29 @@ L'accès est réservé aux comptes créés par le Bureau. Les inscriptions publi
 désactivées : un nouveau compte se crée dans Supabase, Authentication > Users, en
 cochant « Auto Confirm User ».
 
+## Référencement et partage
+
+Chaque page a son propre titre, sa description, son adresse canonique et son aperçu de
+partage. Ils ne sont pas écrits dans `index.html` mais dans les listes de
+[`sync-pages.sh`](sync-pages.sh), qui les injecte dans chaque page à la génération. Le
+script produit aussi `sitemap.xml` et `robots.txt`.
+
+**Après toute modification d'`index.html`, lancer `./sync-pages.sh`** : sans cela les
+autres pages restent sur l'ancienne version du site.
+
+Les articles et les travaux de la revue ont une adresse tirée de la base : aucun fichier
+ne leur est dédié, ils passent par `404.html`. Leur titre est posé par le JavaScript, ce
+que Google lit, mais pas les robots de WhatsApp ni de Facebook. Un article partagé affiche
+donc l'aperçu générique du site. Y remédier suppose de prégénérer une page par article
+depuis Supabase, à automatiser par une GitHub Action.
+
 ## Mise en ligne
 
 Hébergé gratuitement par **GitHub Pages** depuis la branche `main`. Toute modification
 poussée sur `main` est en ligne une à deux minutes plus tard.
+
+Après la première mise en ligne du plan du site, le déclarer une fois dans
+[Google Search Console](https://search.google.com/search-console) : `https://remao.org/sitemap.xml`.
 
 ## Passation
 
