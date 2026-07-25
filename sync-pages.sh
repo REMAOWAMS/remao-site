@@ -72,6 +72,7 @@ done <<'VUES'
 qui-sommes-nous|Qui sommes-nous — REMAO|Histoire du REMAO depuis sa fondation en 1997 à Ouagadougou, mission du réseau et composition du Bureau Exécutif.
 assises|Assises du REMAO|Le grand rendez-vous annuel du réseau : congrès scientifique, compétitions sportives et soirées culturelles réunissant les délégations des huit pays membres.
 revue|Revue scientifique — REMAO|Les travaux scientifiques des étudiants présentés aux Assises du REMAO, rangés par édition.
+palmares|Palmarès des Assises — REMAO|Les lauréats de chaque édition des Assises du REMAO : communications scientifiques, jeu génie, compétitions sportives et distinctions culturelles.
 actualites|Actualités — REMAO|Communiqués officiels, vie du réseau et actualités des cellules nationales du REMAO.
 devenir-membre|Devenir membre — REMAO|Rejoindre le REMAO en passant par la cellule nationale de son pays. Les contacts des huit délégations.
 creer-une-cellule|Créer une cellule nationale — REMAO|La démarche pour créer une cellule du REMAO dans son pays et rejoindre le réseau.
@@ -118,7 +119,7 @@ sed -i 's|<link rel="canonical" href="https://remao.org/pays/">|<link rel="canon
 {
   echo '<?xml version="1.0" encoding="UTF-8"?>'
   echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-  for u in "" "qui-sommes-nous/" "assises/" "revue/" "actualites/" "devenir-membre/" "creer-une-cellule/" \
+  for u in "" "qui-sommes-nous/" "assises/" "palmares/" "revue/" "actualites/" "devenir-membre/" "creer-une-cellule/" \
            "pays/bj/" "pays/bf/" "pays/ci/" "pays/gn/" "pays/ml/" "pays/ne/" "pays/sn/" "pays/tg/"; do
     printf '  <url><loc>%s/%s</loc><lastmod>%s</lastmod></url>\n' "$SITE" "$u" "$JOUR"
   done

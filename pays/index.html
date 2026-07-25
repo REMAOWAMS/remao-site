@@ -605,6 +605,42 @@
     .cd-cell { padding:16px 6px; }
     .join, .about-media { border-radius:24px; }
   }
+  /* ---- Palmarès : les lauréats d'une édition, épreuve par épreuve ----
+     Le podium se lit d'un coup d'œil : la médaille porte le rang, le drapeau
+     dit la délégation. Une épreuve sans lauréat n'est jamais affichée. */
+  .pal-vainqueur { display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+    padding:28px 30px; border-radius:22px; margin-bottom:44px;
+    background:linear-gradient(120deg, var(--green) 0%, #24492d 100%); color:#fff;
+    box-shadow:var(--shadow-sm); }
+  .pal-vainqueur .pv-flag { width:74px; height:52px; border-radius:10px; overflow:hidden; flex:none;
+    box-shadow:0 2px 10px rgba(0,0,0,.25); }
+  .pal-vainqueur .pv-flag svg { width:100%; height:100%; display:block; }
+  .pal-vainqueur .pv-eyebrow { font-size:12px; text-transform:uppercase; letter-spacing:.14em;
+    opacity:.82; margin-bottom:6px; }
+  .pal-vainqueur b { font-size:clamp(22px,3vw,30px); font-weight:800; letter-spacing:-0.02em; display:block; }
+  .pal-vainqueur small { display:block; margin-top:6px; font-size:14px; opacity:.85; }
+  .pal-epreuve { margin-bottom:40px; }
+  .pal-epreuve:last-child { margin-bottom:0; }
+  .pal-epreuve > h3 { font-size:20px; font-weight:800; letter-spacing:-0.01em;
+    padding-bottom:12px; margin-bottom:18px; border-bottom:1px solid var(--line); }
+  .pal-podium { display:grid; gap:12px; }
+  .pal-place { display:flex; align-items:center; gap:16px; padding:16px 20px;
+    border:1px solid var(--line); border-radius:16px; background:var(--card); }
+  .pal-place .pl-rang { flex:none; min-width:44px; height:44px; padding:0 10px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px;
+    background:var(--card-2); color:var(--ink-soft); border:1px solid var(--line); }
+  .pal-place.or   .pl-rang { background:#c9a227; border-color:#c9a227; color:#fff; }
+  .pal-place.arg  .pl-rang { background:#9aa3ab; border-color:#9aa3ab; color:#fff; }
+  .pal-place.bro  .pl-rang { background:#b06a3b; border-color:#b06a3b; color:#fff; }
+  .pal-place .pl-nom { font-weight:700; font-size:16.5px; line-height:1.3; }
+  .pal-place .pl-pays { color:var(--gray); font-size:13.5px; margin-top:3px; }
+  .pal-place .pl-flag { margin-left:auto; width:38px; height:27px; border-radius:5px; overflow:hidden;
+    flex:none; border:1px solid var(--line); }
+  .pal-place .pl-flag svg { width:100%; height:100%; display:block; }
+  @media (max-width:560px){
+    .pal-place { gap:12px; padding:14px 16px; }
+    .pal-vainqueur { padding:22px; gap:16px; }
+  }
   /* ---- Revue scientifique : travaux des étudiants, rangés par édition des Assises ---- */
   .revue-filtres { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:40px; }
   .revue-filtres button { font-family:var(--font-body); font-size:13px; font-weight:600; padding:9px 16px;
@@ -1030,6 +1066,17 @@
     </div>
   </section>
 
+  <!-- Palmarès de l'édition : visible seulement si des lauréats ont été saisis. Tant que
+       les résultats ne sont pas connus, la section n'existe pas. -->
+  <section class="section" style="padding-top:0" id="assisesPalmaresSection" hidden>
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow"><span class="dot"></span>Résultats</span><h2 style="font-size:clamp(26px,3.5vw,40px);font-weight:800;margin-top:14px">Le palmarès de l'édition.</h2></div>
+      <div id="assisesPalmares" style="margin-top:34px"></div>
+      <div style="margin-top:34px"><a class="btn btn-ghost" data-view="palmares">Le palmarès de toutes les éditions
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
+    </div>
+  </section>
+
   <!-- Galerie d'une édition archivée : visible seulement si la fiche a des photos. -->
   <section class="section" style="padding-top:0" id="assisesGalerieSection" hidden>
     <div class="wrap">
@@ -1214,6 +1261,28 @@
 <!-- =================== REVUE (liste des travaux scientifiques) ===================
      Rempli depuis l'admin (type « Revue scientifique »). Les travaux sont groupés par
      édition des Assises : c'est ainsi que le réseau les archive et les cite. -->
+<!-- =================== PALMARÈS (toutes les éditions) ===================
+     La mémoire sportive, scientifique et culturelle du réseau, édition par édition.
+     Se remplit toute seule à partir des palmarès saisis dans chaque fiche d'édition. -->
+<div id="view-palmares" class="view">
+  <section class="section subhero">
+    <div class="wrap">
+      <div class="breadcrumb"><a data-nav="home">Accueil</a> <span>/</span> <span>Palmarès</span></div>
+      <span class="eyebrow"><span class="dot"></span>La mémoire du réseau</span>
+      <h1>Le palmarès des Assises.</h1>
+      <p class="lede">Les lauréats de chaque édition : communications scientifiques, jeu génie, compétitions sportives et distinctions culturelles. Édition par édition, depuis les premières Assises.</p>
+    </div>
+  </section>
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div id="palmaresGroupes"></div>
+      <div id="palmaresVide" style="color:var(--gray)" hidden>
+        <p>Aucun palmarès n'est encore publié. Les résultats de chaque édition sont mis en ligne par le Bureau Exécutif dès leur proclamation.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
 <div id="view-revue" class="view">
   <section class="section subhero">
     <div class="wrap">
@@ -1347,7 +1416,7 @@
         </div>
       </div>
       <div class="foot-col"><h4>Le réseau</h4><a data-view="qsn">Qui sommes-nous</a><a data-nav="home" data-scroll-target="pays">Nos pays membres</a><a data-nav="home" data-scroll-target="programmes">Programmes</a><a data-view="qsn">Bureau Exécutif</a></div>
-      <div class="foot-col"><h4>S'engager</h4><a data-view="assises">Assises 2026</a><a data-view="revue">Revue scientifique</a><a data-view="membre">Devenir membre</a><a data-view="cellule">Créer une cellule</a><a data-view="actualites">Actualités</a></div>
+      <div class="foot-col"><h4>S'engager</h4><a data-view="assises">Assises 2026</a><a data-view="palmares">Palmarès</a><a data-view="revue">Revue scientifique</a><a data-view="membre">Devenir membre</a><a data-view="cellule">Créer une cellule</a><a data-view="actualites">Actualités</a></div>
       <div class="foot-col"><h4>Contact</h4><a href="mailto:remao.wams@gmail.com">remao.wams@gmail.com</a><a href="tel:+22799320761">+227 99 32 07 61</a><span>Siège : Niamey, Niger</span></div>
     </div>
     <div class="foot-bottom"><span>© 2026 REMAO · WAMS-Web. Tous droits réservés.</span></div>
@@ -1723,6 +1792,9 @@
     // Chaque édition affiche ses propres actualités (y compris une fois archivée).
     renderAssisesNews(d);
 
+    // Palmarès : rien tant que les résultats ne sont pas proclamés et saisis.
+    renderAssisesPalmares(d);
+
     // Galerie photos d'une édition archivée : une sélection sur le site, et le lien
     // vers l'album complet hébergé ailleurs. L'un ou l'autre suffit à ouvrir la section.
     var gs=document.getElementById("assisesGalerieSection"), gz=document.getElementById("assisesGalerie");
@@ -1893,6 +1965,85 @@
     });
   }
 
+  /* ---------- Palmarès ----------
+     Une épreuve = un intitulé et un podium. Le rang saisi dans l'admin l'emporte ;
+     laissé vide, il se déduit de la position, ce qui est le cas courant. */
+  var nomVersCode = {};
+  Object.keys(countries).forEach(function(k){ nomVersCode[countries[k].name.toLowerCase()]=k; });
+  function codePays(nom){ return nomVersCode[String(nom||"").trim().toLowerCase()] || ""; }
+  function rangDefaut(i){ return i===0 ? "1er" : (i+1)+"e"; }
+
+  function palmaresEpreuveEl(e){
+    var sec=document.createElement("div"); sec.className="pal-epreuve";
+    var h=document.createElement("h3"); h.textContent=e.epreuve||"Épreuve";
+    var podium=document.createElement("div"); podium.className="pal-podium";
+    (e.laureats||[]).forEach(function(l,i){
+      var el=document.createElement("div");
+      // Les trois premières places prennent la couleur de leur médaille, mais seulement
+      // quand le rang n'a pas été renommé : « Prix du jury » n'est pas une médaille d'or.
+      var propre = !String(l.rang||"").trim();
+      el.className="pal-place"+(propre && i<3 ? " "+["or","arg","bro"][i] : "");
+      var code=codePays(l.pays);
+      el.innerHTML='<span class="pl-rang">'+esc(l.rang||rangDefaut(i))+'</span>'
+        +'<span><span class="pl-nom">'+esc(l.nom||"—")+'</span>'
+        +(l.pays?'<span class="pl-pays">Cellule '+esc(l.pays)+'</span>':'')+'</span>'
+        +(code?'<span class="pl-flag">'+flags[code]+'</span>':'');
+      podium.appendChild(el);
+    });
+    sec.appendChild(h); sec.appendChild(podium);
+    return sec;
+  }
+
+  function vainqueurEl(d){
+    if(!d.vainqueur) return null;
+    var el=document.createElement("div"); el.className="pal-vainqueur";
+    var code=codePays(d.vainqueur);
+    el.innerHTML=(code?'<span class="pv-flag">'+flags[code]+'</span>':'')
+      +'<span><span class="pv-eyebrow">Vainqueur de l\'édition</span><b>Cellule '+esc(d.vainqueur)+'</b>'
+      +(d.vainqueur_note?'<small>'+esc(d.vainqueur_note)+'</small>':'')+'</span>';
+    return el;
+  }
+
+  // Une édition n'a de palmarès que si une épreuve porte au moins un lauréat.
+  function aPalmares(d){
+    return !!(d && ((d.palmares||[]).some(function(e){ return (e.laureats||[]).length; }) || d.vainqueur));
+  }
+
+  function renderAssisesPalmares(d){
+    var sec=document.getElementById("assisesPalmaresSection"),
+        zone=document.getElementById("assisesPalmares");
+    if(!sec || !zone) return;
+    if(!aPalmares(d)){ sec.hidden=true; zone.innerHTML=""; return; }
+    zone.innerHTML="";
+    var v=vainqueurEl(d); if(v) zone.appendChild(v);
+    (d.palmares||[]).forEach(function(e){
+      if((e.laureats||[]).length) zone.appendChild(palmaresEpreuveEl(e));
+    });
+    sec.hidden=false;
+  }
+
+  function renderPalmares(){
+    var zone=document.getElementById("palmaresGroupes"),
+        vide=document.getElementById("palmaresVide");
+    if(!zone) return;
+    zone.innerHTML="";
+    var avec=assisesListe.filter(aPalmares);
+    if(vide) vide.hidden = avec.length>0;
+    avec.forEach(function(d){
+      var g=document.createElement("div"); g.className="revue-groupe";
+      var head=document.createElement("div"); head.className="rg-head";
+      head.innerHTML='<h3>'+esc(d.titre||((d.numero||"?")+"es Assises"))+'</h3><small>'
+        +[d.ville, d.dates].filter(Boolean).map(esc).join(" · ")
+        +'</small>';
+      g.appendChild(head);
+      var v=vainqueurEl(d); if(v) g.appendChild(v);
+      (d.palmares||[]).forEach(function(e){
+        if((e.laureats||[]).length) g.appendChild(palmaresEpreuveEl(e));
+      });
+      zone.appendChild(g);
+    });
+  }
+
   // Aperçu des travaux sur la page de l'édition consultée.
   function renderAssisesRevue(d){
     var sec=document.getElementById("assisesRevueSection"), zone=document.getElementById("assisesRevue");
@@ -1958,7 +2109,7 @@
   /* ---------- Router ---------- */
   var views = { home:"view-home", qsn:"view-qsn", assises:"view-assises", actualites:"view-actualites",
     article:"view-article", revue:"view-revue", publication:"view-publication",
-    pays:"view-pays", membre:"view-membre", cellule:"view-cellule" };
+    palmares:"view-palmares", pays:"view-pays", membre:"view-membre", cellule:"view-cellule" };
 
   /* ---------- Titre et adresse canonique, vue par vue ----------
      Le bloc SEO:DEBUT en tête de fichier règle le cas des pages qui ont leur propre
@@ -1979,6 +2130,8 @@
       "Le grand rendez-vous annuel du réseau : congrès scientifique, compétitions sportives et soirées culturelles réunissant les délégations des huit pays membres."],
     revue:["Revue scientifique — REMAO",
       "Les travaux scientifiques des étudiants présentés aux Assises du REMAO, rangés par édition."],
+    palmares:["Palmarès des Assises — REMAO",
+      "Les lauréats de chaque édition des Assises du REMAO : communications scientifiques, jeu génie, compétitions sportives et distinctions culturelles."],
     actualites:["Actualités — REMAO",
       "Communiqués officiels, vie du réseau et actualités des cellules nationales du REMAO."],
     membre:["Devenir membre — REMAO",
@@ -2049,11 +2202,11 @@
      sachant pas réécrire les URL, le fichier 404.html reprend le site : toute adresse
      inconnue affiche donc la bonne page, et le routeur ci-dessous lit le chemin. */
   var SEGMENT = { home:"", qsn:"qui-sommes-nous", assises:"assises", actualites:"actualites",
-                  article:"actualites", revue:"revue", publication:"revue",
+                  article:"actualites", revue:"revue", publication:"revue", palmares:"palmares",
                   pays:"pays", membre:"devenir-membre", cellule:"creer-une-cellule" };
   var VUE_DU_SEGMENT = { "qui-sommes-nous":"qsn", "assises":"assises", "actualites":"actualites",
-                         "revue":"revue", "pays":"pays", "devenir-membre":"membre",
-                         "creer-une-cellule":"cellule" };
+                         "revue":"revue", "palmares":"palmares", "pays":"pays",
+                         "devenir-membre":"membre", "creer-une-cellule":"cellule" };
   // En file:// il n'y a pas de chemin exploitable : on retombe sur les ancres.
   var routageChemin = (location.protocol==="http:" || location.protocol==="https:");
 
@@ -2167,6 +2320,9 @@
     });
   }
   renderMembreList();
+  // Sans ce premier appel, un accès direct à /palmares/ resterait vide, sans même le
+  // message d'attente, le temps que les éditions arrivent de la base.
+  renderPalmares();
 
   /* ---------- Global nav delegation ---------- */
   document.addEventListener("click", function(e){
@@ -2403,6 +2559,8 @@
         var et=history.state;
         renderAssises((et && et.vue==="assises" && et.param && assisesParId[et.param]) ? assisesParId[et.param] : vedette);
         renderEditions();
+        // La page Palmarès se construit à partir de toutes les éditions chargées.
+        renderPalmares();
       }
 
       /* --- Revue scientifique ---

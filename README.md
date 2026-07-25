@@ -11,6 +11,7 @@ Site statique (HTML/CSS/JS) adossé à Supabase pour les contenus et l'espace d'
 - Accueil (chiffres clés, Assises, délégations, actualités, adhésion)
 - Qui sommes-nous (histoire, mission, Bureau Exécutif)
 - Assises du REMAO (Conakry 2026)
+- Palmarès (les lauréats de chaque édition, épreuve par épreuve)
 - Revue scientifique (travaux des étudiants, rangés par édition des Assises)
 - Actualités et articles
 - Pages pays (8 délégations)
@@ -24,6 +25,12 @@ travaux de la revue scientifique, documents officiels, partenaires et images du 
 
 Un travail de la revue se rattache à une édition des Assises : c'est ce lien qui range
 la page `/revue/` par édition. Créer d'abord l'édition, puis les travaux.
+
+Le palmarès se saisit dans la fiche de l'édition : une épreuve, puis ses lauréats dans
+l'ordre du podium. Le rang laissé vide se numérote seul, 1er, 2e, 3e, et prend la couleur
+de la médaille ; écrit à la main, « Miss REMAO » ou « Prix du jury », il s'affiche tel
+quel, sans médaille. Tant qu'aucun lauréat n'est saisi, ni la section de l'édition ni la
+ligne de la page `/palmares/` n'existent.
 
 L'accès est réservé aux comptes créés par le Bureau. Les inscriptions publiques sont
 désactivées : un nouveau compte se crée dans Supabase, Authentication > Users, en
