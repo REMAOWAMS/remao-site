@@ -65,6 +65,59 @@ function resumer(txt, n = 160) {
   return bout.replace(/[\s,;:.…]+$/, "") + "…";
 }
 
+/* ---------- Dates d'une édition ---------- */
+
+const MOIS = { janvier:1, "février":2, fevrier:2, mars:3, avril:4, mai:5, juin:6, juillet:7,
+  "août":8, aout:8, septembre:9, octobre:10, novembre:11, "décembre":12, decembre:12 };
+
+// La date de clôture a son champ dans l'admin, mais les éditions saisies avant son
+// ajout ne l'ont pas. On la retrouve alors dans le texte des dates, « du 13 au 22
+// octobre 2026 », et à défaut la fiche événement s'en passe : Google n'exige que
+// la date d'ouverture.
+function dateFin(d) {
+  if (d.date_fin) return d.date_fin;
+  const m = String(d.dates || "").match(/au\s+(\d{1,2})(?:er)?\s+([a-zéèûôîA-ZÉÈÛÔÎ]+)\s+(\d{4})/i);
+  if (!m) return undefined;
+  const mois = MOIS[m[2].toLowerCase()];
+  if (!mois) return undefined;
+  return `${m[3]}-${String(mois).padStart(2, "0")}-${String(m[1]).padStart(2, "0")}`;
+}
+
+// Fiche evenement, lue par Google pour afficher les Assises comme un evenement daté.
+// Elle vit ici et non dans sync-pages.sh : ainsi elle suit ce que le Bureau saisit dans
+// l'admin, sans qu'une ligne de code soit a reprendre a chaque nouvelle edition.
+function ficheEvenement(d, url) {
+  if (!d.date_debut) return undefined;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: d.titre || `${d.numero || ""}es Assises du REMAO`,
+    startDate: d.date_debut,
+    endDate: dateFin(d),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    description: resumer(texte(d.theme) || [d.ville, d.dates].filter(Boolean).join(", "), 300) || undefined,
+    url,
+    image: d.image || IMAGE_DEFAUT,
+    location: d.ville ? { "@type": "Place", name: d.ville } : undefined,
+    organizer: {
+      "@type": "Organization",
+      name: "Réseau des Étudiants en Médecine de l'Afrique de l'Ouest",
+      url: SITE + "/"
+    }
+  };
+}
+
+// Édition mise en avant, même règle que le site : « En cours », sinon « À venir »,
+// sinon le numéro le plus élevé. C'est elle qui donne son en-tête à /assises/.
+function editionVedette(liste) {
+  for (const statut of ["En cours", "À venir"]) {
+    const v = liste.find(d => d.statut === statut);
+    if (v) return v;
+  }
+  return [...liste].sort((a, b) => (parseInt(b.numero, 10) || 0) - (parseInt(a.numero, 10) || 0))[0];
+}
+
 /* ---------- Lecture de la base ---------- */
 
 function configSupabase() {
@@ -227,18 +280,30 @@ for (const l of par.publication || []) {
   gardes.revue.add(l.id);
 }
 
-for (const l of par.assises || []) {
-  const d = l.data || {};
+function enTeteEdition(d, dossier) {
   const titre = (d.titre || `${d.numero || ""}es Assises du REMAO`).replace(/\.$/, "");
-  urls.push(ecrirePage(`assises/${l.id}`, {
+  const url = `${SITE}/${dossier}/`;
+  return {
     titre: suffixe(titre),
     description: resumer(texte(d.theme) || [d.ville, d.dates].filter(Boolean).join(", ")) ||
       "Une édition des Assises du REMAO.",
     image: d.image || "",
-    type: "website"
-  }));
+    type: "website",
+    jsonld: ficheEvenement(d, url)
+  };
+}
+
+for (const l of par.assises || []) {
+  const d = l.data || {};
+  urls.push(ecrirePage(`assises/${l.id}`, enTeteEdition(d, `assises/${l.id}`)));
   gardes.assises.add(l.id);
 }
+
+// La page /assises/ affiche l'édition mise en avant : elle prend donc son en-tête et
+// sa fiche événement. sync-pages.sh a écrit une version neutre juste avant, qui reste
+// en place si la base est injoignable.
+const vedette = editionVedette(Object.values(editions));
+if (vedette) urls.push(ecrirePage("assises", enTeteEdition(vedette, "assises")));
 
 const retires = nettoyer("actualites", gardes.actualites)
   + nettoyer("revue", gardes.revue)

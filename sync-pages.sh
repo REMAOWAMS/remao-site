@@ -70,47 +70,17 @@ while IFS='|' read -r dossier titre desc; do
   poser "$dossier" "$titre" "$desc"
 done <<'VUES'
 qui-sommes-nous|Qui sommes-nous — REMAO|Histoire du REMAO depuis sa fondation en 1997 à Ouagadougou, mission du réseau et composition du Bureau Exécutif.
+assises|Assises du REMAO|Le grand rendez-vous annuel du réseau : congrès scientifique, compétitions sportives et soirées culturelles réunissant les délégations des huit pays membres.
 revue|Revue scientifique — REMAO|Les travaux scientifiques des étudiants présentés aux Assises du REMAO, rangés par édition.
 actualites|Actualités — REMAO|Communiqués officiels, vie du réseau et actualités des cellules nationales du REMAO.
 devenir-membre|Devenir membre — REMAO|Rejoindre le REMAO en passant par la cellule nationale de son pays. Les contacts des huit délégations.
 creer-une-cellule|Créer une cellule nationale — REMAO|La démarche pour créer une cellule du REMAO dans son pays et rejoindre le réseau.
 VUES
 
-# ---------------------------------------------------------------------------
-# Les Assises, seule page portant une fiche evenement
-# ---------------------------------------------------------------------------
-# Ville et dates sont figees ici alors qu'elles se modifient depuis l'admin : une fiche
-# evenement doit rester lisible sans JavaScript. A reprendre au changement d'edition,
-# en meme temps que le titre et la description ci-dessous.
-cat > .seo-event.tmp <<'EVENT'
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Event",
-  "name": "21es Assises du REMAO — Conakry 2026",
-  "startDate": "2026-10-13",
-  "endDate": "2026-10-22",
-  "eventStatus": "https://schema.org/EventScheduled",
-  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-  "description": "Le rendez-vous annuel du Réseau des Étudiants en Médecine de l'Afrique de l'Ouest : congrès scientifique, compétitions sportives et soirées culturelles réunissant les délégations des huit pays membres.",
-  "url": "https://remao.org/assises/",
-  "image": "https://remao.org/og-image.jpg",
-  "location": {
-    "@type": "Place",
-    "name": "Conakry, Guinée",
-    "address": { "@type": "PostalAddress", "addressLocality": "Conakry", "addressCountry": "GN" }
-  },
-  "organizer": {
-    "@type": "Organization",
-    "name": "Réseau des Étudiants en Médecine de l'Afrique de l'Ouest",
-    "url": "https://remao.org/"
-  }
-}
-</script>
-EVENT
-poser "assises" "Assises du REMAO — 21es Assises, Conakry 2026" \
-  "Le grand rendez-vous annuel du réseau : science, sport et culture. Les 21es Assises se tiennent à Conakry, en Guinée, en octobre 2026." \
-  .seo-event.tmp
+# La page des Assises est ensuite reecrite par prerender.mjs, qui lui donne le titre,
+# l'affiche et la fiche evenement de l'edition mise en avant, telle qu'elle est saisie
+# dans l'administration. L'en-tete neutre ci-dessus est ce qui reste si la base est
+# injoignable : rien de faux, seulement moins precis.
 
 # ---------------------------------------------------------------------------
 # Les huit cellules nationales
@@ -162,6 +132,6 @@ Allow: /
 Sitemap: $SITE/sitemap.xml
 ROBOTS
 
-rm -f "$BLOC" .seo-event.tmp .seo-noindex.tmp
+rm -f "$BLOC" .seo-noindex.tmp
 
 echo "Pages regenerees : 404.html + $NB pages avec leur propre en-tete, sitemap.xml, robots.txt"

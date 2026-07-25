@@ -50,6 +50,12 @@ l'administration, sans rien faire de plus : l'aperçu de partage devient correct
 l'heure. Pour un communiqué urgent, onglet **Actions** du dépôt, workflow
 « Pregeneration des pages », bouton **Run workflow**, et c'est en ligne en deux minutes.
 
+La page `/assises/` et chaque édition portent une fiche événement lue par Google. Elle est
+construite à partir de la fiche saisie dans l'administration : titre, affiche, ville,
+thème, date d'ouverture et date de clôture. Rien à modifier dans le code au changement
+d'édition. Si la date de clôture n'est pas renseignée, elle est déduite du texte des
+dates, « du 13 au 22 octobre 2026 ».
+
 En local, l'ordre est le même que celui de l'Action :
 
 ```sh
