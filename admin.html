@@ -168,8 +168,15 @@
   .pal-bloc{border:1px solid var(--line-strong);border-radius:var(--r-sm);background:var(--card);padding:14px;}
   .pal-head{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;}
   .pal-lignes{display:grid;gap:7px;margin:12px 0 10px;}
-  .pal-lig{display:grid;grid-template-columns:90px 1fr 170px auto;gap:8px;align-items:center;}
-  @media (max-width:720px){ .pal-head,.pal-lig{grid-template-columns:1fr;} }
+  .pal-lig{display:grid;grid-template-columns:64px 90px 1fr 170px auto;gap:8px;align-items:center;}
+  /* Portrait du laureat : meme zone de depot que les autres images, en miniature,
+     pour qu'une ligne de podium reste une ligne. */
+  .drop.mini{width:64px;height:64px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+  .drop.mini svg{width:20px;height:20px;margin:0;}
+  .drop.mini div{display:none;}
+  .drop.mini.has img{width:64px;height:64px;max-height:none;object-fit:cover;}
+  .drop.mini .change{position:absolute;inset:auto 0 0 0;bottom:0;border-radius:0;padding:2px 0;font-size:10px;text-align:center;border:none;}
+  @media (max-width:720px){ .pal-head,.pal-lig{grid-template-columns:1fr;} .drop.mini{width:100%;} }
   .rich-tool{display:flex;gap:4px;padding:8px;background:var(--paper-2);border:1px solid var(--line-strong);border-bottom:none;border-radius:var(--r-sm) var(--r-sm) 0 0;}
   .rich-tool button{width:32px;height:30px;border-radius:7px;border:1px solid transparent;background:transparent;cursor:pointer;color:var(--ink-soft);font-weight:700;}
   .rich-tool button:hover{background:var(--card);border-color:var(--line);}
@@ -615,10 +622,12 @@
         +'<option>Athlétisme</option><option>Miss REMAO</option><option>Soirée culturelle</option></datalist>'
         +'<datalist id="dl_pays"><option>Bénin</option><option>Burkina Faso</option><option>Côte d\'Ivoire</option>'
         +'<option>Guinée</option><option>Mali</option><option>Niger</option><option>Sénégal</option><option>Togo</option></datalist>'
+        +'<datalist id="dl_rangs"><option>1er</option><option>2e</option><option>3e</option></datalist>'
         +'<div class="pal-epr">'+epr.map(palmaresEpreuveHTML).join("")+'</div>'
         +'<button type="button" class="btn btn-green" style="margin-top:12px" data-ajout-epreuve>Ajouter une épreuve</button>'
-        +'<div class="hint">Laisse le rang vide pour qu\'il se numérote seul : 1er, 2e, 3e. '
-        +'Écris-le pour un intitulé particulier, « Miss REMAO » ou « Prix du jury ». '
+        +'<div class="hint">Le rang se remplit tout seul, 1er puis 2e puis 3e, et se choisit dans la liste. '
+        +'Tu peux aussi y écrire un intitulé particulier, « Miss REMAO » ou « Prix du jury » : '
+        +'la ligne s\'affiche alors sans médaille. La photo du lauréat est facultative. '
         +'Tant qu\'aucun lauréat n\'est saisi, aucune section n\'apparaît sur le site.</div></div>');
     }
     if(f.t==="photos"){
@@ -759,8 +768,15 @@
      rempli, il affiche ce qui est écrit, « Miss REMAO » ou « Prix du jury ». */
   function palmaresLigneHTML(l){
     l=l||{};
+    var photo=l.photo||"";
+    // Le rang est un champ libre derriere une liste deroulante : les trois places du
+    // podium en un clic, et « Miss REMAO » ou « Prix du jury » restent possibles.
     return '<div class="pal-lig">'
-      +'<input class="inp" data-f="rang" placeholder="1er" value="'+esc(l.rang||"")+'">'
+      +'<div class="drop mini'+(photo?" has":"")+'" data-drop="image" data-prefix="laureat" data-val="'+esc(photo)+'">'
+      +(photo?'<img src="'+esc(photo)+'"><span class="change">Changer</span>'
+             :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg><div>Photo</div>')
+      +'<input type="file" accept="image/*" style="display:none"></div>'
+      +'<input class="inp" list="dl_rangs" data-f="rang" placeholder="1er" value="'+esc(l.rang||"")+'">'
       +'<input class="inp" data-f="nom" placeholder="Nom du lauréat ou de l\'équipe" value="'+esc(l.nom||"")+'">'
       +'<input class="inp" list="dl_pays" data-f="pays" placeholder="Délégation" value="'+esc(l.pays||"")+'">'
       +'<button type="button" class="chr-x" data-suppr-lig title="Retirer ce lauréat">&times;</button>'
@@ -786,25 +802,41 @@
       return {
         epreuve:(be.querySelector('[data-f="epreuve"]')||{}).value||"",
         laureats:Array.prototype.map.call(be.querySelectorAll(".pal-lig"),function(bl){
+          var d=bl.querySelector("[data-drop]");
           return {
             rang:(bl.querySelector('[data-f="rang"]')||{}).value||"",
             nom:(bl.querySelector('[data-f="nom"]')||{}).value||"",
-            pays:(bl.querySelector('[data-f="pays"]')||{}).value||""
+            pays:(bl.querySelector('[data-f="pays"]')||{}).value||"",
+            photo:d?(d.getAttribute("data-val")||""):""
           };
         }).filter(function(l){ return brut || l.nom || l.pays; })
       };
       // Une épreuve sans lauréat ne sert à rien : le site n'afficherait qu'un titre.
     }).filter(function(e){ return brut || (e.epreuve && e.laureats.length); });
   }
+  // Rang proposé pour une nouvelle ligne : la place suivante du podium, au-delà
+  // du troisième c'est à la main.
+  function rangSuivant(n){ return ["1er","2e","3e"][n] || ""; }
   function wirePalmares(zone){
     var liste=zone.querySelector(".pal-epr");
-    function redessiner(epr){ liste.innerHTML=epr.map(palmaresEpreuveHTML).join(""); }
+    function redessiner(epr){
+      liste.innerHTML=epr.map(palmaresEpreuveHTML).join("");
+      // Les zones de dépôt viennent d'être recréées : sans ce rappel, cliquer sur
+      // une photo n'ouvrirait plus le sélecteur de fichier.
+      liste.querySelectorAll("[data-drop]").forEach(wireDrop);
+    }
+    // Les lignes déjà présentes à l'ouverture du formulaire ne passent pas par
+    // redessiner : on les câble ici.
+    liste.querySelectorAll("[data-drop]").forEach(wireDrop);
     zone.addEventListener("click",function(e){
       var b=e.target.closest("button"); if(!b||!zone.contains(b)) return;
+      // Un clic dans une zone de dépôt n'est pas une action de structure : wireDrop
+      // s'en charge, et redessiner ici ferait perdre l'image en cours d'envoi.
+      if(e.target.closest("[data-drop]")) return;
       var epr=lirePalmares(zone);
       var bloc=b.closest(".pal-bloc");
       var i=bloc ? Array.prototype.indexOf.call(liste.children,bloc) : -1;
-      if(b.hasAttribute("data-ajout-epreuve")){ epr.push({epreuve:"",laureats:[{rang:"",nom:"",pays:""}]}); redessiner(epr); return; }
+      if(b.hasAttribute("data-ajout-epreuve")){ epr.push({epreuve:"",laureats:[{rang:rangSuivant(0),nom:"",pays:"",photo:""}]}); redessiner(epr); return; }
       if(i<0) return;
       // Comme pour le chronogramme : une ligne tout juste ajoutée est encore vide et
       // serait écartée à la lecture, l'index ne correspondrait plus.
@@ -812,7 +844,7 @@
       if(b.hasAttribute("data-suppr-epreuve")){ epr.splice(i,1); redessiner(epr); }
       else if(b.hasAttribute("data-monter") && i>0){ epr.splice(i-1,0,epr.splice(i,1)[0]); redessiner(epr); }
       else if(b.hasAttribute("data-descendre") && i<epr.length-1){ epr.splice(i+1,0,epr.splice(i,1)[0]); redessiner(epr); }
-      else if(b.hasAttribute("data-ajout-lig")){ epr[i].laureats.push({rang:"",nom:"",pays:""}); redessiner(epr); }
+      else if(b.hasAttribute("data-ajout-lig")){ epr[i].laureats.push({rang:rangSuivant(epr[i].laureats.length),nom:"",pays:"",photo:""}); redessiner(epr); }
       else if(b.hasAttribute("data-suppr-lig")){
         var bl=b.closest(".pal-lig");
         var k=Array.prototype.indexOf.call(bloc.querySelectorAll(".pal-lig"),bl);

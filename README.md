@@ -27,10 +27,11 @@ Un travail de la revue se rattache à une édition des Assises : c'est ce lien q
 la page `/revue/` par édition. Créer d'abord l'édition, puis les travaux.
 
 Le palmarès se saisit dans la fiche de l'édition : une épreuve, puis ses lauréats dans
-l'ordre du podium. Le rang laissé vide se numérote seul, 1er, 2e, 3e, et prend la couleur
-de la médaille ; écrit à la main, « Miss REMAO » ou « Prix du jury », il s'affiche tel
-quel, sans médaille. Tant qu'aucun lauréat n'est saisi, ni la section de l'édition ni la
-ligne de la page `/palmares/` n'existent.
+l'ordre du podium, avec une photo facultative pour chacun. Le rang se remplit tout seul,
+1er puis 2e puis 3e, et se choisit dans une liste ; ces trois valeurs prennent la couleur
+de leur médaille. Écrit à la main, « Miss REMAO » ou « Prix du jury », le rang s'affiche
+tel quel, sans médaille. Tant qu'aucun lauréat n'est saisi, ni la section de l'édition ni
+la ligne de la page `/palmares/` n'existent.
 
 L'accès est réservé aux comptes créés par le Bureau. Les inscriptions publiques sont
 désactivées : un nouveau compte se crée dans Supabase, Authentication > Users, en

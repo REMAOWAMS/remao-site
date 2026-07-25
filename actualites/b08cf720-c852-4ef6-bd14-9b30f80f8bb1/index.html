@@ -650,6 +650,12 @@
   .pal-place.or   .pl-rang { background:#c9a227; border-color:#c9a227; color:#fff; }
   .pal-place.arg  .pl-rang { background:#9aa3ab; border-color:#9aa3ab; color:#fff; }
   .pal-place.bro  .pl-rang { background:#b06a3b; border-color:#b06a3b; color:#fff; }
+  .pal-place .pl-photo { flex:none; width:52px; height:52px; border-radius:50%; overflow:hidden;
+    border:2px solid var(--card-2); background:var(--card-2); }
+  .pal-place .pl-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+  .pal-place.or .pl-photo { border-color:#c9a227; }
+  .pal-place.arg .pl-photo { border-color:#9aa3ab; }
+  .pal-place.bro .pl-photo { border-color:#b06a3b; }
   .pal-place .pl-nom { font-weight:700; font-size:16.5px; line-height:1.3; }
   .pal-place .pl-pays { color:var(--gray); font-size:13.5px; margin-top:3px; }
   .pal-place .pl-flag { margin-left:auto; width:38px; height:27px; border-radius:5px; overflow:hidden;
@@ -1997,12 +2003,14 @@
     var podium=document.createElement("div"); podium.className="pal-podium";
     (e.laureats||[]).forEach(function(l,i){
       var el=document.createElement("div");
-      // Les trois premières places prennent la couleur de leur médaille, mais seulement
-      // quand le rang n'a pas été renommé : « Prix du jury » n'est pas une médaille d'or.
-      var propre = !String(l.rang||"").trim();
-      el.className="pal-place"+(propre && i<3 ? " "+["or","arg","bro"][i] : "");
+      var rang=String(l.rang||"").trim() || rangDefaut(i);
+      // La couleur de la médaille vient du rang lui-même : « Prix du jury » ou
+      // « Miss REMAO » ne sont pas des places de podium, ils restent neutres.
+      var medaille={ "1er":"or", "2e":"arg", "3e":"bro" }[rang] || "";
+      el.className="pal-place"+(medaille?" "+medaille:"");
       var code=codePays(l.pays);
-      el.innerHTML='<span class="pl-rang">'+esc(l.rang||rangDefaut(i))+'</span>'
+      el.innerHTML='<span class="pl-rang">'+esc(rang)+'</span>'
+        +(l.photo?'<span class="pl-photo"><img src="'+esc(l.photo)+'" alt="'+esc(l.nom||"Lauréat")+'" loading="lazy"></span>':'')
         +'<span><span class="pl-nom">'+esc(l.nom||"—")+'</span>'
         +(l.pays?'<span class="pl-pays">Cellule '+esc(l.pays)+'</span>':'')+'</span>'
         +(code?'<span class="pl-flag">'+flags[code]+'</span>':'');
