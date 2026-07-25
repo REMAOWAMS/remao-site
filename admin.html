@@ -169,6 +169,11 @@
   .pal-head{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;}
   .pal-lignes{display:grid;gap:7px;margin:12px 0 10px;}
   .pal-lig{display:grid;grid-template-columns:64px 90px 1fr 170px auto;gap:8px;align-items:center;}
+  /* Theme et sous-themes ne concernent que les epreuves scientifiques : ils
+     n'apparaissent que la, pour ne pas encombrer un podium de football. */
+  .pal-theme{margin:10px 0 0;}
+  .pal-bloc:not(.sci) .pal-theme,.pal-bloc:not(.sci) .pal-sous{display:none;}
+  .pal-bloc.sci .pal-lig{grid-template-columns:64px 90px 1fr 1fr 170px auto;}
   /* Portrait du laureat : meme zone de depot que les autres images, en miniature,
      pour qu'une ligne de podium reste une ligne. */
   .drop.mini{width:64px;height:64px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:12px;}
@@ -778,14 +783,25 @@
       +'<input type="file" accept="image/*" style="display:none"></div>'
       +'<input class="inp" list="dl_rangs" data-f="rang" placeholder="1er" value="'+esc(l.rang||"")+'">'
       +'<input class="inp" data-f="nom" placeholder="Nom du lauréat ou de l\'équipe" value="'+esc(l.nom||"")+'">'
+      +'<input class="inp pal-sous" data-f="sous_theme" placeholder="Sous-thème traité" value="'+esc(l.sous_theme||"")+'">'
       +'<input class="inp" list="dl_pays" data-f="pays" placeholder="Délégation" value="'+esc(l.pays||"")+'">'
       +'<button type="button" class="chr-x" data-suppr-lig title="Retirer ce lauréat">&times;</button>'
       +'</div>';
   }
+  // Une épreuve porte un thème quand elle est scientifique : les communications
+  // sont classées par thème général, chaque cellule traitant son propre sous-thème.
+  // On reconnaît ces épreuves à leur intitulé, et on garde les champs visibles dès
+  // qu'un thème est déjà saisi, pour ne jamais cacher une donnée enregistrée.
+  function epreuveScientifique(e){
+    e=e||{};
+    return /communicat|poster|scientifiq|mémoire|memoire|article/i.test(e.epreuve||"")
+      || !!(e.theme||"").trim()
+      || (e.laureats||[]).some(function(l){ return (l.sous_theme||"").trim(); });
+  }
   function palmaresEpreuveHTML(e){
     e=e||{};
     var lignes=(e.laureats||[]).map(palmaresLigneHTML).join("");
-    return '<div class="pal-bloc">'
+    return '<div class="pal-bloc'+(epreuveScientifique(e)?" sci":"")+'">'
       +'<div class="pal-head">'
       +'<input class="inp" list="dl_epreuves" data-f="epreuve" placeholder="Intitulé de l\'épreuve" value="'+esc(e.epreuve||"")+'">'
       +'<span class="chr-actions">'
@@ -793,6 +809,7 @@
       +'<button type="button" class="chr-x" data-descendre title="Descendre">&#8595;</button>'
       +'<button type="button" class="chr-x" data-suppr-epreuve title="Supprimer l\'épreuve">&times;</button>'
       +'</span></div>'
+      +'<input class="inp pal-theme" data-f="theme" placeholder="Thème général, ex. Tuberculose en Afrique de l\'Ouest" value="'+esc(e.theme||"")+'">'
       +'<div class="pal-lignes">'+lignes+'</div>'
       +'<button type="button" class="btn btn-ghost chr-add" data-ajout-lig>Ajouter un lauréat</button>'
       +'</div>';
@@ -801,11 +818,13 @@
     return Array.prototype.map.call(zone.querySelectorAll(".pal-bloc"),function(be){
       return {
         epreuve:(be.querySelector('[data-f="epreuve"]')||{}).value||"",
+        theme:(be.querySelector('[data-f="theme"]')||{}).value||"",
         laureats:Array.prototype.map.call(be.querySelectorAll(".pal-lig"),function(bl){
           var d=bl.querySelector("[data-drop]");
           return {
             rang:(bl.querySelector('[data-f="rang"]')||{}).value||"",
             nom:(bl.querySelector('[data-f="nom"]')||{}).value||"",
+            sous_theme:(bl.querySelector('[data-f="sous_theme"]')||{}).value||"",
             pays:(bl.querySelector('[data-f="pays"]')||{}).value||"",
             photo:d?(d.getAttribute("data-val")||""):""
           };
@@ -828,6 +847,16 @@
     // Les lignes déjà présentes à l'ouverture du formulaire ne passent pas par
     // redessiner : on les câble ici.
     liste.querySelectorAll("[data-drop]").forEach(wireDrop);
+    // « Communications scientifiques » fait apparaître le thème et les sous-thèmes
+    // pendant la frappe. On ne redessine pas, sinon le curseur serait perdu à chaque
+    // lettre. Un thème déjà saisi maintient les champs visibles quoi qu'il arrive.
+    zone.addEventListener("input",function(e){
+      var champ=e.target.closest('[data-f="epreuve"]'); if(!champ) return;
+      var bloc=champ.closest(".pal-bloc"); if(!bloc) return;
+      var saisi=Array.prototype.some.call(bloc.querySelectorAll('[data-f="theme"],[data-f="sous_theme"]'),
+        function(x){ return (x.value||"").trim(); });
+      bloc.classList.toggle("sci", epreuveScientifique({epreuve:champ.value}) || saisi);
+    });
     zone.addEventListener("click",function(e){
       var b=e.target.closest("button"); if(!b||!zone.contains(b)) return;
       // Un clic dans une zone de dépôt n'est pas une action de structure : wireDrop

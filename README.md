@@ -33,6 +33,12 @@ de leur médaille. Écrit à la main, « Miss REMAO » ou « Prix du jury », le
 tel quel, sans médaille. Tant qu'aucun lauréat n'est saisi, ni la section de l'édition ni
 la ligne de la page `/palmares/` n'existent.
 
+Les communications scientifiques se classent par thème général, chaque délégation
+traitant son propre sous-thème. Saisir alors une épreuve par thème, toutes nommées
+« Communications scientifiques » : le site n'écrit l'intitulé qu'une fois et enchaîne les
+thèmes. Le champ « Thème » et les sous-thèmes des lauréats n'apparaissent que sur les
+épreuves scientifiques, reconnues à leur intitulé.
+
 L'accès est réservé aux comptes créés par le Bureau. Les inscriptions publiques sont
 désactivées : un nouveau compte se crée dans Supabase, Authentication > Users, en
 cochant « Auto Confirm User ».

@@ -639,8 +639,19 @@
   .pal-vainqueur small { display:block; margin-top:6px; font-size:14px; opacity:.85; }
   .pal-epreuve { margin-bottom:40px; }
   .pal-epreuve:last-child { margin-bottom:0; }
+  /* Thème suivant de la même épreuve : il se colle au précédent, sans nouveau titre. */
+  .pal-epreuve.suite { margin-top:-16px; }
   .pal-epreuve > h3 { font-size:20px; font-weight:800; letter-spacing:-0.01em;
-    padding-bottom:12px; margin-bottom:18px; border-bottom:1px solid var(--line); }
+    padding-bottom:12px; border-bottom:1px solid var(--line); }
+  /* Thème général d'une épreuve scientifique, au-dessus de son podium. */
+  .pal-epreuve .pal-theme { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+    margin:14px 0 4px; font-size:15.5px; color:var(--ink-soft); font-style:italic; }
+  .pal-epreuve .pal-theme span { font-style:normal; font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.12em; color:var(--green);
+    background:var(--green-tint); border-radius:999px; padding:4px 10px; }
+  .pal-epreuve > h3 + .pal-podium, .pal-epreuve .pal-theme + .pal-podium { margin-top:18px; }
+  .pal-place .pl-sous { display:block; color:var(--ink-soft); font-size:14px; margin-top:4px;
+    font-style:italic; }
   .pal-podium { display:grid; gap:12px; }
   .pal-place { display:flex; align-items:center; gap:16px; padding:16px 20px;
     border:1px solid var(--line); border-radius:16px; background:var(--card); }
@@ -1997,9 +2008,23 @@
   function codePays(nom){ return nomVersCode[String(nom||"").trim().toLowerCase()] || ""; }
   function rangDefaut(i){ return i===0 ? "1er" : (i+1)+"e"; }
 
-  function palmaresEpreuveEl(e){
+  function palmaresEpreuveEl(e, avecTitre){
     var sec=document.createElement("div"); sec.className="pal-epreuve";
-    var h=document.createElement("h3"); h.textContent=e.epreuve||"Épreuve";
+    // Les communications se déclinent en plusieurs thèmes, saisis comme autant
+    // d'épreuves du même nom. On n'écrit l'intitulé qu'une fois, sur la première.
+    if(avecTitre!==false){
+      var h=document.createElement("h3"); h.textContent=e.epreuve||"Épreuve";
+      sec.appendChild(h);
+    } else {
+      sec.classList.add("suite");
+    }
+    // Les communications scientifiques sont classées par thème général, chaque
+    // délégation traitant son propre sous-thème.
+    if((e.theme||"").trim()){
+      var th=document.createElement("p"); th.className="pal-theme";
+      th.innerHTML='<span>Thème</span>'+esc(e.theme);
+      sec.appendChild(th);
+    }
     var podium=document.createElement("div"); podium.className="pal-podium";
     (e.laureats||[]).forEach(function(l,i){
       var el=document.createElement("div");
@@ -2012,11 +2037,12 @@
       el.innerHTML='<span class="pl-rang">'+esc(rang)+'</span>'
         +(l.photo?'<span class="pl-photo"><img src="'+esc(l.photo)+'" alt="'+esc(l.nom||"Lauréat")+'" loading="lazy"></span>':'')
         +'<span><span class="pl-nom">'+esc(l.nom||"—")+'</span>'
+        +(l.sous_theme?'<span class="pl-sous">'+esc(l.sous_theme)+'</span>':'')
         +(l.pays?'<span class="pl-pays">Cellule '+esc(l.pays)+'</span>':'')+'</span>'
         +(code?'<span class="pl-flag">'+flags[code]+'</span>':'');
       podium.appendChild(el);
     });
-    sec.appendChild(h); sec.appendChild(podium);
+    sec.appendChild(podium);
     return sec;
   }
 
@@ -2035,6 +2061,18 @@
     return !!(d && ((d.palmares||[]).some(function(e){ return (e.laureats||[]).length; }) || d.vainqueur));
   }
 
+  // Ajoute les épreuves d'une édition, en regroupant celles qui portent le même
+  // intitulé : « Communications scientifiques », thème 1, thème 2, thème 3.
+  function poserEpreuves(hote, d){
+    var precedent=null;
+    (d.palmares||[]).forEach(function(e){
+      if(!(e.laureats||[]).length) return;
+      var meme = precedent!==null && (e.epreuve||"")===precedent;
+      hote.appendChild(palmaresEpreuveEl(e, !meme));
+      precedent = e.epreuve||"";
+    });
+  }
+
   function renderAssisesPalmares(d){
     var sec=document.getElementById("assisesPalmaresSection"),
         zone=document.getElementById("assisesPalmares");
@@ -2042,9 +2080,7 @@
     if(!aPalmares(d)){ sec.hidden=true; zone.innerHTML=""; return; }
     zone.innerHTML="";
     var v=vainqueurEl(d); if(v) zone.appendChild(v);
-    (d.palmares||[]).forEach(function(e){
-      if((e.laureats||[]).length) zone.appendChild(palmaresEpreuveEl(e));
-    });
+    poserEpreuves(zone, d);
     sec.hidden=false;
   }
 
@@ -2063,9 +2099,7 @@
         +'</small>';
       g.appendChild(head);
       var v=vainqueurEl(d); if(v) g.appendChild(v);
-      (d.palmares||[]).forEach(function(e){
-        if((e.laureats||[]).length) g.appendChild(palmaresEpreuveEl(e));
-      });
+      poserEpreuves(g, d);
       zone.appendChild(g);
     });
   }
