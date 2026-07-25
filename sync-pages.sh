@@ -43,6 +43,10 @@ poser() {
     printf '<meta property="og:title" content="%s">\n' "$titre"
     printf '<meta property="og:description" content="%s">\n' "$desc"
     printf '<meta property="og:url" content="%s">\n' "$url"
+    printf '<meta property="og:type" content="website">\n'
+    printf '<meta property="og:image" content="%s/og-image.jpg">\n' "$SITE"
+    printf '<meta property="og:image:width" content="1200">\n'
+    printf '<meta property="og:image:height" content="630">\n'
     if [ -n "$extra" ] && [ -f "$extra" ]; then cat "$extra"; fi
   } > "$BLOC"
   awk -v bloc="$BLOC" '

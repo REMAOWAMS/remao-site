@@ -39,11 +39,22 @@ script produit aussi `sitemap.xml` et `robots.txt`.
 **Après toute modification d'`index.html`, lancer `./sync-pages.sh`** : sans cela les
 autres pages restent sur l'ancienne version du site.
 
-Les articles et les travaux de la revue ont une adresse tirée de la base : aucun fichier
-ne leur est dédié, ils passent par `404.html`. Leur titre est posé par le JavaScript, ce
-que Google lit, mais pas les robots de WhatsApp ni de Facebook. Un article partagé affiche
-donc l'aperçu générique du site. Y remédier suppose de prégénérer une page par article
-depuis Supabase, à automatiser par une GitHub Action.
+Les articles, les travaux de la revue et les éditions des Assises ont une adresse tirée de
+la base. [`prerender.mjs`](prerender.mjs) interroge Supabase et écrit un vrai fichier pour
+chacun, avec son titre, son résumé et sa photo. Il complète le plan du site et supprime
+les pages des contenus effacés depuis l'administration.
+
+Ce script tourne tout seul **toutes les heures**, par la GitHub Action
+[`prerender.yml`](.github/workflows/prerender.yml). Le Bureau publie depuis
+l'administration, sans rien faire de plus : l'aperçu de partage devient correct dans
+l'heure. Pour un communiqué urgent, onglet **Actions** du dépôt, workflow
+« Pregeneration des pages », bouton **Run workflow**, et c'est en ligne en deux minutes.
+
+En local, l'ordre est le même que celui de l'Action :
+
+```sh
+./sync-pages.sh && node prerender.mjs
+```
 
 ## Mise en ligne
 

@@ -24,6 +24,10 @@
 <meta property="og:title" content="Devenir membre — REMAO">
 <meta property="og:description" content="Rejoindre le REMAO en passant par la cellule nationale de son pays. Les contacts des huit délégations.">
 <meta property="og:url" content="https://remao.org/devenir-membre/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://remao.org/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <!-- SEO:FIN -->
 <!-- Toujours déclarer les icônes : sans cela, le navigateur retombe sur le favicon mis en
      cache pour l'origine github.io du compte, celui d'un autre site.
@@ -32,12 +36,11 @@
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <!-- Aperçu lors du partage du lien (WhatsApp, Facebook, LinkedIn).
-     Les URL doivent être absolues, les réseaux ne résolvent pas le relatif. -->
-<meta property="og:type" content="website">
+     Le type, l'image et ses dimensions sont dans le bloc SEO ci-dessus : une photo
+     d'article n'a pas la taille de l'image par défaut, et une dimension déclarée
+     fausse fait rejeter l'aperçu. Les URL doivent être absolues, les réseaux ne
+     résolvent pas le relatif. -->
 <meta property="og:site_name" content="REMAO">
-<meta property="og:image" content="https://remao.org/og-image.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <!-- Données structurées : ce que Google lit pour reconnaître le réseau comme une
@@ -1664,6 +1667,10 @@
   function renderAssises(d){
     if(!d) return;
     assisesCourante = d;
+    // Les éditions arrivent après le premier affichage : sans ce rappel, le titre de la
+    // page resterait celui, générique, posé avant que l'édition ne soit connue.
+    var vue=document.getElementById("view-assises");
+    if(vue && vue.classList.contains("active")) majSeo("assises", d.id);
     var archivee = d.statut==="Archivée";
     setTxt("assisesTitre", d.titre);
     setTxt("assisesVille", d.ville);
@@ -1980,11 +1987,13 @@
     var el = document.querySelector(sel);
     if(el && valeur) el.setAttribute("content", valeur);
   }
+  // « XXIe Assises ... du REMAO — REMAO » : on n'ajoute le suffixe que s'il manque.
+  function suffixe(t){ return /REMAO/i.test(t) ? t : t+" — REMAO"; }
   function majSeo(name, param){
     var t = null, d = null;
     if(name==="article" && param){
       var n = news.filter(function(x){ return String(x.id)===String(param); })[0];
-      if(n) { t = n.title+" — REMAO"; d = n.excerpt || SEO_VUES.actualites[1]; }
+      if(n) { t = suffixe(n.title); d = n.excerpt || SEO_VUES.actualites[1]; }
     } else if(name==="publication" && param){
       var p = pubParId[param];
       if(p) { t = p.titre+" — Revue scientifique du REMAO";
@@ -1994,7 +2003,7 @@
       // s'annoncent comme celle de Conakry.
       var a = (param && assisesParId[param]) || assisesCourante;
       if(a && a.titre){
-        t = a.titre.replace(/\.$/, "")+" — REMAO";
+        t = suffixe(a.titre.replace(/\.$/, ""));
         d = a.theme || [a.ville, a.dates].filter(Boolean).join(", ") || SEO_VUES.assises[1];
       } else {
         t = SEO_VUES.assises[0]; d = SEO_VUES.assises[1];

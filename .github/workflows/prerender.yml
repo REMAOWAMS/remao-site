@@ -1,0 +1,74 @@
+# Regenere les pages du site a partir des contenus saisis dans l'administration.
+#
+# Le Bureau publie un article depuis remao.org/admin.html : le contenu part dans
+# Supabase, mais le site reste un ensemble de fichiers. Sans ce programme, l'article
+# n'a pas de page a lui, et son partage sur WhatsApp affiche l'apercu generique du
+# site. Ce travail tourne toutes les heures et ecrit les pages manquantes.
+#
+# Declenchement manuel possible : onglet Actions du depot, « Run workflow », pour un
+# communique urgent qui ne peut pas attendre le prochain passage.
+
+name: Pregeneration des pages
+
+on:
+  schedule:
+    # Toutes les heures. GitHub decale souvent de quelques minutes aux heures rondes,
+    # d'ou le choix de la minute 17.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+# Le programme ecrit dans le depot et demande la remise en ligne du site.
+permissions:
+  contents: write
+  pages: write
+
+# Deux executions simultanees se marcheraient dessus au moment du push.
+concurrency:
+  group: pregeneration
+  cancel-in-progress: false
+
+jobs:
+  pregenerer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # sync-pages.sh d'abord : il reconstruit les pages fixes a partir d'index.html,
+      # ce qui rattrape aussi une modification poussee sans avoir lance le script.
+      # prerender.mjs ensuite : il a besoin du sitemap ecrit par le premier.
+      - name: Regenerer les pages
+        run: |
+          sh sync-pages.sh
+          node prerender.mjs
+
+      - name: Publier s'il y a du nouveau
+        id: publication
+        run: |
+          git config user.name "REMAO (automatique)"
+          git config user.email "remao.wams@gmail.com"
+          if git diff --quiet; then
+            echo "Rien de nouveau depuis le dernier passage."
+            echo "modifie=non" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git add -A
+          git commit -m "Pregeneration des pages de contenu" \
+                     -m "Ecrit automatiquement a partir des contenus publies dans l'administration, pour que chaque article ait son titre et sa photo au partage d'un lien."
+          git push
+          echo "modifie=oui" >> "$GITHUB_OUTPUT"
+
+      # GitHub ne relance pas la mise en ligne apres un envoi fait par un programme
+      # automatique : le depot serait a jour, le site en ligne non. On la demande donc
+      # explicitement. Sans cette etape, tout semble fonctionner sans rien changer
+      # pour les visiteurs.
+      - name: Demander la remise en ligne du site
+        if: steps.publication.outputs.modifie == 'oui'
+        run: |
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds"
