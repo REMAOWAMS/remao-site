@@ -35,14 +35,15 @@ la ligne de la page `/palmares/` n'existent.
 
 Pour une épreuve par équipe, jeu génie ou football, mettre la délégation en nom du
 lauréat, « Cellule REMAO Guinée », et les joueurs dans le champ « Membres de l'équipe »,
-séparés par des virgules. Le rappel de la cellule ne s'affiche pas deux fois quand le nom
-la contient déjà.
+séparés par des virgules. La délégation n'est jamais réécrite sous le nom : le drapeau, à
+droite de la ligne, la donne déjà.
 
 Les communications scientifiques se classent par thème général, chaque délégation
-traitant son propre sous-thème. Saisir alors une épreuve par thème, toutes nommées
-« Communications scientifiques » : le site n'écrit l'intitulé qu'une fois et enchaîne les
-thèmes. Le champ « Thème » et les sous-thèmes des lauréats n'apparaissent que sur les
-épreuves scientifiques, reconnues à leur intitulé.
+traitant son propre sous-thème. Saisir une épreuve par thème, toutes nommées
+« Communications scientifiques » : le site les rassemble sous un seul titre et numérote
+les thèmes, Thème 1, Thème 2, Thème 3. La numérotation est calculée à l'affichage et
+l'ordre de saisie n'a pas d'importance. Le champ « Thème » et les sous-thèmes des
+lauréats n'apparaissent que sur les épreuves scientifiques, reconnues à leur intitulé.
 
 L'accès est réservé aux comptes créés par le Bureau. Les inscriptions publiques sont
 désactivées : un nouveau compte se crée dans Supabase, Authentication > Users, en

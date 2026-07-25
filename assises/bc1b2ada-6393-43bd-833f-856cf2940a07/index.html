@@ -641,8 +641,6 @@
   .pal-vainqueur small { display:block; margin-top:6px; font-size:14px; opacity:.85; }
   .pal-epreuve { margin-bottom:40px; }
   .pal-epreuve:last-child { margin-bottom:0; }
-  /* Thème suivant de la même épreuve : il se colle au précédent, sans nouveau titre. */
-  .pal-epreuve.suite { margin-top:-16px; }
   .pal-epreuve > h3 { font-size:20px; font-weight:800; letter-spacing:-0.01em;
     padding-bottom:12px; border-bottom:1px solid var(--line); }
   /* Thème général d'une épreuve scientifique, au-dessus de son podium. */
@@ -652,6 +650,8 @@
     text-transform:uppercase; letter-spacing:.12em; color:var(--green);
     background:var(--green-tint); border-radius:999px; padding:4px 10px; }
   .pal-epreuve > h3 + .pal-podium, .pal-epreuve .pal-theme + .pal-podium { margin-top:18px; }
+  /* Thème suivant du même bloc : de l'air entre deux podiums. */
+  .pal-epreuve .pal-podium + .pal-theme { margin-top:30px; }
   .pal-place .pl-sous { display:block; color:var(--ink-soft); font-size:14px; margin-top:4px;
     font-style:italic; }
   /* Composition d'une équipe : sous le nom de la délégation qui l'emporte. */
@@ -675,7 +675,6 @@
   .pal-place.arg .pl-photo { border-color:#9aa3ab; }
   .pal-place.bro .pl-photo { border-color:#b06a3b; }
   .pal-place .pl-nom { font-weight:700; font-size:16.5px; line-height:1.3; }
-  .pal-place .pl-pays { color:var(--gray); font-size:13.5px; margin-top:3px; }
   .pal-place .pl-flag { margin-left:auto; width:38px; height:27px; border-radius:5px; overflow:hidden;
     flex:none; border:1px solid var(--line); }
   .pal-place .pl-flag svg { width:100%; height:100%; display:block; }
@@ -2015,23 +2014,8 @@
   function codePays(nom){ return nomVersCode[String(nom||"").trim().toLowerCase()] || ""; }
   function rangDefaut(i){ return i===0 ? "1er" : (i+1)+"e"; }
 
-  function palmaresEpreuveEl(e, avecTitre){
-    var sec=document.createElement("div"); sec.className="pal-epreuve";
-    // Les communications se déclinent en plusieurs thèmes, saisis comme autant
-    // d'épreuves du même nom. On n'écrit l'intitulé qu'une fois, sur la première.
-    if(avecTitre!==false){
-      var h=document.createElement("h3"); h.textContent=e.epreuve||"Épreuve";
-      sec.appendChild(h);
-    } else {
-      sec.classList.add("suite");
-    }
-    // Les communications scientifiques sont classées par thème général, chaque
-    // délégation traitant son propre sous-thème.
-    if((e.theme||"").trim()){
-      var th=document.createElement("p"); th.className="pal-theme";
-      th.innerHTML='<span>Thème</span>'+esc(e.theme);
-      sec.appendChild(th);
-    }
+  // Le podium d'une épreuve : une ligne par lauréat, dans l'ordre saisi.
+  function palmaresPodiumEl(e){
     var podium=document.createElement("div"); podium.className="pal-podium";
     (e.laureats||[]).forEach(function(l,i){
       var el=document.createElement("div");
@@ -2044,22 +2028,19 @@
       // Espacement des virgules normalisé : la saisie « nom1,nom2 » se lit mal.
       var equipe=String(l.equipe||"").split(",").map(function(x){ return x.trim(); })
         .filter(Boolean).join(", ");
-      // Une équipe s'annonce souvent « Cellule REMAO Guinée » : inutile de répéter
-      // « Cellule Guinée » juste en dessous, le drapeau suffit à le rappeler.
-      var rappelPays = !!l.pays &&
-        String(l.nom||"").toLowerCase().indexOf(String(l.pays).toLowerCase())<0;
+      // La délégation n'est plus écrite sous le nom : le drapeau, à droite de la
+      // ligne, le dit déjà, et la répétition alourdissait chaque podium.
       el.innerHTML='<span class="pl-rang">'+esc(rang)+'</span>'
         +(l.photo?'<span class="pl-photo"><img src="'+esc(l.photo)+'" alt="'+esc(l.nom||"Lauréat")+'" loading="lazy"></span>':'')
         +'<span><span class="pl-nom">'+esc(l.nom||"—")+'</span>'
         +(l.sous_theme?'<span class="pl-sous">'+esc(l.sous_theme)+'</span>':'')
         // Épreuve par équipe : la délégation gagne, mais ce sont des joueurs qui jouent.
         +(equipe?'<span class="pl-equipe"><b>Équipe</b> '+esc(equipe)+'</span>':'')
-        +(rappelPays?'<span class="pl-pays">Cellule '+esc(l.pays)+'</span>':'')+'</span>'
-        +(code?'<span class="pl-flag">'+flags[code]+'</span>':'');
+        +'</span>'
+        +(code?'<span class="pl-flag" title="Cellule '+esc(l.pays)+'">'+flags[code]+'</span>':'');
       podium.appendChild(el);
     });
-    sec.appendChild(podium);
-    return sec;
+    return podium;
   }
 
   function vainqueurEl(d){
@@ -2077,15 +2058,34 @@
     return !!(d && ((d.palmares||[]).some(function(e){ return (e.laureats||[]).length; }) || d.vainqueur));
   }
 
-  // Ajoute les épreuves d'une édition, en regroupant celles qui portent le même
-  // intitulé : « Communications scientifiques », thème 1, thème 2, thème 3.
+  /* Toutes les épreuves du même intitulé forment un seul bloc, où qu'elles aient été
+     saisies : « Communications scientifiques » s'écrit une fois, en grand titre, puis
+     Thème 1, Thème 2, Thème 3, chacun avec son podium. La numérotation est calculée
+     à l'affichage, le Bureau n'a donc pas à la tenir à jour ni à saisir les thèmes
+     dans l'ordre. */
   function poserEpreuves(hote, d){
-    var precedent=null;
+    var groupes=[], parNom={};
     (d.palmares||[]).forEach(function(e){
       if(!(e.laureats||[]).length) return;
-      var meme = precedent!==null && (e.epreuve||"")===precedent;
-      hote.appendChild(palmaresEpreuveEl(e, !meme));
-      precedent = e.epreuve||"";
+      var nom=(e.epreuve||"Épreuve").trim();
+      if(!parNom[nom]){ parNom[nom]={ nom:nom, blocs:[] }; groupes.push(parNom[nom]); }
+      parNom[nom].blocs.push(e);
+    });
+    groupes.forEach(function(g){
+      var sec=document.createElement("div"); sec.className="pal-epreuve";
+      var h=document.createElement("h3"); h.textContent=g.nom;
+      sec.appendChild(h);
+      var n=0;
+      g.blocs.forEach(function(e){
+        if((e.theme||"").trim()){
+          n++;
+          var th=document.createElement("p"); th.className="pal-theme";
+          th.innerHTML='<span>Thème '+n+'</span>'+esc(e.theme);
+          sec.appendChild(th);
+        }
+        sec.appendChild(palmaresPodiumEl(e));
+      });
+      hote.appendChild(sec);
     });
   }
 
