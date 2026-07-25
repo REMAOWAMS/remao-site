@@ -172,6 +172,8 @@
   /* Theme et sous-themes ne concernent que les epreuves scientifiques : ils
      n'apparaissent que la, pour ne pas encombrer un podium de football. */
   .pal-theme{margin:10px 0 0;}
+  /* Membres d'une equipe : deuxieme ligne pleine largeur, discrete. */
+  .pal-equipe{grid-column:1 / -1;font-size:12.5px;padding:7px 10px;}
   .pal-bloc:not(.sci) .pal-theme,.pal-bloc:not(.sci) .pal-sous{display:none;}
   .pal-bloc.sci .pal-lig{grid-template-columns:64px 90px 1fr 1fr 170px auto;}
   /* Portrait du laureat : meme zone de depot que les autres images, en miniature,
@@ -786,6 +788,10 @@
       +'<input class="inp pal-sous" data-f="sous_theme" placeholder="Sous-thème traité" value="'+esc(l.sous_theme||"")+'">'
       +'<input class="inp" list="dl_pays" data-f="pays" placeholder="Délégation" value="'+esc(l.pays||"")+'">'
       +'<button type="button" class="chr-x" data-suppr-lig title="Retirer ce lauréat">&times;</button>'
+      // Deuxième ligne, sur toute la largeur : les épreuves par équipe (jeu génie,
+      // football) distinguent la délégation qui gagne des joueurs qui la composent.
+      // Sur une épreuve individuelle, le champ reste vide et rien ne s'affiche.
+      +'<input class="inp pal-equipe" data-f="equipe" placeholder="Membres de l\'équipe, séparés par des virgules (facultatif)" value="'+esc(l.equipe||"")+'">'
       +'</div>';
   }
   // Une épreuve porte un thème quand elle est scientifique : les communications
@@ -825,6 +831,7 @@
             rang:(bl.querySelector('[data-f="rang"]')||{}).value||"",
             nom:(bl.querySelector('[data-f="nom"]')||{}).value||"",
             sous_theme:(bl.querySelector('[data-f="sous_theme"]')||{}).value||"",
+            equipe:(bl.querySelector('[data-f="equipe"]')||{}).value||"",
             pays:(bl.querySelector('[data-f="pays"]')||{}).value||"",
             photo:d?(d.getAttribute("data-val")||""):""
           };

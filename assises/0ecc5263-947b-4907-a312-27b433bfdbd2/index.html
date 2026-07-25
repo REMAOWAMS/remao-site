@@ -654,6 +654,11 @@
   .pal-epreuve > h3 + .pal-podium, .pal-epreuve .pal-theme + .pal-podium { margin-top:18px; }
   .pal-place .pl-sous { display:block; color:var(--ink-soft); font-size:14px; margin-top:4px;
     font-style:italic; }
+  /* Composition d'une équipe : sous le nom de la délégation qui l'emporte. */
+  .pal-place .pl-equipe { display:block; color:var(--ink-soft); font-size:13.5px; margin-top:5px;
+    line-height:1.45; }
+  .pal-place .pl-equipe b { font-size:11px; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--gray); font-weight:700; margin-right:7px; }
   .pal-podium { display:grid; gap:12px; }
   .pal-place { display:flex; align-items:center; gap:16px; padding:16px 20px;
     border:1px solid var(--line); border-radius:16px; background:var(--card); }
@@ -2036,11 +2041,20 @@
       var medaille={ "1er":"or", "2e":"arg", "3e":"bro" }[rang] || "";
       el.className="pal-place"+(medaille?" "+medaille:"");
       var code=codePays(l.pays);
+      // Espacement des virgules normalisé : la saisie « nom1,nom2 » se lit mal.
+      var equipe=String(l.equipe||"").split(",").map(function(x){ return x.trim(); })
+        .filter(Boolean).join(", ");
+      // Une équipe s'annonce souvent « Cellule REMAO Guinée » : inutile de répéter
+      // « Cellule Guinée » juste en dessous, le drapeau suffit à le rappeler.
+      var rappelPays = !!l.pays &&
+        String(l.nom||"").toLowerCase().indexOf(String(l.pays).toLowerCase())<0;
       el.innerHTML='<span class="pl-rang">'+esc(rang)+'</span>'
         +(l.photo?'<span class="pl-photo"><img src="'+esc(l.photo)+'" alt="'+esc(l.nom||"Lauréat")+'" loading="lazy"></span>':'')
         +'<span><span class="pl-nom">'+esc(l.nom||"—")+'</span>'
         +(l.sous_theme?'<span class="pl-sous">'+esc(l.sous_theme)+'</span>':'')
-        +(l.pays?'<span class="pl-pays">Cellule '+esc(l.pays)+'</span>':'')+'</span>'
+        // Épreuve par équipe : la délégation gagne, mais ce sont des joueurs qui jouent.
+        +(equipe?'<span class="pl-equipe"><b>Équipe</b> '+esc(equipe)+'</span>':'')
+        +(rappelPays?'<span class="pl-pays">Cellule '+esc(l.pays)+'</span>':'')+'</span>'
         +(code?'<span class="pl-flag">'+flags[code]+'</span>':'');
       podium.appendChild(el);
     });

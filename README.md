@@ -33,6 +33,11 @@ de leur médaille. Écrit à la main, « Miss REMAO » ou « Prix du jury », le
 tel quel, sans médaille. Tant qu'aucun lauréat n'est saisi, ni la section de l'édition ni
 la ligne de la page `/palmares/` n'existent.
 
+Pour une épreuve par équipe, jeu génie ou football, mettre la délégation en nom du
+lauréat, « Cellule REMAO Guinée », et les joueurs dans le champ « Membres de l'équipe »,
+séparés par des virgules. Le rappel de la cellule ne s'affiche pas deux fois quand le nom
+la contient déjà.
+
 Les communications scientifiques se classent par thème général, chaque délégation
 traitant son propre sous-thème. Saisir alors une épreuve par thème, toutes nommées
 « Communications scientifiques » : le site n'écrit l'intitulé qu'une fois et enchaîne les
