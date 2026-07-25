@@ -1314,6 +1314,7 @@
   </section>
   <section class="section" style="padding-top:0">
     <div class="wrap">
+      <div class="revue-filtres" id="palmaresFiltres"></div>
       <div id="palmaresGroupes"></div>
       <div id="palmaresVide" style="color:var(--gray)" hidden>
         <p>Aucun palmarès n'est encore publié. Les résultats de chaque édition sont mis en ligne par le Bureau Exécutif dès leur proclamation.</p>
@@ -1935,6 +1936,8 @@
      édition des Assises. Le classement par édition est celui du réseau : un travail
      se cite par l'édition où il a été présenté, pas par sa date de mise en ligne. */
   var publications=[], pubParId={}, revueFiltre="tous";
+  // Édition retenue sur la page Palmarès, ou "tous".
+  var palmaresFiltre="tous";
 
   function pubEdition(p){ return (p.assises_id && assisesParId[p.assises_id]) || null; }
   function pubEditionCle(p){ return pubEdition(p) ? p.assises_id : "autres"; }
@@ -2098,14 +2101,44 @@
     sec.hidden=false;
   }
 
+  // Nombre de lauréats d'une édition, affiché sur son filtre.
+  function nbLaureats(d){
+    return (d.palmares||[]).reduce(function(s,e){ return s+(e.laureats||[]).length; },0);
+  }
+
   function renderPalmares(){
     var zone=document.getElementById("palmaresGroupes"),
+        zoneF=document.getElementById("palmaresFiltres"),
         vide=document.getElementById("palmaresVide");
     if(!zone) return;
     zone.innerHTML="";
     var avec=assisesListe.filter(aPalmares);
     if(vide) vide.hidden = avec.length>0;
-    avec.forEach(function(d){
+
+    /* Filtres par édition, comme sur la page Revue. Sans eux, la page grandirait
+       d'une édition chaque année et personne n'irait chercher les plus anciennes.
+       Ils n'apparaissent qu'à partir de deux éditions : un bouton unique n'offre
+       aucun choix, il ne ferait que du bruit. */
+    if(zoneF){
+      zoneF.innerHTML="";
+      if(palmaresFiltre!=="tous" && !avec.some(function(d){ return d.id===palmaresFiltre; })) palmaresFiltre="tous";
+      if(avec.length>1){
+        var boutons=[{ cle:"tous", libelle:"Toutes les éditions", n:avec.reduce(function(s,d){ return s+nbLaureats(d); },0) }]
+          .concat(avec.map(function(d){
+            return { cle:d.id, libelle:d.titre||((d.numero||"?")+"es Assises"), n:nbLaureats(d) };
+          }));
+        boutons.forEach(function(b){
+          var el=document.createElement("button");
+          el.type="button";
+          el.className=(b.cle===palmaresFiltre?"on":"");
+          el.textContent=b.libelle+" ("+b.n+")";
+          el.addEventListener("click", function(){ palmaresFiltre=b.cle; renderPalmares(); });
+          zoneF.appendChild(el);
+        });
+      }
+    }
+
+    avec.filter(function(d){ return palmaresFiltre==="tous" || d.id===palmaresFiltre; }).forEach(function(d){
       var g=document.createElement("div"); g.className="revue-groupe";
       var head=document.createElement("div"); head.className="rg-head";
       head.innerHTML='<h3>'+esc(d.titre||((d.numero||"?")+"es Assises"))+'</h3><small>'
