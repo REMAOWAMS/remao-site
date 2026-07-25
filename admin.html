@@ -563,12 +563,46 @@
     // Un collage depuis Word ou WhatsApp emporte styles inline, <font> et classes :
     // on ne stocke que la structure (gras, italique, listes, liens), la mise en
     // forme est celle du site. Le même nettoyage existe côté public (index.html).
+    /* Nettoyage a l'enregistrement. Le site refait le meme travail a l'affichage :
+       les deux sont necessaires, puisqu'une fiche peut avoir ete ecrite avant ce
+       nettoyage, ou modifiee ailleurs que par ce formulaire.
+       On ne garde que la structure du texte. Un attribut onerror ou une balise script
+       enregistres ici tourneraient sur remao.org a chaque visite, et pourraient lire
+       la session d'un membre du Bureau connecte. La liste est une autorisation :
+       ce qui n'y figure pas ne passe pas. */
+    var BALISES_GARDEES={ A:1,B:1,STRONG:1,I:1,EM:1,U:1,S:1,P:1,BR:1,HR:1,UL:1,OL:1,LI:1,
+      H2:1,H3:1,H4:1,BLOCKQUOTE:1,IMG:1,TABLE:1,THEAD:1,TBODY:1,TR:1,TD:1,TH:1 };
+    var BALISES_SUPPRIMEES="script,style,iframe,frame,object,embed,link,meta,base,form,input,textarea,select,button,svg,math,audio,video,source,template,noscript";
+    var ATTRIBUTS_GARDES={ href:1,src:1,alt:1,title:1,colspan:1,rowspan:1 };
+    function adresseSure(u){
+      u=String(u==null?"":u).trim();
+      if(/^(\/|#)/.test(u)) return u;
+      return /^(https?:|mailto:|tel:)/i.test(u) ? u : "";
+    }
     function nettoyerHtml(html){
       var t=document.createElement("div"); t.innerHTML=html||"";
+      t.querySelectorAll(BALISES_SUPPRIMEES).forEach(function(el){ el.remove(); });
       t.querySelectorAll("*").forEach(function(el){
-        ["style","class","face","color","size","align","width","height","bgcolor","lang","dir"]
-          .forEach(function(a){ el.removeAttribute(a); });
+        Array.prototype.slice.call(el.attributes).forEach(function(a){
+          var nom=a.name.toLowerCase();
+          if(!ATTRIBUTS_GARDES[nom]){ el.removeAttribute(a.name); return; }
+          if(nom==="href"||nom==="src"){
+            var sure=adresseSure(a.value);
+            if(sure) el.setAttribute(nom,sure); else el.removeAttribute(a.name);
+          }
+        });
       });
+      // Balise hors liste : on la remplace par son contenu, le texte reste.
+      var reste=true, tours=0;
+      while(reste && tours++<20){
+        reste=false;
+        t.querySelectorAll("*").forEach(function(el){
+          if(BALISES_GARDEES[el.tagName]) return;
+          reste=true;
+          while(el.firstChild) el.parentNode.insertBefore(el.firstChild, el);
+          el.remove();
+        });
+      }
       return t.innerHTML;
     }
     document.getElementById("cancel").addEventListener("click",function(){ go("type:"+t); });
@@ -970,11 +1004,11 @@
     var img=it.image?'<div class="prev-img" data-bg="'+esc(it.image)+'"></div>':"";
     var badge=cfg.badge&&it[cfg.badge]?'<span class="pill '+badgeClass(t,it[cfg.badge])+'">'+esc(it[cfg.badge])+'</span>':"";
     var extra="";
-    if(t==="pays"){ extra='<div class="prev-body">'+(it.texte||"")+'</div><p><b>Président :</b> '+esc(it.president||"—")+' · '+esc(it.tel_pres||"tél. à compléter")+'</p><p><b>Secrétaire général :</b> '+esc(it.sg||"—")+'</p><p><b>Chargé de com. :</b> '+esc(it.com||"—")+'</p>'; }
-    else if(t==="assises"){ extra='<p><b>Ville :</b> '+esc(it.ville||"—")+' · '+esc(it.dates||"")+'</p><p><b>Thème :</b> '+esc(it.theme||"—")+'</p><div class="prev-body">'+(it.texte||"")+'</div>'; }
-    else if(t==="publication"){ extra='<p><b>Auteur(s) :</b> '+esc(it.auteurs||"—")+'</p><p><b>Édition :</b> '+esc(it.assises_label||"—")+'</p><p><b>Cellule :</b> '+(it.pays?"Cellule REMAO "+esc(it.pays):"—")+'</p>'+(it.resume?'<div class="prev-body">'+it.resume+'</div>':'')+(it.fichier?'<p><b>Document :</b> <a href="'+esc(it.fichier)+'" target="_blank" rel="noopener">ouvrir le PDF</a></p>':'<p style="color:var(--red)"><b>Aucun PDF joint.</b></p>'); }
-    else if(t==="actualite"){ extra=(it.categorie==="Assises"?'<p><b>Édition :</b> '+esc(it.assises_label||"non rattachée")+'</p>':"")+'<div class="prev-body">'+(it.texte||"")+'</div>'; }
-    else if(it.texte){ extra='<div class="prev-body">'+it.texte+'</div>'; }
+    if(t==="pays"){ extra='<div class="prev-body">'+nettoyerHtml(it.texte||"")+'</div><p><b>Président :</b> '+esc(it.president||"—")+' · '+esc(it.tel_pres||"tél. à compléter")+'</p><p><b>Secrétaire général :</b> '+esc(it.sg||"—")+'</p><p><b>Chargé de com. :</b> '+esc(it.com||"—")+'</p>'; }
+    else if(t==="assises"){ extra='<p><b>Ville :</b> '+esc(it.ville||"—")+' · '+esc(it.dates||"")+'</p><p><b>Thème :</b> '+esc(it.theme||"—")+'</p><div class="prev-body">'+nettoyerHtml(it.texte||"")+'</div>'; }
+    else if(t==="publication"){ extra='<p><b>Auteur(s) :</b> '+esc(it.auteurs||"—")+'</p><p><b>Édition :</b> '+esc(it.assises_label||"—")+'</p><p><b>Cellule :</b> '+(it.pays?"Cellule REMAO "+esc(it.pays):"—")+'</p>'+(it.resume?'<div class="prev-body">'+nettoyerHtml(it.resume)+'</div>':'')+(it.fichier?'<p><b>Document :</b> <a href="'+esc(adresseSure(it.fichier))+'" target="_blank" rel="noopener">ouvrir le PDF</a></p>':'<p style="color:var(--red)"><b>Aucun PDF joint.</b></p>'); }
+    else if(t==="actualite"){ extra=(it.categorie==="Assises"?'<p><b>Édition :</b> '+esc(it.assises_label||"non rattachée")+'</p>':"")+'<div class="prev-body">'+nettoyerHtml(it.texte||"")+'</div>'; }
+    else if(it.texte){ extra='<div class="prev-body">'+nettoyerHtml(it.texte)+'</div>'; }
     else if(it.lien){ extra='<p><b>Lien :</b> '+esc(it.lien)+'</p>'; }
     document.getElementById("modalTitle").textContent="Aperçu · "+cfg.label;
     document.getElementById("modalBody").innerHTML=img+'<div class="prev-meta">'+badge+'<span>'+esc(it[cfg.meta]||"")+'</span></div><div class="prev-title">'+esc(it[cfg.title]||"(sans titre)")+'</div>'+extra;

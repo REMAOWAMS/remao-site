@@ -150,6 +150,12 @@ if (!gabarit.includes(DEBUT) || !gabarit.includes(FIN)) {
 }
 
 function ecrirePage(dossier, { titre, description, image, type = "article", jsonld }) {
+  // Le dossier vient d'un identifiant de la base. Aujourd'hui Supabase ne produit que
+  // des UUID, mais un identifiant fantaisiste écrirait n'importe où sur le disque du
+  // serveur qui exécute ce script. On refuse tout ce qui n'est pas attendu.
+  if (!/^(assises|actualites|revue)(\/[0-9a-f-]{36})?$/i.test(dossier)) {
+    throw new Error("Chemin de page refusé : " + dossier);
+  }
   const url = `${SITE}/${dossier}/`;
   const lignes = [
     `<title>${att(titre)}</title>`,
@@ -167,7 +173,14 @@ function ecrirePage(dossier, { titre, description, image, type = "article", json
     lignes.push('<meta property="og:image:width" content="1200">',
                 '<meta property="og:image:height" content="630">');
   }
-  if (jsonld) lignes.push('<script type="application/ld+json">', JSON.stringify(jsonld, null, 2), "</script>");
+  // Un titre contenant </script> refermerait la balise et tout ce qui suivrait
+  // s'exécuterait comme du code sur remao.org. On neutralise donc les chevrons et
+  // les séparateurs de ligne interdits dans un script, sans toucher au sens du texte.
+  if (jsonld) lignes.push('<script type="application/ld+json">',
+    JSON.stringify(jsonld, null, 2)
+      .replace(/</g, "\\u003c").replace(/>/g, "\\u003e")
+      .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029"),
+    "</script>");
 
   const avant = gabarit.slice(0, gabarit.indexOf(DEBUT) + DEBUT.length);
   const apres = gabarit.slice(gabarit.indexOf(FIN));

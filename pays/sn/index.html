@@ -1718,12 +1718,54 @@
   // Une adresse saisie dans l'admin ne devient un lien que si c'est bien une adresse web :
   // un « javascript: » collé par erreur ou par malveillance ne doit jamais devenir cliquable.
   function lienExterne(u){ u=String(u==null?"":u).trim(); return /^https?:\/\//i.test(u) ? u : ""; }
+  /* Ce qu'on accepte de garder d'un texte saisi dans l'admin : la structure, jamais
+     l'habillage ni le code. Tout le reste est retiré.
+     Ce n'est pas une précaution théorique. Le contenu saisi finit dans la page par
+     innerHTML : un attribut onerror ou une balise script y suffiraient à faire tourner
+     du code sur remao.org, donc à lire la session d'un membre du Bureau connecté et à
+     prendre la main sur les contenus. La liste ci-dessous est une autorisation, pas une
+     interdiction : ce qui n'y figure pas ne passe pas. */
+  var BALISES_GARDEES = { A:1, B:1, STRONG:1, I:1, EM:1, U:1, S:1, P:1, BR:1, HR:1,
+    UL:1, OL:1, LI:1, H2:1, H3:1, H4:1, BLOCKQUOTE:1, IMG:1,
+    TABLE:1, THEAD:1, TBODY:1, TR:1, TD:1, TH:1 };
+  // Balises dont le contenu lui-même est dangereux : on les retire entièrement,
+  // là où les autres sont simplement déballées pour ne pas perdre le texte.
+  var BALISES_SUPPRIMEES = "script,style,iframe,frame,object,embed,link,meta,base,form,input,textarea,select,button,svg,math,audio,video,source,template,noscript";
+  var ATTRIBUTS_GARDES = { href:1, src:1, alt:1, title:1, colspan:1, rowspan:1 };
+  function adresseSure(u){
+    u=String(u==null?"":u).trim();
+    // Un lien relatif reste sur le site, donc sans danger. Sinon, seuls les protocoles
+    // qui ne peuvent pas exécuter de code : ni javascript:, ni data:, ni vbscript:.
+    if(/^(\/|#)/.test(u)) return u;
+    return /^(https?:|mailto:|tel:)/i.test(u) ? u : "";
+  }
   function nettoyerHtml(html){
     var t=document.createElement("div"); t.innerHTML=html||"";
-    Array.prototype.forEach.call(t.querySelectorAll("*"), function(el){
-      ["style","class","face","color","size","align","width","height","bgcolor","lang","dir"]
-        .forEach(function(a){ el.removeAttribute(a); });
+    Array.prototype.forEach.call(t.querySelectorAll(BALISES_SUPPRIMEES), function(el){
+      el.parentNode && el.parentNode.removeChild(el);
     });
+    Array.prototype.forEach.call(t.querySelectorAll("*"), function(el){
+      Array.prototype.slice.call(el.attributes).forEach(function(a){
+        var nom=a.name.toLowerCase();
+        // Les gestionnaires d'événements (onclick, onerror…) partent tous.
+        if(!ATTRIBUTS_GARDES[nom]) { el.removeAttribute(a.name); return; }
+        if(nom==="href" || nom==="src"){
+          var sure=adresseSure(a.value);
+          if(sure) el.setAttribute(nom, sure); else el.removeAttribute(a.name);
+        }
+      });
+    });
+    // Balises hors liste : on remplace l'élément par son contenu, le texte est conservé.
+    var reste=true, tours=0;
+    while(reste && tours++<20){
+      reste=false;
+      Array.prototype.forEach.call(t.querySelectorAll("*"), function(el){
+        if(BALISES_GARDEES[el.tagName]) return;
+        reste=true;
+        while(el.firstChild) el.parentNode.insertBefore(el.firstChild, el);
+        el.parentNode.removeChild(el);
+      });
+    }
     return t.innerHTML;
   }
 
@@ -1798,9 +1840,10 @@
       if(archivee){ cta.style.display="none"; }
       else {
         cta.style.display="";
-        if(d.lien){
+        var inscription=lienExterne(d.lien);
+        if(inscription){
           cta.innerHTML="S'inscrire aux Assises"+FLECHE;
-          cta.href=d.lien; cta.target="_blank"; cta.rel="noopener"; cta.removeAttribute("data-view");
+          cta.href=inscription; cta.target="_blank"; cta.rel="noopener"; cta.removeAttribute("data-view");
         } else {
           cta.innerHTML="Inscrivez-vous auprès de votre cellule nationale"+FLECHE;
           cta.removeAttribute("href"); cta.removeAttribute("target"); cta.removeAttribute("rel");
@@ -2012,8 +2055,9 @@
         .filter(Boolean).join(", ");
       // La délégation n'est plus écrite sous le nom : le drapeau, à droite de la
       // ligne, le dit déjà, et la répétition alourdissait chaque podium.
+      var photo=lienExterne(l.photo);
       el.innerHTML='<span class="pl-rang">'+esc(rang)+'</span>'
-        +(l.photo?'<span class="pl-photo"><img src="'+esc(l.photo)+'" alt="'+esc(l.nom||"Lauréat")+'" loading="lazy"></span>':'')
+        +(photo?'<span class="pl-photo"><img src="'+esc(photo)+'" alt="'+esc(l.nom||"Lauréat")+'" loading="lazy"></span>':'')
         +'<span><span class="pl-nom">'+esc(l.nom||"—")+'</span>'
         +(l.sous_theme?'<span class="pl-sous">'+esc(l.sous_theme)+'</span>':'')
         // Épreuve par équipe : la délégation gagne, mais ce sont des joueurs qui jouent.
@@ -2180,7 +2224,10 @@
     // la cellule nationale qui l'a présenté aux Assises.
     document.getElementById("pubAffiliation").textContent = p.pays ? ("Cellule REMAO "+p.pays) : "";
     var fz=document.getElementById("pubFichierZone");
-    if(p.fichier){ document.getElementById("pubFichier").href=p.fichier; fz.hidden=false; } else { fz.hidden=true; }
+    // Même contrôle que partout : une adresse venue de la base ne devient un lien
+    // cliquable que si son protocole ne peut pas exécuter de code.
+    var fichier=lienExterne(p.fichier);
+    if(fichier){ document.getElementById("pubFichier").href=fichier; fz.hidden=false; } else { fz.hidden=true; }
     var rz=document.getElementById("pubResumeZone"), r=document.getElementById("pubResume");
     var html=nettoyerHtml(p.resume||"");
     if(strip(html)){ r.innerHTML=html; rz.hidden=false; } else { r.innerHTML=""; rz.hidden=true; }
@@ -2478,9 +2525,11 @@
         var pc=document.querySelector(".partners");
         if(pc){ pc.innerHTML="";
           by.partenaire.forEach(function(r){ var d=r.data||{};
-            var node=document.createElement(d.lien?"a":"div"); node.className="partner";
-            if(d.lien){ node.href=d.lien; node.target="_blank"; node.rel="noopener"; }
-            node.innerHTML = d.image ? ('<img src="'+esc(d.image)+'" alt="'+esc(d.titre||"")+'">') : esc(d.titre||"Partenaire");
+            var lien=lienExterne(d.lien);
+            var node=document.createElement(lien?"a":"div"); node.className="partner";
+            if(lien){ node.href=lien; node.target="_blank"; node.rel="noopener"; }
+            var img=lienExterne(d.image);
+            node.innerHTML = img ? ('<img src="'+esc(img)+'" alt="'+esc(d.titre||"")+'">') : esc(d.titre||"Partenaire");
             pc.appendChild(node);
           });
         }
@@ -2606,12 +2655,12 @@
       /* --- Documents officiels --- */
       if(by.document && by.document.length){
         var dsec=document.getElementById("docsSection"), dlist=document.getElementById("docsList");
-        var withFile=by.document.filter(function(r){ return (r.data||{}).fichier; });
+        var withFile=by.document.filter(function(r){ return lienExterne((r.data||{}).fichier); });
         if(dsec && dlist && withFile.length){
           dlist.innerHTML="";
           withFile.forEach(function(r){ var d=r.data||{};
             var a=document.createElement("a"); a.className="doc-item";
-            a.href=d.fichier; a.target="_blank"; a.rel="noopener";
+            a.href=lienExterne(d.fichier); a.target="_blank"; a.rel="noopener";
             a.innerHTML='<span class="di-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></span>'
               + '<span><b>'+esc(d.titre||"Document")+'</b><small>'+esc(d.categorie||"Document")+' · PDF</small></span>';
             dlist.appendChild(a);
