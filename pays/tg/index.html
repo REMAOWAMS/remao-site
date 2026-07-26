@@ -2445,12 +2445,15 @@
     ml.innerHTML = "";
     order.forEach(function(code){
       var c = countries[code], o = paysOverride[code] || {};
-      // On donne le contact du chargé de communication en priorité, c'est lui qui accueille
-      // les demandes d'adhésion ; à défaut celui du président.
-      var tel = o.tel_com || o.tel_pres || "", mail = o.mail_com || o.mail_pres || "";
+      // Contact d'adhésion propre à la cellule, saisi dans l'administration
+      // (« Contact adhésion »). Il ne dépend d'aucun membre du bureau : une cellule
+      // peut donner une ligne dédiée, et un changement de bureau ne le casse pas.
+      var tel = o.contact_tel || "", mail = o.contact_mail || "";
       var el = document.createElement("div"); el.className="card member";
       el.innerHTML = '<div class="flag" style="width:56px;height:40px;border-radius:8px;overflow:hidden;margin:0 auto 14px;box-shadow:var(--shadow-sm);border:1px solid var(--line)">'+flags[code]+'</div>'+
-        '<div class="role">Cellule '+c.name+'</div><b>'+c.name+'</b><small>'+c.cap+'</small>'+contactChipsFor(tel,mail);
+        '<div class="role">Cellule '+c.name+'</div><b>'+c.name+'</b><small>'+c.cap+'</small>'+
+        ((tel||mail) ? contactChipsFor(tel,mail)
+                     : '<div class="contact-row"><span class="chip-c">Contact à venir</span></div>');
       ml.appendChild(el);
     });
   }
