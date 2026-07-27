@@ -1273,6 +1273,29 @@
       <h1 id="artTitle" style="font-size:clamp(30px,4.5vw,50px);margin:14px 0 24px">Titre</h1>
       <div class="article-hero" aria-hidden="true"><div class="scene" id="artScene"></div></div>
       <div class="article-body contenu-admin" id="artBody"></div>
+
+      <!-- Galerie photo de l'article : même traitement que pour une édition archivée.
+           Une sélection défilante sur le site, et le lien vers l'album complet hébergé
+           ailleurs. L'un ou l'autre suffit à ouvrir la section. -->
+      <div id="artGalerieSection" style="margin-top:46px" hidden>
+        <span class="eyebrow"><span class="dot"></span>En images</span>
+        <h2 style="font-size:clamp(22px,3vw,32px);font-weight:800;margin:12px 0 20px">L'événement en photos.</h2>
+        <div class="galerie" id="artGalerie"></div>
+        <div id="artAlbumZone" style="margin-top:26px" hidden>
+          <a class="btn btn-green" id="artAlbum" target="_blank" rel="noopener">Voir toute la galerie photo
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+          <p style="color:var(--gray);font-size:13.5px;margin:12px 0 0">L'album complet s'ouvre dans un nouvel onglet.</p>
+        </div>
+      </div>
+
+      <!-- Sources : documents de la bibliothèque officielle sur lesquels l'article s'appuie.
+           L'article ne stocke que des identifiants, les fiches viennent des « Documents ». -->
+      <div id="artSourcesZone" style="margin-top:46px" hidden>
+        <span class="eyebrow"><span class="dot"></span>Aller plus loin</span>
+        <h2 style="font-size:clamp(22px,3vw,32px);font-weight:800;margin:12px 0 20px">Sources et documents officiels.</h2>
+        <div class="docs" id="artSources"></div>
+      </div>
+
       <div style="margin-top:36px"><a class="btn btn-ghost" data-view="actualites">Retour aux actualités <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span></a></div>
     </div>
   </section>
@@ -1639,6 +1662,31 @@
     });
   }
 
+  /* Galerie défilante, partagée par la fiche d'une édition archivée et par les articles.
+     Trois rangées servies en alternance ; chaque rangée est doublée pour que la
+     translation de -50% boucle sans couture. Vitesse liée au nombre d'images. */
+  function poserGalerie(zone, photos){
+    zone.innerHTML="";
+    var rangees=[[],[],[]];
+    photos.forEach(function(u,i){ rangees[i%3].push(u); });
+    rangees.forEach(function(lot,idx){
+      if(!lot.length) return;
+      var ligne=document.createElement("div");
+      ligne.className="galerie-ligne"+(idx===1?" inverse":"");
+      ligne.style.setProperty("--duree", Math.max(30, lot.length*9)+"s");
+      var imgs=lot.map(function(u){ return '<img src="'+esc(u)+'" alt="" loading="lazy">'; }).join("");
+      ligne.innerHTML=imgs+imgs;
+      zone.appendChild(ligne);
+    });
+  }
+
+  /* Vignette d'un document officiel, identique dans la bibliothèque du réseau et
+     dans le bloc « sources » d'un article. */
+  function docItemHtml(d){
+    return '<span class="di-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></span>'
+      + '<span><b>'+esc(d.titre||"Document")+'</b><small>'+esc(d.categorie||"Document")+' · PDF</small></span>';
+  }
+
   /* ---------- Theme toggle ---------- */
   document.getElementById("themeBtn").addEventListener("click", function(){
     var cur = root.getAttribute("data-theme") || "light";
@@ -1697,6 +1745,9 @@
      La page Assises sert toutes les éditions : celle en cours comme les archives.
      Une édition archivée n'a ni compte à rebours ni inscription, mais un bilan. */
   var assisesParId={}, assisesListe=[], assisesVedette=null, assisesCourante=null;
+  // Documents officiels indexés par identifiant : ils alimentent la bibliothèque du
+  // réseau et servent aussi de sources aux articles qui les citent.
+  var docsParId={};
   function setTxt(id,val){ var el=document.getElementById(id); if(el && val) el.textContent=val; }
   // Définie ici et non dans le chargeur Supabase : renderAssises s'en sert, et une
   // ReferenceError dans une promesse passe totalement inaperçue.
@@ -1871,20 +1922,7 @@
     if(gs && gz){
       if(archivee && (photos.length || album)){
         setTxt("assisesGalerieTitre","L'édition de "+(d.ville||"cette année")+" en photos.");
-        gz.innerHTML="";
-        // Trois rangées servies en alternance ; chaque rangée est doublée pour que la
-        // translation de -50% boucle sans couture. Vitesse liée au nombre d'images.
-        var rangees=[[],[],[]];
-        photos.forEach(function(u,i){ rangees[i%3].push(u); });
-        rangees.forEach(function(lot,idx){
-          if(!lot.length) return;
-          var ligne=document.createElement("div");
-          ligne.className="galerie-ligne"+(idx===1?" inverse":"");
-          ligne.style.setProperty("--duree", Math.max(30, lot.length*9)+"s");
-          var imgs=lot.map(function(u){ return '<img src="'+esc(u)+'" alt="" loading="lazy">'; }).join("");
-          ligne.innerHTML=imgs+imgs;
-          gz.appendChild(ligne);
-        });
+        poserGalerie(gz, photos);
         gs.hidden=false;
       } else {
         gs.hidden=true; gz.innerHTML="";
@@ -2434,7 +2472,38 @@
     var b = document.getElementById("artBody"); b.innerHTML = "";
     if(n.bodyHtml){ b.innerHTML = n.bodyHtml; }
     else { (n.body||[]).forEach(function(p){ var el=document.createElement("p"); el.textContent=p; b.appendChild(el); }); }
+    renderArticleGalerie(n);
+    renderArticleSources(n);
     showView("article", { param:n.id, fromHistory:!!(opts&&opts.fromHistory) });
+  }
+  /* Galerie et sources d'un article. Déclarées ici, au niveau du script, et non dans
+     le chargeur Supabase : openArticle est rejoué depuis une promesse, où une
+     ReferenceError interromprait le rendu sans rien afficher dans la console. */
+  function renderArticleGalerie(n){
+    var gs=document.getElementById("artGalerieSection"), gz=document.getElementById("artGalerie");
+    var az=document.getElementById("artAlbumZone"), al=document.getElementById("artAlbum");
+    if(!gs||!gz) return;
+    var photos = Array.isArray(n.photos) ? n.photos.filter(Boolean).slice(0,30) : [];
+    var album = lienExterne(n.album);
+    if(az && al){
+      if(album){ al.href=album; az.hidden=false; } else { az.hidden=true; al.removeAttribute("href"); }
+    }
+    if(photos.length || album){ poserGalerie(gz, photos); gs.hidden=false; }
+    else { gs.hidden=true; gz.innerHTML=""; }
+  }
+  function renderArticleSources(n){
+    var z=document.getElementById("artSourcesZone"), l=document.getElementById("artSources");
+    if(!z||!l) return;
+    l.innerHTML="";
+    (Array.isArray(n.documents)?n.documents:[]).forEach(function(id){
+      var d=docsParId[id]; if(!d) return;
+      var url=lienExterne(d.fichier); if(!url) return;
+      var a=document.createElement("a"); a.className="doc-item";
+      a.href=url; a.target="_blank"; a.rel="noopener";
+      a.innerHTML=docItemHtml(d);
+      l.appendChild(a);
+    });
+    z.hidden = !l.children.length;
   }
 
   /* ---------- Render membre list ----------
@@ -2503,6 +2572,10 @@
       if(res.error || !res.data){ if(res.error) console.warn("Supabase:", res.error.message); return; }
       var by={}; res.data.forEach(function(r){ (by[r.type]=by[r.type]||[]).push(r); });
 
+      // Les documents sont indexés avant tout le reste : un article les cite en source,
+      // et le rejeu d'un lien direct vers un article se fait quelques lignes plus bas.
+      (by.document||[]).forEach(function(r){ var d=r.data||{}; d.id=r.id; docsParId[r.id]=d; });
+
       if(by.actualite && by.actualite.length){
         // De la plus récente à la plus ancienne selon la date de l'article (champ « Date »
         // de l'admin, format AAAA-MM-JJ donc comparable en texte), et non selon l'ordre
@@ -2515,6 +2588,9 @@
           news.push({ id:r.id, cat:(d.categorie||"Actualité"), red:(d.categorie==="Communiqué"),
             date:fmtDate(d.date), scene:"green", image:d.image||"", title:d.titre||"(sans titre)",
             assises_id:d.assises_id||"",
+            photos:Array.isArray(d.photos)?d.photos.filter(Boolean).slice(0,30):[],
+            album:d.album||"",
+            documents:Array.isArray(d.documents)?d.documents.filter(Boolean):[],
             excerpt:resumer(strip(d.texte),150), bodyHtml:nettoyerHtml(d.texte) });
         });
         renderNews();
@@ -2664,8 +2740,7 @@
           withFile.forEach(function(r){ var d=r.data||{};
             var a=document.createElement("a"); a.className="doc-item";
             a.href=lienExterne(d.fichier); a.target="_blank"; a.rel="noopener";
-            a.innerHTML='<span class="di-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></span>'
-              + '<span><b>'+esc(d.titre||"Document")+'</b><small>'+esc(d.categorie||"Document")+' · PDF</small></span>';
+            a.innerHTML=docItemHtml(d);
             dlist.appendChild(a);
           });
           dsec.hidden=false;
