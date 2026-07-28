@@ -116,6 +116,21 @@ sed -i 's|<link rel="canonical" href="https://remao.org/pays/">|<link rel="canon
 # ---------------------------------------------------------------------------
 # admin.html reste hors du plan, et n'est pas interdit ici : la page porte deja un
 # noindex, que Google ne pourrait pas lire si on lui en interdisait l'acces.
+#
+# Les adresses a identifiant dynamique (articles, travaux de la revue, editions) sont
+# ecrites par prerender.mjs, qui interroge Supabase. Ce script n'a pas cet acces : il
+# reprend telles quelles celles du plan existant. Sans cette reprise, un simple
+# lancement en local les effacerait toutes, jusqu'au prochain passage horaire du
+# workflow. C'est la symetrie de ce que fait prerender.mjs, qui conserve de son cote
+# les adresses fixes listees ici : chaque partie du plan a un seul auteur.
+#
+# La lecture se fait avant l'ecriture : la redirection vide le fichier des son ouverture.
+DYNAMIQUES=$(
+  [ -f sitemap.xml ] && grep -o '<loc>[^<]*</loc>' sitemap.xml \
+    | sed 's|<loc>||; s|</loc>||' \
+    | grep -Ei "^$SITE/(actualites|revue|assises)/[0-9a-f-]{36}/$"
+)
+
 {
   echo '<?xml version="1.0" encoding="UTF-8"?>'
   echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
@@ -123,8 +138,14 @@ sed -i 's|<link rel="canonical" href="https://remao.org/pays/">|<link rel="canon
            "pays/bj/" "pays/bf/" "pays/ci/" "pays/gn/" "pays/ml/" "pays/ne/" "pays/sn/" "pays/tg/"; do
     printf '  <url><loc>%s/%s</loc><lastmod>%s</lastmod></url>\n' "$SITE" "$u" "$JOUR"
   done
+  # Le saut de ligne final est indispensable : read ne traite pas une derniere
+  # ligne qui n'en a pas, et la derniere adresse disparaitrait du plan.
+  printf '%s\n' "$DYNAMIQUES" | while IFS= read -r u; do
+    [ -n "$u" ] && printf '  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n' "$u" "$JOUR"
+  done
   echo '</urlset>'
 } > sitemap.xml
+NB_DYN=$(printf '%s\n' "$DYNAMIQUES" | grep -c . || true)
 
 cat > robots.txt <<ROBOTS
 User-agent: *
@@ -135,4 +156,4 @@ ROBOTS
 
 rm -f "$BLOC" .seo-noindex.tmp
 
-echo "Pages regenerees : 404.html + $NB pages avec leur propre en-tete, sitemap.xml, robots.txt"
+echo "Pages regenerees : 404.html + $NB pages avec leur propre en-tete, sitemap.xml ($NB_DYN adresse(s) de contenu conservee(s)), robots.txt"
