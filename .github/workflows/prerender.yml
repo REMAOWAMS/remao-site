@@ -3,18 +3,35 @@
 # Le Bureau publie un article depuis remao.org/admin.html : le contenu part dans
 # Supabase, mais le site reste un ensemble de fichiers. Sans ce programme, l'article
 # n'a pas de page a lui, et son partage sur WhatsApp affiche l'apercu generique du
-# site. Ce travail tourne toutes les heures et ecrit les pages manquantes.
+# site. Ce travail ecrit les pages manquantes.
+#
+# Il part a la publication, appele par un webhook Supabase (voir WEBHOOK.md), et
+# repasse au calendrier en filet de securite. L'ordre compte : le calendrier de
+# GitHub n'est pas fiable, il ne peut pas etre le mecanisme principal.
 #
 # Declenchement manuel possible : onglet Actions du depot, « Run workflow », pour un
-# communique urgent qui ne peut pas attendre le prochain passage.
+# communique urgent publie alors que le webhook serait hors service.
 
 name: Pregeneration des pages
 
 on:
+  # Declenchement immediat a la publication. C'est la seule voie fiable : la
+  # publication d'un article n'est connue que de Supabase, et le calendrier
+  # ci-dessous n'est pas tenu par GitHub (voir plus bas). Un webhook Supabase
+  # appelle l'API repository_dispatch a chaque ecriture dans la table contenus.
+  repository_dispatch:
+    types: [contenu-publie]
+
   schedule:
-    # Toutes les heures. GitHub decale souvent de quelques minutes aux heures rondes,
-    # d'ou le choix de la minute 17.
-    - cron: "17 * * * *"
+    # Filet de securite, pas mecanisme principal. GitHub saute regulierement les
+    # passages sur les depots peu actifs : le 28 juillet 2026, la prégeneration
+    # declaree horaire n'a tourne qu'a 17h22, 21h53 puis 07h58, laissant un trou
+    # de plus de six heures pendant lequel un article publie se partageait sans
+    # sa photo ni son titre. Toutes les quinze minutes, on multiplie les chances
+    # qu'un passage soit honore ; on ne les garantit toujours pas.
+    - cron: "*/15 * * * *"
+
+  # Rattrapage manuel : onglet Actions du depot, « Run workflow ».
   workflow_dispatch:
 
 # Le programme ecrit dans le depot et demande la remise en ligne du site.
