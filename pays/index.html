@@ -527,6 +527,14 @@
   /* Article */
   .article-hero { border-radius:var(--r-xl); overflow:hidden; aspect-ratio:21/8; position:relative; box-shadow:var(--shadow-lg); border:1px solid var(--line); margin-bottom:34px; }
   .article-hero .scene { position:absolute; inset:0; }
+  /* Article illustré : l'image se montre entière, dans ses proportions d'origine.
+     Le format 21/8 ne vaut que pour le décor dégradé des articles sans photo ;
+     appliqué à une vraie photo, il en rognait la tête et le bas. La hauteur reste
+     Aucune hauteur maximale ici : la brider ferait réapparaître des bandes de fond
+     sur les côtés, c'est-à-dire le défaut qu'on corrige. La largeur de lecture étant
+     déjà limitée à 860 px, même un cliché en portrait reste d'une hauteur tenable. */
+  .article-hero.libre { aspect-ratio:auto; background:var(--card-2); }
+  .article-hero.libre img { display:block; width:100%; height:auto; }
   .article-body { max-width:70ch; }
   .article-body p { color:var(--ink-soft); font-size:17px; margin:0 0 20px; }
   .article-body h3 { font-size:24px; font-weight:800; margin:34px 0 14px; }
@@ -1276,7 +1284,7 @@
       <div class="breadcrumb"><a data-nav="home">Accueil</a> <span>/</span> <a data-view="actualites">Actualités</a> <span>/</span> <span id="artCrumb">Article</span></div>
       <div class="article-meta"><span class="article-cat" id="artCat">Actualité</span><span id="artDate">—</span></div>
       <h1 id="artTitle" style="font-size:clamp(30px,4.5vw,50px);margin:14px 0 24px">Titre</h1>
-      <div class="article-hero" aria-hidden="true"><div class="scene" id="artScene"></div></div>
+      <div class="article-hero" id="artHero" aria-hidden="true"><div class="scene" id="artScene"></div><img id="artImg" alt="" hidden></div>
       <div class="article-body contenu-admin" id="artBody"></div>
 
       <!-- Galerie photo de l'article : même traitement que pour une édition archivée.
@@ -2490,7 +2498,24 @@
     document.getElementById("artTitle").textContent = n.title;
     document.getElementById("artCat").textContent = n.cat;
     document.getElementById("artDate").textContent = n.date;
-    document.getElementById("artScene").style.background = n.image ? ('var(--card-2) center/cover no-repeat url('+JSON.stringify(n.image)+')') : sceneBg(n.scene);
+    /* Une photo se pose en <img>, jamais en fond : elle garde ses proportions, et
+       l'URL passe par la propriété src, hors de tout attribut style. Sans photo, on
+       retombe sur le décor dégradé, qui lui a besoin du cadre 21/8. */
+    var hero=document.getElementById("artHero"),
+        scene=document.getElementById("artScene"),
+        img=document.getElementById("artImg");
+    if(n.image){
+      img.src = n.image;
+      img.alt = n.title || "";
+      img.hidden = false; scene.hidden = true;
+      hero.classList.add("libre");
+      hero.removeAttribute("aria-hidden");
+    } else {
+      img.hidden = true; img.removeAttribute("src");
+      scene.hidden = false; scene.style.background = sceneBg(n.scene);
+      hero.classList.remove("libre");
+      hero.setAttribute("aria-hidden","true");
+    }
     var b = document.getElementById("artBody"); b.innerHTML = "";
     if(n.bodyHtml){ b.innerHTML = n.bodyHtml; }
     else { (n.body||[]).forEach(function(p){ var el=document.createElement("p"); el.textContent=p; b.appendChild(el); }); }
