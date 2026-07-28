@@ -202,6 +202,10 @@
   .brand { display:flex; align-items:center; gap:11px; margin-right:auto; }
   .brand .txt b { font-size:17px; font-weight:800; letter-spacing:.04em; display:block; }
   .brand .txt span { display:block; font-size:10px; color:var(--gray); letter-spacing:.16em; text-transform:uppercase; margin-top:-2px; }
+  /* Les liens de sections encore vides (Revue, Palmarès) portent l'attribut hidden.
+     Sans ce !important, les display:flex/block des menus et du pied de page
+     l'emporteraient et les liens resteraient visibles. */
+  [hidden] { display:none !important; }
   .nav-links { display:flex; align-items:center; gap:4px; }
   .nav-links a { font-size:14px; font-weight:500; color:var(--ink-soft); padding:9px 13px; border-radius:999px;
     cursor:pointer; transition:background .3s var(--ease), color .3s var(--ease); }
@@ -545,6 +549,14 @@
   /* Article */
   .article-hero { border-radius:var(--r-xl); overflow:hidden; aspect-ratio:21/8; position:relative; box-shadow:var(--shadow-lg); border:1px solid var(--line); margin-bottom:34px; }
   .article-hero .scene { position:absolute; inset:0; }
+  /* Article illustré : l'image se montre entière, dans ses proportions d'origine.
+     Le format 21/8 ne vaut que pour le décor dégradé des articles sans photo ;
+     appliqué à une vraie photo, il en rognait la tête et le bas. La hauteur reste
+     Aucune hauteur maximale ici : la brider ferait réapparaître des bandes de fond
+     sur les côtés, c'est-à-dire le défaut qu'on corrige. La largeur de lecture étant
+     déjà limitée à 860 px, même un cliché en portrait reste d'une hauteur tenable. */
+  .article-hero.libre { aspect-ratio:auto; background:var(--card-2); }
+  .article-hero.libre img { display:block; width:100%; height:auto; }
   .article-body { max-width:70ch; }
   .article-body p { color:var(--ink-soft); font-size:17px; margin:0 0 20px; }
   .article-body h3 { font-size:24px; font-weight:800; margin:34px 0 14px; }
@@ -726,7 +738,7 @@
       <a data-view="qsn">Qui sommes-nous</a>
       <a data-nav="home" data-scroll-target="pays">Nos pays</a>
       <a data-view="assises">Assises</a>
-      <a data-view="revue">Revue</a>
+      <a data-view="revue" data-lien-section="revue" hidden>Revue</a>
       <a data-view="actualites">Actualités</a>
     </div>
     <div class="nav-cta">
@@ -746,7 +758,7 @@
   <a data-view="qsn">Qui sommes-nous</a>
   <a data-nav="home" data-scroll-target="pays">Nos pays membres</a>
   <a data-view="assises">Assises du REMAO</a>
-  <a data-view="revue">Revue scientifique</a>
+  <a data-view="revue" data-lien-section="revue" hidden>Revue scientifique</a>
   <a data-view="actualites">Actualités</a>
   <a data-view="membre">Rejoindre le réseau</a>
   <a data-nav="home" data-scroll-target="contact">Contact</a>
@@ -1294,7 +1306,7 @@
       <div class="breadcrumb"><a data-nav="home">Accueil</a> <span>/</span> <a data-view="actualites">Actualités</a> <span>/</span> <span id="artCrumb">Article</span></div>
       <div class="article-meta"><span class="article-cat" id="artCat">Actualité</span><span id="artDate">—</span></div>
       <h1 id="artTitle" style="font-size:clamp(30px,4.5vw,50px);margin:14px 0 24px">Titre</h1>
-      <div class="article-hero" aria-hidden="true"><div class="scene" id="artScene"></div></div>
+      <div class="article-hero" id="artHero" aria-hidden="true"><div class="scene" id="artScene"></div><img id="artImg" alt="" hidden></div>
       <div class="article-body contenu-admin" id="artBody"></div>
 
       <!-- Galerie photo de l'article : même traitement que pour une édition archivée.
@@ -1483,7 +1495,7 @@
         </div>
       </div>
       <div class="foot-col"><h4>Le réseau</h4><a data-view="qsn">Qui sommes-nous</a><a data-nav="home" data-scroll-target="pays">Nos pays membres</a><a data-nav="home" data-scroll-target="programmes">Programmes</a><a data-view="qsn">Bureau Exécutif</a></div>
-      <div class="foot-col"><h4>S'engager</h4><a data-view="assises">Assises 2026</a><a data-view="palmares">Palmarès</a><a data-view="revue">Revue scientifique</a><a data-view="membre">Devenir membre</a><a data-view="cellule">Créer une cellule</a><a data-view="actualites">Actualités</a></div>
+      <div class="foot-col"><h4>S'engager</h4><a data-view="assises">Assises 2026</a><a data-view="palmares" data-lien-section="palmares" hidden>Palmarès</a><a data-view="revue" data-lien-section="revue" hidden>Revue scientifique</a><a data-view="membre">Devenir membre</a><a data-view="cellule">Créer une cellule</a><a data-view="actualites">Actualités</a></div>
       <div class="foot-col"><h4>Contact</h4><a href="mailto:remao.wams@gmail.com">remao.wams@gmail.com</a><a href="tel:+22799320761">+227 99 32 07 61</a><span>Siège : Niamey, Niger</span></div>
     </div>
     <div class="foot-bottom"><span>© 2026 REMAO · WAMS-Web. Tous droits réservés.</span></div>
@@ -2050,7 +2062,23 @@
     return el;
   }
 
+  /* Les entrées de menu « Revue scientifique » et « Palmarès » ne s'affichent que
+     lorsque la rubrique a du contenu. Les liens partent masqués dans le HTML : la
+     base est lue après le premier rendu, et un lien qui apparaîtrait puis
+     disparaîtrait serait pire que rien. Dès qu'un travail ou un palmarès est saisi
+     dans l'admin, le lien revient tout seul, sans toucher au code. */
+  function majLiensSections(){
+    var etat = {
+      revue: publications.length > 0,
+      palmares: assisesListe.some(aPalmares)
+    };
+    document.querySelectorAll("[data-lien-section]").forEach(function(a){
+      a.hidden = !etat[a.getAttribute("data-lien-section")];
+    });
+  }
+
   function renderRevue(){
+    majLiensSections();
     var zoneG=document.getElementById("revueGroupes"),
         zoneF=document.getElementById("revueFiltres");
     if(!zoneG || !zoneF) return;
@@ -2193,6 +2221,7 @@
   }
 
   function renderPalmares(){
+    majLiensSections();
     var zone=document.getElementById("palmaresGroupes"),
         zoneF=document.getElementById("palmaresFiltres"),
         vide=document.getElementById("palmaresVide");
@@ -2491,7 +2520,24 @@
     document.getElementById("artTitle").textContent = n.title;
     document.getElementById("artCat").textContent = n.cat;
     document.getElementById("artDate").textContent = n.date;
-    document.getElementById("artScene").style.background = n.image ? ('var(--card-2) center/cover no-repeat url('+JSON.stringify(n.image)+')') : sceneBg(n.scene);
+    /* Une photo se pose en <img>, jamais en fond : elle garde ses proportions, et
+       l'URL passe par la propriété src, hors de tout attribut style. Sans photo, on
+       retombe sur le décor dégradé, qui lui a besoin du cadre 21/8. */
+    var hero=document.getElementById("artHero"),
+        scene=document.getElementById("artScene"),
+        img=document.getElementById("artImg");
+    if(n.image){
+      img.src = n.image;
+      img.alt = n.title || "";
+      img.hidden = false; scene.hidden = true;
+      hero.classList.add("libre");
+      hero.removeAttribute("aria-hidden");
+    } else {
+      img.hidden = true; img.removeAttribute("src");
+      scene.hidden = false; scene.style.background = sceneBg(n.scene);
+      hero.classList.remove("libre");
+      hero.setAttribute("aria-hidden","true");
+    }
     var b = document.getElementById("artBody"); b.innerHTML = "";
     if(n.bodyHtml){ b.innerHTML = n.bodyHtml; }
     else { (n.body||[]).forEach(function(p){ var el=document.createElement("p"); el.textContent=p; b.appendChild(el); }); }
