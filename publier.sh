@@ -2,14 +2,15 @@
 # Rattrapage manuel de la pregeneration, a lancer juste apres avoir publie un
 # article, une edition ou un travail depuis admin.html.
 #
-# Pourquoi ce script existe. La pregeneration devait partir toute seule a la
-# publication, par un webhook Supabase (voir WEBHOOK.md). Ce webhook n'a jamais
-# emis un seul appel : le 18 aout 2026, l'article du Benin publie a 13h33 UTC
-# n'avait toujours pas de page a lui trente minutes plus tard, et son partage
-# sortait sans miniature. Il ne reste donc que le calendrier de GitHub, qui
-# honore le "toutes les 15 minutes" declare environ une fois par heure.
+# Pourquoi ce script existe. La pregeneration part normalement toute seule a la
+# publication, par le declencheur SQL pose dans Supabase le 18 aout 2026 (voir
+# WEBHOOK.md). Ce script est le filet : jeton GitHub expire, pg_net indisponible,
+# ou simple envie de ne pas attendre. Sans lui, le seul recours est le calendrier
+# de GitHub, qui honore le "toutes les 15 minutes" declare environ une fois par
+# heure : le 18 aout, l'article du Benin publie a 13h33 UTC n'avait toujours pas
+# de page a lui trente minutes plus tard, et son partage sortait sans miniature.
 #
-# Tant que le webhook n'est pas repare, la sequence fiable est :
+# La sequence sure, quand on doute :
 #   1. publier depuis admin.html
 #   2. lancer ce script
 #   3. attendre le "PAGE EN LIGNE" ci-dessous

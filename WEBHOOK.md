@@ -38,40 +38,72 @@ Ce jeton ne donne accès qu'à ce dépôt. Il ne doit jamais être collé dans
 `admin.html`, ni dans aucun fichier du site : tout ce qui est servi par le site est
 public, un jeton qui s'y trouve est un jeton perdu.
 
-### 2. Créer le webhook Supabase
+### 2. Créer le déclencheur, en SQL
+
+**Pas par l'interface « Database Webhooks ».** Elle ne laisse pas choisir le corps
+de la requête : elle envoie toujours son propre format (`type`, `table`, `record`).
+Or `/dispatches` exige un corps contenant `event_type`, sans quoi GitHub répond 422
+et rien ne part. C'est ce qui a été tenté le 28 juillet 2026, et pourquoi le dépôt
+n'a enregistré aucune exécution `repository_dispatch` pendant trois semaines,
+pendant lesquelles chaque article partagé sortait sans miniature.
 
 Sur supabase.com, projet `aohfgaxmahcowatzlvyi` :
 
-Database → **Webhooks** → *Create a new hook*.
+**a.** Database → **Extensions** → activer `pg_net`.
 
-- Name : `pregeneration-github`
-- Table : `contenus`
-- Events : cocher **Insert**, **Update**, **Delete**
-- Type : **HTTP Request**
-- Method : `POST`
-- URL : `https://api.github.com/repos/REMAOWAMS/remao-site/dispatches`
-- HTTP Headers :
+**b.** SQL Editor, en remplaçant `LE_JETON` par celui de l'étape 1 :
 
-  | Nom | Valeur |
-  |---|---|
-  | `Authorization` | `Bearer LE_JETON_COPIE_A_L_ETAPE_1` |
-  | `Accept` | `application/vnd.github+json` |
-  | `Content-Type` | `application/json` |
+```sql
+create or replace function public.declencher_pregeneration()
+returns trigger language plpgsql security definer as $$
+begin
+  perform net.http_post(
+    url := 'https://api.github.com/repos/REMAOWAMS/remao-site/dispatches',
+    body := '{"event_type":"contenu-publie"}'::jsonb,
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Accept', 'application/vnd.github+json',
+      'User-Agent', 'remao-site-webhook',
+      'Authorization', 'Bearer LE_JETON'
+    )
+  );
+  return null;
+end $$;
 
-- HTTP Params : aucun
-- Payload / body :
+drop trigger if exists pregeneration_github on public.contenus;
 
-  ```json
-  { "event_type": "contenu-publie" }
-  ```
+create trigger pregeneration_github
+after insert or update or delete on public.contenus
+for each statement execute function public.declencher_pregeneration();
+```
 
-Enregistrer.
+Le `User-Agent` n'est pas décoratif : l'API GitHub refuse en 403 toute requête qui
+n'en porte pas, et cet échec-là ne se voit nulle part.
+
+Le déclencheur est posé **par instruction** et non par ligne : une modification qui
+touche plusieurs contenus d'un coup n'envoie qu'un seul appel.
+
+Le jeton vit dans la définition de la fonction, donc visible depuis le tableau de
+bord Supabase par qui a accès au projet. Il ne touche aucun fichier du site, c'est
+ce qui compte. À l'expiration du jeton, il suffit de rejouer le même bloc.
+
+Mis en service le **18 août 2026**, vérifié le jour même.
 
 ### 3. Vérifier
 
 Publier ou modifier n'importe quel contenu depuis `admin.html`, puis ouvrir
 l'onglet **Actions** du dépôt. Une exécution « Pregeneration des pages » doit
 apparaître dans la minute, avec `repository_dispatch` comme déclencheur.
+
+Sans ouvrir de navigateur, le compteur se lit ainsi :
+
+```
+curl -s "https://api.github.com/repos/REMAOWAMS/remao-site/actions/runs?event=repository_dispatch&per_page=1"
+```
+
+S'il reste à zéro, la réponse renvoyée par GitHub est consultable côté Supabase dans
+la table `net._http_response` : c'est là que se lisent le 403 (User-Agent absent),
+le 401 (jeton expiré) et le 422 (corps sans `event_type`).
 
 Compter ensuite deux à trois minutes : le temps que la page soit écrite, poussée,
 et que GitHub Pages remette le site en ligne.
