@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2e5e3a">
+<title>Confidentialité et données personnelles — REMAO</title>
+<meta name="description" content="Ce que le site du REMAO collecte, ce qu'il ne collecte pas, et comment demander le retrait d'une information vous concernant.">
+<link rel="canonical" href="https://remao.org/confidentialite/">
+<meta property="og:title" content="Confidentialité et données personnelles — REMAO">
+<meta property="og:description" content="Ce que le site du REMAO collecte, ce qu'il ne collecte pas, et comment demander le retrait d'une information vous concernant.">
+<meta property="og:url" content="https://remao.org/confidentialite/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://remao.org/og-image.jpg">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<!-- ==========================================================================
+     Page autonome, volontairement.
+
+     Le reste du site est une application d'une seule page : chaque adresse
+     (/assises/, /pays/ci/…) est une copie d'index.html produite par
+     sync-pages.sh, et le contenu s'affiche par JavaScript. Une page juridique
+     n'a rien à gagner à ce mécanisme, et beaucoup à perdre : elle doit rester
+     lisible même si Supabase est injoignable ou si le script principal casse.
+     Elle porte donc son propre balisage et sa propre feuille de style, reprise
+     des mêmes variables que l'accueil pour que l'aspect reste celui du site.
+
+     Ni sync-pages.sh ni prerender.mjs ne touchent à ce dossier : le premier
+     n'écrit que dans les dossiers qu'il liste, le second ne nettoie que les
+     dossiers dont le nom est un identifiant Supabase.
+     ========================================================================== -->
+
+<style>
+  :root {
+    color-scheme: light;
+    --ink:#191b19; --ink-soft:#3a3f3b; --gray:#6e6e6e; --gray-soft:#9a9d98;
+    --line:#e3e2dc; --line-strong:#d3d2ca; --paper:#f6f5f1; --paper-2:#efeee8;
+    --card:#ffffff;
+    --green:#2e5e3a; --green-700:#234a2d; --green-tint:#e8efe9;
+    --red:#a81e2c; --gold:#cf9b34;
+    --shadow-sm:0 1px 2px rgba(25,27,25,.05),0 2px 8px rgba(25,27,25,.04);
+    --r-md:18px; --r-lg:26px;
+    --font-body:"Segoe UI",system-ui,-apple-system,sans-serif;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --maxw:820px; --pad:clamp(20px,5vw,64px);
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--font-body); font-size:17px; line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:var(--maxw); margin:0 auto; padding:0 var(--pad); }
+
+  header.top {
+    border-bottom:1px solid var(--line); background:var(--card);
+    position:sticky; top:0; z-index:10;
+  }
+  header.top .wrap {
+    display:flex; align-items:center; justify-content:space-between;
+    gap:18px; padding-top:16px; padding-bottom:16px; max-width:1180px;
+  }
+  .brand { display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit; }
+  .brand img { width:38px; height:38px; object-fit:contain; }
+  .brand b { font-size:18px; letter-spacing:.02em; }
+  .brand span { display:block; font-size:12.5px; color:var(--gray); letter-spacing:.06em; }
+  .back { color:var(--green); text-decoration:none; font-size:15px; font-weight:600; white-space:nowrap; }
+  .back:hover { text-decoration:underline; }
+
+  .hero { padding:clamp(48px,8vw,86px) 0 8px; }
+  .eyebrow {
+    text-transform:uppercase; letter-spacing:.18em; font-size:12.5px;
+    color:var(--green); font-weight:700; margin:0 0 14px;
+  }
+  h1 {
+    font-family:var(--font-serif); font-weight:600; letter-spacing:-.01em;
+    font-size:clamp(32px,5.4vw,50px); line-height:1.12; margin:0 0 18px;
+  }
+  .lede { font-size:19px; color:var(--ink-soft); margin:0; }
+  .maj { margin:26px 0 0; font-size:14.5px; color:var(--gray); }
+
+  main { padding-bottom:90px; }
+  h2 {
+    font-family:var(--font-serif); font-weight:600;
+    font-size:clamp(23px,3vw,29px); line-height:1.25;
+    margin:56px 0 14px; padding-top:26px; border-top:1px solid var(--line);
+  }
+  h3 { font-size:17.5px; margin:30px 0 8px; }
+  p { margin:0 0 16px; }
+  ul { margin:0 0 16px; padding-left:22px; }
+  li { margin:0 0 9px; }
+  a { color:var(--green-700); }
+  strong { font-weight:650; }
+
+  .encart {
+    background:var(--green-tint); border:1px solid #cfe0d3;
+    border-radius:var(--r-md); padding:22px 24px; margin:26px 0;
+    box-shadow:var(--shadow-sm);
+  }
+  .encart p:last-child { margin-bottom:0; }
+  .encart h3 { margin-top:0; }
+
+  table { width:100%; border-collapse:collapse; margin:22px 0; font-size:16px; }
+  th, td { text-align:left; vertical-align:top; padding:12px 14px; border-bottom:1px solid var(--line); }
+  th { background:var(--paper-2); font-weight:650; }
+  .scroll-x { overflow-x:auto; }
+
+  footer.bot {
+    border-top:1px solid var(--line); background:var(--card);
+    padding:30px 0; font-size:14.5px; color:var(--gray);
+  }
+  footer.bot .wrap { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; max-width:1180px; }
+  footer.bot a { color:var(--gray); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <img src="/logo-web.png" alt="">
+      <span><b>REMAO</b><span>WAMS-Web · Niamey</span></span>
+    </a>
+    <a class="back" href="/">← Retour au site</a>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <p class="eyebrow">Informations légales</p>
+  <h1>Confidentialité et données personnelles</h1>
+  <p class="lede">Cette page dit exactement ce que remao.org fait des informations qui vous concernent. La réponse tient en une phrase : ce site ne vous demande rien et ne vous suit pas.</p>
+  <p class="maj">Dernière mise à jour : 19 août 2026.</p>
+</div>
+
+<main class="wrap">
+
+  <h2>Qui est responsable de ce site</h2>
+  <p>
+    Ce site est édité par le <strong>Réseau des Étudiants en Médecine de l'Afrique de l'Ouest (REMAO
+    — WAMS-Web)</strong>, réseau fondé en 1997 à Ouagadougou et dont le siège est à Niamey, au Niger.
+  </p>
+  <p>
+    Pour toute question relative à cette page, y compris une demande de retrait :
+    <a href="mailto:remao.wams@gmail.com">remao.wams@gmail.com</a> · <a href="tel:+22799320761">+227 99 32 07 61</a>.
+  </p>
+
+  <h2>Ce que ce site ne fait pas</h2>
+  <p>Le point mérite d'être écrit noir sur blanc, parce qu'il est rare :</p>
+  <ul>
+    <li><strong>Aucun cookie</strong> n'est déposé sur votre appareil. C'est pourquoi vous n'avez jamais vu de bandeau vous demandant de les accepter : il n'y aurait rien à accepter.</li>
+    <li><strong>Aucun outil de mesure d'audience</strong> — pas de Google Analytics, pas de pixel Facebook, pas de traceur publicitaire d'aucune sorte.</li>
+    <li><strong>Aucun compte visiteur</strong>, aucun formulaire d'inscription, aucune lettre d'information.</li>
+    <li><strong>Aucune revente, aucun partage commercial</strong> de quoi que ce soit. Le réseau n'a rien à vendre.</li>
+  </ul>
+  <p>
+    Concrètement : vous pouvez lire ce site de bout en bout sans laisser autre chose que la trace
+    technique décrite juste en dessous.
+  </p>
+
+  <h2>Ce qui est enregistré malgré tout</h2>
+  <p>
+    Un site ne peut pas être consulté sans qu'aucune machine ne le sache. Deux prestataires
+    techniques voient passer votre visite :
+  </p>
+  <div class="scroll-x">
+    <table>
+      <tr>
+        <th>Prestataire</th>
+        <th>Ce qu'il voit</th>
+        <th>Pourquoi</th>
+      </tr>
+      <tr>
+        <td><strong>GitHub Pages</strong><br>(hébergement des pages)</td>
+        <td>Votre adresse IP, la date de la visite, la page demandée, votre navigateur — dans des journaux techniques automatiques.</td>
+        <td>C'est ce qui permet de vous envoyer la page. Ces journaux servent à la sécurité et à la lutte contre les abus, pas à vous identifier.</td>
+      </tr>
+      <tr>
+        <td><strong>Supabase</strong><br>(base des contenus)</td>
+        <td>La même chose, lorsque la page va chercher les actualités, les cellules ou les éditions des Assises.</td>
+        <td>Les textes et les photos du site y sont rangés. La base ne contient <em>aucune</em> donnée de visiteur.</td>
+      </tr>
+    </table>
+  </div>
+  <p>
+    Ces deux prestataires hébergent leurs serveurs hors d'Afrique de l'Ouest. Le réseau n'a
+    pas accès à ces journaux et n'en fait aucun usage.
+  </p>
+
+  <h2>Les coordonnées publiées sur le site</h2>
+  <p>
+    Le site publie les noms et les contacts des responsables des cellules nationales, des membres
+    du Bureau Exécutif, ainsi que les noms des auteurs des travaux scientifiques et des lauréats
+    des Assises. Ces informations sont publiées <strong>dans le cadre des fonctions
+    officielles</strong> de ces personnes au sein du réseau, et avec leur accord.
+  </p>
+  <div class="encart">
+    <h3>Vous figurez sur ce site et vous ne le souhaitez plus ?</h3>
+    <p>
+      Écrivez à <a href="mailto:remao.wams@gmail.com">remao.wams@gmail.com</a> en précisant la page
+      concernée. La correction ou le retrait est effectué sous trente jours, sans que vous ayez à
+      vous justifier. Cela vaut aussi pour une photo sur laquelle vous êtes reconnaissable.
+    </p>
+  </div>
+
+  <h2>L'espace d'administration</h2>
+  <p>
+    Le site comporte un espace réservé, qui permet au Bureau de publier les actualités et de mettre
+    à jour les pages. Il n'est accessible qu'aux membres habilités, par identifiant et mot de passe.
+    Les visiteurs ne sont pas concernés : aucun compte n'y est créé à votre nom.
+  </p>
+
+  <h2>Combien de temps les informations sont conservées</h2>
+  <ul>
+    <li><strong>Journaux techniques de l'hébergeur :</strong> selon la politique de GitHub et de Supabase, généralement quelques semaines à quelques mois.</li>
+    <li><strong>Contenus publiés</strong> (articles, palmarès, travaux scientifiques) : ils constituent la mémoire du réseau et sont conservés sans limite de durée, sauf demande de retrait.</li>
+    <li><strong>Coordonnées des responsables de cellules :</strong> mises à jour à chaque renouvellement de bureau, et retirées lorsque la personne quitte ses fonctions.</li>
+  </ul>
+
+  <h2>Vos droits</h2>
+  <p>
+    Vous pouvez à tout moment demander à <strong>consulter</strong> les informations qui vous
+    concernent sur ce site, à les faire <strong>corriger</strong> si elles sont inexactes, à les
+    faire <strong>effacer</strong>, ou vous <strong>opposer</strong> à leur publication. Une seule
+    adresse pour tout cela : <a href="mailto:remao.wams@gmail.com">remao.wams@gmail.com</a>.
+  </p>
+  <p>
+    Le siège du réseau étant à Niamey, ces demandes relèvent de la législation nigérienne sur la
+    protection des données à caractère personnel, dont l'application est confiée à la
+    <strong>Haute Autorité de Protection des Données à caractère Personnel (HAPDP)</strong>. Vous
+    pouvez la saisir si une demande adressée au réseau restait sans réponse.
+  </p>
+  <p>
+    Le REMAO étant présent dans huit pays, la plupart dotés de leur propre loi et de leur propre
+    autorité — l'ARTCI en Côte d'Ivoire, l'ARPT en Guinée, la CDP au Sénégal, entre autres — vous
+    pouvez également saisir celle de votre pays de résidence. Les visiteurs résidant dans l'Union
+    européenne bénéficient en outre des droits ouverts par le règlement général sur la protection
+    des données (RGPD).
+  </p>
+
+  <h2>Modifications de cette page</h2>
+  <p>
+    Si le site venait à collecter de nouvelles informations — un formulaire d'adhésion en ligne,
+    par exemple — cette page serait mise à jour <em>avant</em> la mise en service, et la date en
+    haut de page le signalerait.
+  </p>
+
+</main>
+
+<footer class="bot">
+  <div class="wrap">
+    <span>© 2026 REMAO · WAMS-Web. Tous droits réservés.</span>
+    <span><a href="/">remao.org</a> · Siège : Niamey, Niger</span>
+  </div>
+</footer>
+
+</body>
+</html>

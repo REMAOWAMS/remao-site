@@ -83,6 +83,11 @@ VUES
 # dans l'administration. L'en-tete neutre ci-dessus est ce qui reste si la base est
 # injoignable : rien de faux, seulement moins precis.
 
+# /confidentialite/ n'est pas dans la liste ci-dessus, et c'est voulu : c'est une
+# vraie page HTML autonome, ecrite a la main, avec son propre balisage et sa propre
+# feuille de style. Elle doit rester lisible meme si le script principal ou Supabase
+# tombent. Elle figure en revanche dans le plan du site, plus bas.
+
 # ---------------------------------------------------------------------------
 # Les huit cellules nationales
 # ---------------------------------------------------------------------------
@@ -135,6 +140,7 @@ DYNAMIQUES=$(
   echo '<?xml version="1.0" encoding="UTF-8"?>'
   echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
   for u in "" "qui-sommes-nous/" "assises/" "palmares/" "revue/" "actualites/" "devenir-membre/" "creer-une-cellule/" \
+           "confidentialite/" \
            "pays/bj/" "pays/bf/" "pays/ci/" "pays/gn/" "pays/ml/" "pays/ne/" "pays/sn/" "pays/tg/"; do
     printf '  <url><loc>%s/%s</loc><lastmod>%s</lastmod></url>\n' "$SITE" "$u" "$JOUR"
   done
