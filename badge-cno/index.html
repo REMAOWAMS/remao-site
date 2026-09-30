@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2C1A0E">
+<!-- Page de service, reservee au Comite national d'organisation : hors du plan
+     du site et hors des moteurs de recherche. Elle ne passe pas par sync-pages.sh,
+     c'est une page autonome comme /confidentialite/. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Mon badge CNO — Assises du REMAO</title>
+<meta name="description" content="Membres du Comité national d'organisation : envoyez votre photo, votre nom et votre poste pour recevoir votre badge des XXIe Assises.">
+<meta property="og:title" content="Mon badge CNO — XXIe Assises du REMAO">
+<meta property="og:description" content="Membres du CNO : votre photo, votre nom et votre poste, en deux minutes.">
+<meta property="og:image" content="https://remao.org/badge-cno/apercu.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="/supabase-config.js"></script>
+<style>
+  :root {
+    --brun: #2C1A0E; --or: #DB9D3A; --or-fonce: #A8731F; --creme: #FBF5EA;
+    --gris: #6B6257; --ligne: #E6DccB; --rouge: #A81E2C; --vert: #2E5E3A;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--creme); color: var(--brun);
+    font: 16px/1.5 Montserrat, system-ui, sans-serif;
+  }
+  button, input { font: inherit; color: inherit; }
+
+  header {
+    background: var(--brun); color: var(--creme);
+    padding: 22px 16px 26px; text-align: center;
+  }
+  header img { width: 58px; height: 58px; border-radius: 50%; background: #fff; padding: 3px; }
+  header .sur { margin: 10px 0 4px; color: var(--or); font-weight: 700; font-size: 12px; letter-spacing: .16em; }
+  header .sur sup { font-size: .7em; letter-spacing: 0; }
+  header h1 { margin: 0; font-weight: 900; font-size: clamp(26px, 7vw, 34px); line-height: 1.1; letter-spacing: -.01em; }
+  header p { margin: 10px auto 0; max-width: 30em; color: #E9DCC6; font-size: 15px; }
+
+  main { max-width: 540px; margin: 0 auto; padding: 8px 16px 48px; }
+  .etape { margin-top: 28px; }
+  .etape h2 {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 14px; font-size: 17px; font-weight: 800;
+  }
+  .etape h2 span {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--or); color: var(--brun);
+    display: grid; place-items: center; font-size: 14px; font-weight: 900;
+  }
+
+  label { display: block; margin-bottom: 14px; }
+  label b { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  label b i { font-style: normal; font-weight: 500; color: var(--gris); }
+  input[type=text], input[type=tel] {
+    width: 100%; height: 50px; padding: 0 14px;
+    border: 1.5px solid var(--ligne); border-radius: 12px; background: #fff;
+    font-size: 16px; outline: none; transition: border-color .15s;
+  }
+  input:focus { border-color: var(--or); }
+  input.faux { border-color: var(--rouge); }
+  .aide { margin: -8px 0 14px; font-size: 13px; color: var(--gris); }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  @media (max-width: 380px) { .deux { grid-template-columns: 1fr; } }
+
+  /* recadrage */
+  .cadrage {
+    position: relative; width: min(100%, 320px); margin: 0 auto;
+    aspect-ratio: 222 / 276; border-radius: 14px; overflow: hidden;
+    background: #EFE6D6; border: 2px solid var(--or);
+    touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer;
+  }
+  .cadrage.pret { cursor: grab; }
+  .cadrage canvas { display: block; width: 100%; height: 100%; }
+  .guide {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: 0; transition: opacity .2s;
+  }
+  .cadrage.pret .guide { opacity: 1; }
+  .guide svg { width: 100%; height: 100%; }
+  .vide {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px;
+    color: var(--or-fonce); font-weight: 800; font-size: 15px; text-align: center; padding: 20px;
+  }
+  .vide svg { width: 64px; height: 64px; }
+  .cadrage.pret .vide { display: none; }
+  .indice { text-align: center; font-size: 13px; color: var(--gris); margin: 10px 0 0; }
+
+  .zoom { display: flex; align-items: center; gap: 12px; max-width: 320px; margin: 12px auto 0; }
+  .zoom button {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid var(--ligne); background: #fff; font-size: 22px; font-weight: 700; cursor: pointer;
+  }
+  .zoom input { flex: 1; accent-color: var(--or-fonce); height: 28px; }
+
+  .alerte {
+    margin: 14px 0 0; padding: 12px 14px; border-radius: 12px;
+    background: #FBE9E1; color: #7A2A12; font-size: 14px;
+  }
+  .conseils { margin: 14px 0 0; padding: 0; list-style: none; font-size: 14px; color: var(--gris); }
+  .conseils li { padding-left: 22px; position: relative; margin-bottom: 4px; }
+  .conseils li::before { content: ""; position: absolute; left: 4px; top: .6em; width: 8px; height: 8px; border-radius: 50%; background: var(--or); }
+
+  /* apercu du badge */
+  .badge {
+    position: relative; width: min(100%, 420px); margin: 0 auto;
+    aspect-ratio: 1310 / 1818; container-type: inline-size;
+    background: url(fond.jpg) center / 100% 100% no-repeat;
+    border-radius: 10px; box-shadow: 0 18px 40px -18px rgba(44, 26, 14, .55);
+  }
+  .badge canvas {
+    position: absolute; left: 9.847%; top: 44.334%; width: 16.947%; height: 15.182%;
+    border-radius: .45cqw;
+  }
+  .badge .nom {
+    position: absolute; left: 30.15%; top: 48.2%; width: 60.3%;
+    font-weight: 900; font-size: 4.6cqw; line-height: 1.12; letter-spacing: -.01em;
+    color: var(--brun); overflow-wrap: anywhere;
+  }
+  .badge .fonction {
+    position: absolute; left: 30.15%; top: 56.3%; width: 60.3%;
+    font-weight: 500; font-size: 1.95cqw; line-height: 1.3; color: var(--gris);
+  }
+  .badge .nom:empty::before { content: "Prénom NOM"; opacity: .25; }
+  .badge .fonction:empty::before { content: "Poste · Commission"; opacity: .35; }
+  .legende { text-align: center; font-size: 12px; color: var(--gris); margin: 10px 0 0; }
+
+  .envoyer {
+    width: 100%; height: 58px; margin-top: 26px; border: 0; border-radius: 14px;
+    background: var(--brun); color: var(--creme); font-weight: 800; font-size: 17px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .envoyer:disabled { opacity: .55; cursor: default; }
+  .secondaire {
+    height: 46px; padding: 0 18px; border-radius: 12px; cursor: pointer;
+    border: 1.5px solid var(--brun); background: transparent; font-weight: 700; font-size: 15px;
+  }
+  .choisir { display: flex; justify-content: center; margin-top: 14px; }
+  .note { margin-top: 14px; font-size: 12.5px; color: var(--gris); text-align: center; }
+  .note a { color: inherit; }
+  .masque { display: none !important; }
+
+  .fini { text-align: center; padding-top: 18px; }
+  .fini .coche {
+    width: 64px; height: 64px; margin: 10px auto 12px; border-radius: 50%;
+    background: var(--vert); display: grid; place-items: center;
+  }
+  .fini h2 { margin: 0 0 8px; font-size: 24px; font-weight: 900; }
+  .fini p { margin: 0 auto 20px; max-width: 26em; color: var(--gris); }
+
+  @keyframes tourne { to { transform: rotate(360deg); } }
+  .roue { width: 20px; height: 20px; border: 3px solid rgba(251,245,234,.35); border-top-color: var(--creme); border-radius: 50%; animation: tourne .8s linear infinite; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="/logo-web.png" alt="Sceau du REMAO" width="58" height="58">
+  <div class="sur">XXI<sup>e</sup> ASSISES · CONAKRY 2026</div>
+  <h1>Mon badge CNO</h1>
+  <p>Membres du Comité national d'organisation : votre nom, votre poste et une photo, et votre badge est fabriqué pour vous.</p>
+</header>
+
+<main>
+  <form id="formulaire" novalidate>
+
+    <section class="etape" id="bloc-code">
+      <h2><span>0</span>Code d'accès</h2>
+      <label>
+        <b>Code communiqué dans le groupe du CNO</b>
+        <input type="text" id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CNO-0000">
+      </label>
+    </section>
+
+    <section class="etape">
+      <h2><span>1</span>Qui êtes-vous ?</h2>
+      <div class="deux">
+        <label><b>Prénom(s)</b>
+          <input type="text" id="prenom" autocomplete="given-name" maxlength="60" placeholder="Mamadou Aliou"></label>
+        <label><b>Nom</b>
+          <input type="text" id="nom" autocomplete="family-name" maxlength="60" placeholder="DIALLO"></label>
+      </div>
+      <label><b>Poste au sein du CNO</b>
+        <input type="text" id="poste" maxlength="90" placeholder="Président, secrétaire, membre…"></label>
+      <label><b>Commission</b>
+        <input type="text" id="commission" maxlength="90" list="commissions" placeholder="Commission scientifique"></label>
+      <datalist id="commissions">
+        <option value="Commission scientifique">
+        <option value="Commission logistique">
+        <option value="Commission communication">
+        <option value="Commission finances">
+        <option value="Commission accueil et hébergement">
+        <option value="Commission restauration">
+        <option value="Commission transport">
+        <option value="Commission culturelle">
+        <option value="Commission sportive">
+        <option value="Commission santé">
+        <option value="Commission protocole">
+        <option value="Commission sécurité">
+      </datalist>
+      <label><b>Numéro WhatsApp <i>(pour vous joindre si la photo ne convient pas)</i></b>
+        <input type="tel" id="telephone" autocomplete="tel" maxlength="30" placeholder="+224 6XX XX XX XX"></label>
+    </section>
+
+    <section class="etape">
+      <h2><span>2</span>Votre photo</h2>
+      <div class="cadrage" id="cadrage">
+        <canvas id="toile" width="600" height="746"></canvas>
+        <div class="guide" aria-hidden="true">
+          <svg viewBox="0 0 222 276">
+            <ellipse cx="111" cy="112" rx="56" ry="72" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="4 4" opacity=".9"/>
+          </svg>
+        </div>
+        <div class="vide">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="32" cy="24" r="11"/><path d="M12 56c2-11 10-17 20-17s18 6 20 17"/>
+          </svg>
+          Toucher pour choisir une photo
+        </div>
+      </div>
+      <p class="indice masque" id="indice">Glissez pour placer le visage dans l'ovale · pincez pour zoomer</p>
+      <div class="zoom masque" id="zoom">
+        <button type="button" id="moins" aria-label="Dézoomer">−</button>
+        <input type="range" id="curseur" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+        <button type="button" id="plus" aria-label="Zoomer">+</button>
+      </div>
+      <div class="choisir"><button type="button" class="secondaire" id="choisir">Choisir une photo</button></div>
+      <input type="file" id="fichier" accept="image/*" hidden>
+      <div class="alerte masque" id="alerte-photo"></div>
+      <ul class="conseils">
+        <li>Photo de face, visage bien éclairé, sans lunettes de soleil</li>
+        <li>Un fond clair et uni, si possible</li>
+        <li>Une vraie photo, pas une capture d'écran de WhatsApp</li>
+      </ul>
+    </section>
+
+    <section class="etape">
+      <h2><span>3</span>Votre badge</h2>
+      <div class="badge" id="badge">
+        <canvas id="mini" width="222" height="276"></canvas>
+        <div class="nom" id="apercu-nom"></div>
+        <div class="fonction" id="apercu-fonction"></div>
+      </div>
+      <p class="legende">Aperçu : le badge imprimé reprend exactement ces informations.</p>
+    </section>
+
+    <div class="alerte masque" id="alerte"></div>
+    <button type="submit" class="envoyer" id="envoyer">Envoyer pour mon badge</button>
+    <p class="note">Votre photo sert uniquement à fabriquer votre badge et est effacée après les Assises.
+      <a href="/confidentialite/">Données personnelles</a></p>
+  </form>
+
+  <section class="fini masque" id="fini">
+    <div class="coche"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h2>C'est envoyé</h2>
+    <p>Merci ! Votre badge sera préparé avec ces informations. Une erreur ? Renvoyez simplement le formulaire : la dernière version remplace la précédente.</p>
+    <button type="button" class="secondaire" id="corriger">Corriger mes informations</button>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------------------------------------------------------------- code d'accès
+  // Le lien diffusé au CNO porte le code après le # : il n'est jamais transmis au serveur web.
+  var codeInput = document.getElementById('code');
+  var m = /code=([^&]+)/i.exec(location.hash);
+  if (m) {
+    codeInput.value = decodeURIComponent(m[1]).toUpperCase();
+    document.getElementById('bloc-code').classList.add('masque');
+  }
+
+  // ---------------------------------------------------------------- aperçu du texte
+  var champs = ['prenom', 'nom', 'poste', 'commission', 'telephone'].reduce(function (o, k) {
+    o[k] = document.getElementById(k); return o;
+  }, {});
+
+  // « mamadou aliou » -> « Mamadou Aliou » ; les traits d'union et apostrophes sont respectés
+  function prenomPropre(s) {
+    return s.trim().replace(/\s+/g, ' ').toLocaleLowerCase('fr')
+      .replace(/(^|[\s\-'’])(\p{L})/gu, function (_, a, b) { return a + b.toLocaleUpperCase('fr'); });
+  }
+  function nomPropre(s) { return s.trim().replace(/\s+/g, ' ').toLocaleUpperCase('fr'); }
+  function fonction() {
+    var p = champs.poste.value.trim().replace(/\s+/g, ' ');
+    var c = champs.commission.value.trim().replace(/\s+/g, ' ');
+    return [p, c].filter(Boolean).join(' · ');
+  }
+  function majTexte() {
+    document.getElementById('apercu-nom').textContent =
+      [prenomPropre(champs.prenom.value), nomPropre(champs.nom.value)].filter(Boolean).join(' ');
+    document.getElementById('apercu-fonction').textContent = fonction();
+  }
+  Object.keys(champs).forEach(function (k) {
+    champs[k].addEventListener('input', function () { champs[k].classList.remove('faux'); majTexte(); });
+  });
+
+  // ---------------------------------------------------------------- recadrage
+  var W = 600, H = 746;                 // photo envoyée : 2,7 fois la fenêtre du badge imprimé
+  var ZOOM_MAX = 4;
+  var toile = document.getElementById('toile'), ctx = toile.getContext('2d');
+  var mini = document.getElementById('mini'), mctx = mini.getContext('2d');
+  var cadrage = document.getElementById('cadrage');
+  var fichier = document.getElementById('fichier');
+  var curseur = document.getElementById('curseur');
+  var alertePhoto = document.getElementById('alerte-photo');
+  var photo = null, z = 1, ox = 0, oy = 0;
+
+  function base() { return Math.max(W / photo.width, H / photo.height); }
+  function borner() {
+    var k = base() * z;
+    var mx = Math.max(0, (photo.width * k - W) / 2), my = Math.max(0, (photo.height * k - H) / 2);
+    ox = Math.min(mx, Math.max(-mx, ox));
+    oy = Math.min(my, Math.max(-my, oy));
+  }
+  function dessiner() {
+    ctx.fillStyle = '#EFE6D6'; ctx.fillRect(0, 0, W, H);
+    mctx.fillStyle = '#FBF5EA'; mctx.fillRect(0, 0, mini.width, mini.height);
+    if (!photo) return;
+    var k = base() * z;
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(photo, W / 2 + ox - photo.width * k / 2, H / 2 + oy - photo.height * k / 2, photo.width * k, photo.height * k);
+    mctx.imageSmoothingQuality = 'high';
+    mctx.drawImage(toile, 0, 0, mini.width, mini.height);
+    // largeur de la photo d'origine réellement visible dans le cadre
+    var visible = W / k;
+    if (visible < 220) {
+      alertePhoto.textContent = "Cette photo est trop petite ou trop zoomée : elle serait floue sur le badge. Dézoomez, ou prenez une photo de meilleure qualité.";
+      alertePhoto.classList.remove('masque');
+    } else {
+      alertePhoto.classList.add('masque');
+    }
+  }
+
+  // Réduit par moitiés successives : un grand saut d'échelle crénelle sous Safari.
+  function reduire(img) {
+    var cible = 1600;
+    var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, src = img;
+    while (Math.max(w, h) > cible * 2) {
+      w = Math.round(w / 2); h = Math.round(h / 2);
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var cc = c.getContext('2d'); cc.imageSmoothingQuality = 'high';
+      cc.drawImage(src, 0, 0, w, h); src = c;
+    }
+    var r = Math.min(1, cible / Math.max(w, h));
+    var out = document.createElement('canvas');
+    out.width = Math.round(w * r); out.height = Math.round(h * r);
+    var oc = out.getContext('2d'); oc.imageSmoothingQuality = 'high';
+    oc.drawImage(src, 0, 0, out.width, out.height);
+    return out;
+  }
+
+  function charger(f) {
+    if (!f) return;
+    var url = URL.createObjectURL(f), img = new Image();
+    img.onload = function () {
+      photo = reduire(img);
+      URL.revokeObjectURL(url);
+      z = 1; ox = 0; curseur.value = 1;
+      // un portrait se cadre sur le haut : on remonte d'un cran
+      oy = Math.max(0, (photo.height * base() - H) / 2) * 0.4;
+      borner(); dessiner();
+      cadrage.classList.add('pret');
+      document.getElementById('indice').classList.remove('masque');
+      document.getElementById('zoom').classList.remove('masque');
+      document.getElementById('choisir').textContent = 'Changer de photo';
+    };
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      alertePhoto.textContent = "Cette image n'a pas pu être ouverte. Essayez une photo au format JPG ou PNG.";
+      alertePhoto.classList.remove('masque');
+    };
+    img.src = url;
+  }
+
+  document.getElementById('choisir').onclick = function () { fichier.click(); };
+  fichier.onchange = function () { charger(fichier.files[0]); fichier.value = ''; };
+  cadrage.addEventListener('click', function () { if (!photo) fichier.click(); });
+  cadrage.addEventListener('dragover', function (e) { e.preventDefault(); });
+  cadrage.addEventListener('drop', function (e) { e.preventDefault(); charger(e.dataTransfer.files[0]); });
+
+  function zoomer(nz) { if (!photo) return; z = Math.min(ZOOM_MAX, Math.max(1, nz)); curseur.value = z; borner(); dessiner(); }
+  curseur.oninput = function () { zoomer(parseFloat(curseur.value)); };
+  document.getElementById('plus').onclick = function () { zoomer(z * 1.15); };
+  document.getElementById('moins').onclick = function () { zoomer(z / 1.15); };
+
+  var pts = {}, depart = null;
+  function echelle() { return W / cadrage.getBoundingClientRect().width; }
+  function etat() {
+    var ids = Object.keys(pts), a = pts[ids[0]], b = pts[ids[1]];
+    var s = { x: a.x, y: a.y, z: z, ox: ox, oy: oy, d: 0 };
+    if (b) { s.x = (a.x + b.x) / 2; s.y = (a.y + b.y) / 2; s.d = Math.hypot(a.x - b.x, a.y - b.y); }
+    return s;
+  }
+  cadrage.addEventListener('pointerdown', function (e) {
+    if (!photo) return;
+    cadrage.setPointerCapture(e.pointerId);
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    depart = etat();
+  });
+  cadrage.addEventListener('pointermove', function (e) {
+    if (!photo || !pts[e.pointerId]) return;
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var s = etat(), k = echelle();
+    if (s.d && depart.d) { z = Math.min(ZOOM_MAX, Math.max(1, depart.z * s.d / depart.d)); curseur.value = z; }
+    ox = depart.ox + (s.x - depart.x) * k;
+    oy = depart.oy + (s.y - depart.y) * k;
+    borner(); dessiner();
+  });
+  function lacher(e) { delete pts[e.pointerId]; if (Object.keys(pts).length) depart = etat(); }
+  cadrage.addEventListener('pointerup', lacher);
+  cadrage.addEventListener('pointercancel', lacher);
+  cadrage.addEventListener('wheel', function (e) {
+    if (!photo) return;
+    e.preventDefault();
+    zoomer(z * Math.exp(-e.deltaY * 0.0015));
+  }, { passive: false });
+
+  dessiner();
+
+  // ---------------------------------------------------------------- envoi
+  var form = document.getElementById('formulaire');
+  var bouton = document.getElementById('envoyer');
+  var alerte = document.getElementById('alerte');
+
+  function erreur(msg, champ) {
+    alerte.textContent = msg; alerte.classList.remove('masque');
+    if (champ) { champ.classList.add('faux'); champ.focus(); }
+    else alerte.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    alerte.classList.add('masque');
+    var code = codeInput.value.trim().toUpperCase();
+    if (!code) { document.getElementById('bloc-code').classList.remove('masque'); return erreur("Saisissez le code d'accès communiqué dans le groupe du CNO.", codeInput); }
+    if (!champs.prenom.value.trim()) return erreur('Indiquez votre prénom.', champs.prenom);
+    if (!champs.nom.value.trim()) return erreur('Indiquez votre nom.', champs.nom);
+    if (champs.poste.value.trim().length < 2) return erreur('Indiquez votre poste au sein du CNO.', champs.poste);
+    if (champs.commission.value.trim().length < 2) return erreur('Indiquez votre commission.', champs.commission);
+    if (!photo) return erreur('Ajoutez votre photo.');
+
+    bouton.disabled = true;
+    bouton.innerHTML = '<span class="roue"></span>Envoi en cours…';
+
+    var donnees = {
+      p_code: code,
+      p_prenom: prenomPropre(champs.prenom.value),
+      p_nom: nomPropre(champs.nom.value),
+      p_poste: champs.poste.value.trim().replace(/\s+/g, ' '),
+      p_commission: champs.commission.value.trim().replace(/\s+/g, ' '),
+      p_telephone: champs.telephone.value.trim(),
+      p_photo: toile.toDataURL('image/jpeg', 0.88)
+    };
+
+    fetch(window.SUPA_URL + '/rest/v1/rpc/soumettre_badge_cno', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: window.SUPA_KEY, Authorization: 'Bearer ' + window.SUPA_KEY },
+      body: JSON.stringify(donnees)
+    }).then(function (r) {
+      if (r.ok) return;
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        throw new Error(j && j.code === '28000' ? 'code' : 'serveur');
+      });
+    }).then(function () {
+      form.classList.add('masque');
+      document.getElementById('fini').classList.remove('masque');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }).catch(function (err) {
+      if (err.message === 'code') {
+        document.getElementById('bloc-code').classList.remove('masque');
+        erreur("Ce code d'accès n'est pas le bon. Vérifiez-le dans le groupe du CNO.", codeInput);
+      } else {
+        erreur("L'envoi n'a pas abouti. Vérifiez votre connexion internet et réessayez.");
+      }
+    }).then(function () {
+      bouton.disabled = false;
+      bouton.textContent = 'Envoyer pour mon badge';
+    });
+  });
+
+  document.getElementById('corriger').onclick = function () {
+    document.getElementById('fini').classList.add('masque');
+    form.classList.remove('masque');
+  };
+})();
+</script>
+</body>
+</html>
