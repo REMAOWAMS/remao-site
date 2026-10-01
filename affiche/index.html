@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REMAO Conakry 2026 · Ton affiche</title>
+<meta name="description" content="Crée ton affiche des XXIe Assises du REMAO, du 13 au 22 octobre 2026 à Conakry.">
+<meta name="theme-color" content="#2C1A0E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Crée ton affiche REMAO Conakry 2026">
+<meta property="og:description" content="XXIe Assises du REMAO · 13-22 octobre 2026, Conakry">
+<meta property="og:url" content="https://remao.org/affiche/">
+<link rel="canonical" href="https://remao.org/affiche/">
+<meta property="og:image" content="https://remao.org/affiche/apercu.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brun: #2C1A0E;
+    --nuit: #150B04;
+    --or: #DB9D3A;
+    --or-clair: #E9B967;
+    --creme: #F5EFE6;
+    --gris: #B9A893;
+    --trait: rgba(219,157,58,.28);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; color: var(--creme);
+    background: radial-gradient(120% 70% at 50% 0%, #3A2414 0%, var(--brun) 45%, var(--nuit) 100%) fixed, var(--nuit);
+    font-family: Montserrat, system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  .liseré { height: 5px; background: var(--or); }
+
+  main { width: 100%; max-width: 1040px; margin: 0 auto; padding: 20px 16px 32px; flex: 1; }
+
+  .tete { display: flex; justify-content: center; }
+  .carte {
+    display: flex; align-items: center; gap: 14px; background: #fff; border-radius: 14px;
+    padding: 8px 16px;
+  }
+  .carte img { height: 46px; width: auto; display: block; }
+  .carte i { width: 1.5px; height: 34px; background: #D5CCC0; }
+
+  .grille { display: grid; gap: 18px; margin-top: 18px; }
+  .etapes { display: none !important; }
+  @media (min-width: 860px) {
+    .grille {
+      grid-template-columns: minmax(0, min(500px, calc((100vh - 150px) * .8))) 400px; grid-template-rows: auto 1fr; justify-content: center;
+      grid-template-areas: "scene intro" "scene actions"; column-gap: 48px; row-gap: 0; margin-top: 36px;
+    }
+    .scene { grid-area: scene; }
+    .intro { grid-area: intro; }
+    .actions { grid-area: actions; }
+    .etapes { display: grid !important; }
+  }
+
+  .rang { margin: 0 0 8px; font-size: 11.5px; font-weight: 800; letter-spacing: .22em; color: var(--or); }
+  .rang sup { font-size: .62em; letter-spacing: 0; }
+  h1 {
+    margin: 0 0 10px; font-weight: 900; color: var(--creme);
+    font-size: clamp(30px, 8vw, 48px); line-height: 1.02; letter-spacing: -.01em; text-transform: uppercase;
+  }
+  h1 span { color: var(--or); display: block; }
+  .chapeau { margin: 0; font-size: 15px; line-height: 1.55; color: var(--gris); font-weight: 500; }
+  .chapeau b { color: var(--creme); font-weight: 700; }
+
+  .etapes { list-style: none; margin: 22px 0 22px; padding: 0; display: grid; gap: 10px; }
+  .etapes li { display: flex; gap: 12px; align-items: center; font-size: 14px; font-weight: 600; }
+  .etapes li span {
+    flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--or); color: var(--nuit); font-size: 12px; font-weight: 800;
+  }
+
+  .scene {
+    position: relative; border-radius: 6px; overflow: hidden; background: var(--nuit);
+    box-shadow: 0 0 0 1px var(--trait), 0 24px 50px -20px rgba(0,0,0,.8);
+    touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  .scene canvas { display: block; width: 100%; height: auto; aspect-ratio: 1080 / 1350; }
+  .scene.pret { cursor: grab; }
+  .scene.pret:active { cursor: grabbing; }
+  .indice {
+    position: absolute; left: 50%; top: 12px; transform: translateX(-50%);
+    background: rgba(21,11,4,.88); color: var(--creme); font-size: 12px; font-weight: 600;
+    padding: 8px 14px; border-radius: 999px; white-space: nowrap; pointer-events: none;
+    box-shadow: inset 0 0 0 1px var(--trait); opacity: 0; transition: opacity .3s;
+  }
+  .scene.pret .indice { opacity: 1; }
+  .scene.bouge .indice { opacity: 0; }
+
+  .boutons { display: grid; gap: 10px; }
+  button {
+    font: inherit; font-weight: 700; font-size: 16px; border-radius: 12px; min-height: 54px;
+    padding: 0 20px; border: 0; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 10px; width: 100%; transition: transform .08s, background .2s, opacity .2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:active { transform: scale(.985); }
+  button svg { width: 20px; height: 20px; flex: none; }
+  .principal { background: var(--or); color: var(--nuit); }
+  .principal:hover { background: var(--or-clair); }
+  .secondaire { background: transparent; color: var(--creme); box-shadow: inset 0 0 0 1.5px var(--trait); }
+  .secondaire:hover { box-shadow: inset 0 0 0 1.5px var(--or); }
+  button:disabled { opacity: .45; cursor: default; transform: none; }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--creme); outline-offset: 2px; }
+
+  .zoom { display: flex; align-items: center; gap: 12px; margin: 16px 0 14px; }
+  .zoom button {
+    width: 44px; min-height: 44px; height: 44px; padding: 0; border-radius: 50%;
+    background: transparent; color: var(--or); box-shadow: inset 0 0 0 1.5px var(--trait); flex: none;
+  }
+  .zoom input { flex: 1; accent-color: var(--or); height: 28px; }
+  .masque { display: none !important; }
+  @media (max-width: 859px) {
+    .tete { display: none; }
+    .grille { margin-top: 4px; }
+    .intro .chapeau { display: none; }
+    .zoom { margin-top: 2px; }
+  }
+  @media (min-width: 860px) { .actions .chapeau { display: none; } }
+
+  .note {
+    margin: 18px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--gris);
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .note svg { flex: none; width: 16px; height: 16px; margin-top: 1px; color: var(--or); }
+
+  .infos {
+    margin-top: 22px; padding: 16px 18px; border-radius: 12px; background: rgba(21,11,4,.5);
+    box-shadow: inset 0 0 0 1px var(--trait); display: grid; grid-template-columns: auto 1fr; gap: 6px 14px;
+    font-size: 13.5px;
+  }
+  .infos dt { color: var(--gris); font-weight: 600; }
+  .infos dd { margin: 0; font-weight: 700; }
+
+  .voile {
+    position: fixed; inset: 0; background: rgba(10,5,2,.86); display: none; z-index: 10;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .voile.ouvert { display: flex; }
+  .fiche {
+    background: var(--brun); border-radius: 16px; width: 100%; max-width: 440px; max-height: 100%;
+    overflow: auto; padding: 18px; box-shadow: inset 0 0 0 1px var(--trait);
+  }
+  .fiche h2 { margin: 2px 0 6px; font-size: 20px; font-weight: 800; color: var(--or); }
+  .fiche p { margin: 0 0 14px; font-size: 13.5px; line-height: 1.5; color: var(--gris); }
+  .fiche img { display: block; width: 100%; border-radius: 6px; margin-bottom: 14px; -webkit-touch-callout: default; }
+
+  footer { text-align: center; font-size: 12px; color: var(--gris); padding: 0 16px 22px; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+<div class="liseré" aria-hidden="true"></div>
+<main>
+  <header class="tete">
+    <div class="carte">
+      <img src="logo-remao.png" alt="REMAO">
+      <i aria-hidden="true"></i>
+      <img src="logo-assises.png" alt="XXIe Assises du REMAO, Conakry 2026">
+    </div>
+  </header>
+
+  <div class="grille">
+    <section class="intro">
+      <p class="rang">XXI<sup>e</sup> ASSISES DU REMAO</p>
+      <h1>REMAO <span>Conakry 2026</span></h1>
+      <p class="chapeau">Du <b>13 au 22 octobre 2026</b> à <b>Conakry</b>. Ajoute ta photo, crée ton affiche et partage-la.</p>
+      <ol class="etapes">
+        <li><span>1</span>Choisis ta photo</li>
+        <li><span>2</span>Cadre-la dans l'arche</li>
+        <li><span>3</span>Télécharge et partage</li>
+      </ol>
+    </section>
+
+    <div class="scene" id="scene">
+      <canvas id="toile" width="1080" height="1350" aria-label="Aperçu de ton affiche"></canvas>
+      <div class="indice">Glisse pour recadrer · pince pour zoomer</div>
+    </div>
+
+    <section class="actions">
+      <input type="file" id="fichier" accept="image/*" class="masque">
+
+      <div class="zoom masque" id="zoom">
+        <button type="button" id="moins" aria-label="Dézoomer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg>
+        </button>
+        <input type="range" id="curseur" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+        <button type="button" id="plus" aria-label="Zoomer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M12 5v14"/></svg>
+        </button>
+      </div>
+
+      <div class="boutons">
+        <button type="button" class="principal masque" id="telecharger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+          Télécharger mon affiche
+        </button>
+        <button type="button" class="principal" id="choisir">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg>
+          <span id="choisir-texte">Choisir ma photo</span>
+        </button>
+      </div>
+
+      <p class="chapeau" style="margin-top:18px">Du <b>13 au 22 octobre 2026</b> à <b>Conakry</b>. Ajoute ta photo, crée ton affiche et partage-la.</p>
+      <p class="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        Ta photo reste sur ton téléphone : l'affiche est fabriquée directement dans ton navigateur, rien n'est envoyé.
+      </p>
+
+      <dl class="infos">
+        <dt>Dates</dt><dd>Du 13 au 22 octobre 2026</dd>
+        <dt>Lieu</dt><dd>Conakry, Guinée</dd>
+      </dl>
+    </section>
+  </div>
+</main>
+<footer>Réseau des étudiants en médecine de l'Afrique de l'Ouest</footer>
+
+<div class="voile" id="voile" role="dialog" aria-modal="true" aria-labelledby="titre-fiche">
+  <div class="fiche">
+    <h2 id="titre-fiche">Ton affiche est prête</h2>
+    <p id="aide">Si le téléchargement ne démarre pas, appuie longuement sur l'image puis choisis « Enregistrer l'image ».</p>
+    <img id="resultat" alt="Ton affiche REMAO Conakry 2026">
+    <div class="boutons">
+      <button type="button" class="principal" id="partager">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+        Partager
+      </button>
+      <button type="button" class="secondaire" id="enregistrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+        Télécharger à nouveau
+      </button>
+      <button type="button" class="secondaire" id="fermer">Retoucher le cadrage</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Fenêtre en arche de l'affiche 1080 × 1350 (voir fenetre.json), +8 px de marge sous le filet
+  var A = { x0: 170, y0: 76, x1: 910, y1: 820 };
+  var F = { cx: (A.x0 + A.x1) / 2, cy: (A.y0 + A.y1) / 2, w: A.x1 - A.x0 + 8, h: A.y1 - A.y0 + 8 };
+  var ZOOM_MAX = 4;
+
+  var toile = document.getElementById('toile');
+  var ctx = toile.getContext('2d');
+  var scene = document.getElementById('scene');
+  var fichier = document.getElementById('fichier');
+  var curseur = document.getElementById('curseur');
+  var calque = new Image();
+  var photo = null;
+  var z = 1, ox = 0, oy = 0;
+  var blobCourant = null, urlCourante = null;
+
+  calque.onload = dessiner;
+  calque.src = 'calque.png';
+
+  function base() { return photo ? Math.max(F.w / photo.width, F.h / photo.height) : 1; }
+
+  function borner() {
+    var k = base() * z;
+    var mx = Math.max(0, (photo.width * k - F.w) / 2);
+    var my = Math.max(0, (photo.height * k - F.h) / 2);
+    ox = Math.min(mx, Math.max(-mx, ox));
+    oy = Math.min(my, Math.max(-my, oy));
+  }
+
+  function attente() {
+    // arche vide : invite à ajouter sa photo
+    var g = ctx.createLinearGradient(0, -F.h / 2, 0, F.h / 2);
+    g.addColorStop(0, '#6B4A31'); g.addColorStop(1, '#4A3020');
+    ctx.fillStyle = g;
+    ctx.fillRect(-F.w / 2, -F.h / 2, F.w, F.h);
+    ctx.fillStyle = 'rgba(219,157,58,.30)';
+    ctx.beginPath(); ctx.arc(0, -40, 96, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0, 250, 200, 170, 0, Math.PI, 0); ctx.fill();
+    ctx.fillRect(-200, 250, 400, 120);
+    ctx.fillStyle = '#F5EFE6';
+    ctx.font = '800 34px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('TA PHOTO ICI', 0, -190);
+  }
+
+  function dessiner() {
+    ctx.clearRect(0, 0, toile.width, toile.height);
+    ctx.fillStyle = '#150B04';
+    ctx.fillRect(0, 0, toile.width, toile.height);
+    ctx.save();
+    ctx.translate(F.cx, F.cy);
+    if (photo) {
+      var k = base() * z;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.translate(ox, oy);
+      ctx.drawImage(photo, -photo.width * k / 2, -photo.height * k / 2, photo.width * k, photo.height * k);
+    } else {
+      attente();
+    }
+    ctx.restore();
+    if (calque.complete && calque.naturalWidth) ctx.drawImage(calque, 0, 0);
+  }
+
+  // Réduit la photo par moitiés successives : un grand saut d'échelle crénelle sous Safari.
+  function reduire(img) {
+    var cible = 1800;
+    var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+    var src = img;
+    while (Math.max(w, h) > cible * 2) {
+      w = Math.round(w / 2); h = Math.round(h / 2);
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var cc = c.getContext('2d'); cc.imageSmoothingQuality = 'high';
+      cc.drawImage(src, 0, 0, w, h); src = c;
+    }
+    var r = Math.min(1, cible / Math.max(w, h));
+    var out = document.createElement('canvas');
+    out.width = Math.round(w * r); out.height = Math.round(h * r);
+    var oc = out.getContext('2d'); oc.imageSmoothingQuality = 'high';
+    oc.drawImage(src, 0, 0, out.width, out.height);
+    return out;
+  }
+
+  function charger(f) {
+    if (!f || !/^image\//.test(f.type || 'image/')) return;
+    var url = URL.createObjectURL(f);
+    var img = new Image();
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      // Certains téléphones « ouvrent » une image que le navigateur ne sait pas
+      // décoder : dimensions nulles, et l'arche restait vide (vu sur le badge CNO, 30/09/2026).
+      if (!img.naturalWidth || !img.naturalHeight) { img.onerror(); return; }
+      photo = reduire(img);
+      z = 1; ox = 0;
+      // un portrait se cadre sur le haut : on remonte la photo d'un cran
+      var k = base();
+      oy = Math.max(0, (photo.height * k - F.h) / 2) * 0.35;
+      curseur.value = 1;
+      borner(); dessiner();
+      scene.classList.add('pret'); scene.classList.remove('bouge');
+      document.getElementById('zoom').classList.remove('masque');
+      document.getElementById('telecharger').classList.remove('masque');
+      document.getElementById('choisir').className = 'secondaire';
+      document.getElementById('choisir-texte').textContent = 'Changer de photo';
+    };
+    img.onerror = function () {
+      try { URL.revokeObjectURL(url); } catch (e) {}
+      alert("Cette image n'a pas pu être ouverte. Essaie une photo au format JPG ou PNG.");
+    };
+    img.src = url;
+  }
+
+  document.getElementById('choisir').onclick = function () { fichier.click(); };
+  fichier.onchange = function () { charger(fichier.files[0]); fichier.value = ''; };
+
+  scene.addEventListener('dragover', function (e) { e.preventDefault(); });
+  scene.addEventListener('drop', function (e) {
+    e.preventDefault();
+    if (e.dataTransfer.files[0]) charger(e.dataTransfer.files[0]);
+  });
+  scene.addEventListener('click', function () { if (!photo) fichier.click(); });
+
+  function zoomer(nz) {
+    z = Math.min(ZOOM_MAX, Math.max(1, nz));
+    curseur.value = z;
+    borner(); dessiner();
+  }
+  curseur.oninput = function () { zoomer(parseFloat(curseur.value)); };
+  document.getElementById('plus').onclick = function () { zoomer(z * 1.15); };
+  document.getElementById('moins').onclick = function () { zoomer(z / 1.15); };
+
+  // glisser et pincer, au doigt comme à la souris
+  var pts = {}, depart = null;
+  function echelle() { return toile.width / toile.getBoundingClientRect().width; }
+  function etat() {
+    var ids = Object.keys(pts), a = pts[ids[0]], b = pts[ids[1]];
+    var s = { x: a.x, y: a.y, z: z, ox: ox, oy: oy, d: 0 };
+    if (b) { s.x = (a.x + b.x) / 2; s.y = (a.y + b.y) / 2; s.d = Math.hypot(a.x - b.x, a.y - b.y); }
+    return s;
+  }
+  scene.addEventListener('pointerdown', function (e) {
+    if (!photo) return;
+    scene.setPointerCapture(e.pointerId);
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    depart = etat();
+    scene.classList.add('bouge');
+  });
+  scene.addEventListener('pointermove', function (e) {
+    if (!photo || !pts[e.pointerId]) return;
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var s = etat(), k = echelle();
+    if (s.d && depart.d) { z = Math.min(ZOOM_MAX, Math.max(1, depart.z * s.d / depart.d)); curseur.value = z; }
+    ox = depart.ox + (s.x - depart.x) * k;
+    oy = depart.oy + (s.y - depart.y) * k;
+    borner(); dessiner();
+  });
+  function lacher(e) {
+    delete pts[e.pointerId];
+    if (Object.keys(pts).length) depart = etat();
+  }
+  scene.addEventListener('pointerup', lacher);
+  scene.addEventListener('pointercancel', lacher);
+  scene.addEventListener('wheel', function (e) {
+    if (!photo) return;
+    e.preventDefault();
+    zoomer(z * Math.exp(-e.deltaY * 0.0015));
+  }, { passive: false });
+
+  // export
+  var voile = document.getElementById('voile');
+  var NOM = 'REMAO-Conakry-2026.jpg';
+
+  function telecharger() {
+    var a = document.createElement('a');
+    a.href = urlCourante; a.download = NOM;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  document.getElementById('telecharger').onclick = function () {
+    dessiner();
+    toile.toBlob(function (blob) {
+      blobCourant = blob;
+      if (urlCourante) URL.revokeObjectURL(urlCourante);
+      urlCourante = URL.createObjectURL(blob);
+      document.getElementById('resultat').src = urlCourante;
+      var partage = document.getElementById('partager');
+      var f = new File([blob], NOM, { type: 'image/jpeg' });
+      partage.classList.toggle('masque', !(navigator.canShare && navigator.canShare({ files: [f] })));
+      voile.classList.add('ouvert');
+      telecharger();
+    }, 'image/jpeg', 0.93);
+  };
+  document.getElementById('enregistrer').onclick = telecharger;
+  document.getElementById('partager').onclick = function () {
+    var f = new File([blobCourant], NOM, { type: 'image/jpeg' });
+    navigator.share({ files: [f], text: "REMAO Conakry 2026 · XXIe Assises du REMAO, du 13 au 22 octobre 2026." })
+      .catch(function () {});
+  };
+  document.getElementById('fermer').onclick = function () { voile.classList.remove('ouvert'); };
+  voile.addEventListener('click', function (e) { if (e.target === voile) voile.classList.remove('ouvert'); });
+
+  if (document.fonts) document.fonts.ready.then(dessiner);
+})();
+</script>
+</body>
+</html>
