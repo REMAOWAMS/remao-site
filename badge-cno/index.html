@@ -168,11 +168,19 @@
   <img src="/logo-web.png" alt="Sceau du REMAO" width="58" height="58">
   <div class="sur">XXI<sup>e</sup> ASSISES · CONAKRY 2026</div>
   <h1>Mon badge CNO</h1>
-  <p>Membres du Comité national d'organisation : votre nom, votre poste et une photo, et votre badge est fabriqué pour vous.</p>
+  <p>Page réservée aux membres du Comité national d'organisation.</p>
 </header>
 
 <main>
-  <form id="formulaire" novalidate>
+  <!-- Collecte close le 04/10/2026 : tous les badges du CNO sont fabriqués.
+       Le formulaire reste dans la page, masqué et inerte (voir FERME dans le script). -->
+  <section class="fini" id="ferme">
+    <div class="coche"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h2>La collecte est terminée</h2>
+    <p>Merci à tous ! Les badges du Comité national d'organisation sont fabriqués : ils vous seront remis pendant les Assises.</p>
+  </section>
+
+  <form id="formulaire" novalidate hidden>
 
     <section class="etape" id="bloc-code">
       <h2><span>0</span>Code d'accès</h2>
@@ -271,6 +279,10 @@
 <script>
 (function () {
   'use strict';
+
+  // Collecte close : plus aucun envoi possible depuis cette page.
+  var FERME = true;
+  if (FERME) return;
 
   // ---------------------------------------------------------------- code d'accès
   // Le lien diffusé au CNO porte le code après le # : il n'est jamais transmis au serveur web.
