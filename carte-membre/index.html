@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F6B34">
+<!-- Page de service, reservee aux membres de la Cellule REMAO Guinee : hors du plan
+     du site et hors des moteurs de recherche. Elle ne passe pas par sync-pages.sh,
+     c'est une page autonome comme /badge-cno/. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Ma carte de membre — Cellule REMAO Guinée</title>
+<meta name="description" content="Membres de la Cellule REMAO Guinée : envoyez votre photo et vos informations pour recevoir votre carte de membre.">
+<meta property="og:title" content="Ma carte de membre — Cellule REMAO Guinée">
+<meta property="og:description" content="Votre photo et vos informations, en deux minutes.">
+<meta property="og:image" content="https://remao.org/carte-membre/apercu.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<script src="/supabase-config.js"></script>
+<style>
+  :root {
+    --vert: #1F6B34; --vert-clair: #288641; --jaune: #F1ED74; --rouge: #DC262A;
+    --encre: #1E2620; --gris: #5E6660; --ligne: #DCE3DD; --fond: #F4F7F4;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--fond); color: var(--encre);
+    font: 16px/1.5 Montserrat, system-ui, sans-serif;
+  }
+  button, input, select { font: inherit; color: inherit; }
+
+  header {
+    background: var(--vert); color: #fff;
+    padding: 22px 16px 26px; text-align: center;
+  }
+  header img { width: 58px; height: 58px; border-radius: 50%; background: #fff; padding: 3px; }
+  header .sur { margin: 10px 0 4px; color: var(--jaune); font-weight: 700; font-size: 12px; letter-spacing: .16em; }
+  header h1 { margin: 0; font-weight: 900; font-size: clamp(26px, 7vw, 34px); line-height: 1.1; letter-spacing: -.01em; }
+  header p { margin: 10px auto 0; max-width: 30em; color: #DDEDE1; font-size: 15px; }
+
+  main { max-width: 540px; margin: 0 auto; padding: 8px 16px 48px; }
+  .etape { margin-top: 28px; }
+  .etape h2 {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 14px; font-size: 17px; font-weight: 800;
+  }
+  .etape h2 span {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--vert-clair); color: #fff;
+    display: grid; place-items: center; font-size: 14px; font-weight: 900;
+  }
+
+  label { display: block; margin-bottom: 14px; }
+  label b { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  input[type=text], input[type=tel], select {
+    width: 100%; height: 50px; padding: 0 14px;
+    border: 1.5px solid var(--ligne); border-radius: 12px; background: #fff;
+    font-size: 16px; outline: none; transition: border-color .15s;
+  }
+  select {
+    appearance: none; -webkit-appearance: none; padding-right: 40px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%231E2620' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 16px center;
+  }
+  select:invalid { color: #8A918B; }
+  select option { color: var(--encre); }
+  input:focus, select:focus { border-color: var(--vert-clair); }
+  .faux { border-color: var(--rouge) !important; }
+  .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  @media (max-width: 380px) { .deux { grid-template-columns: 1fr; } }
+
+  /* recadrage : meme proportion que le cadre photo de la carte (250 x 289) */
+  .cadrage {
+    position: relative; width: min(100%, 300px); margin: 0 auto;
+    aspect-ratio: 250 / 289; border-radius: 14px; overflow: hidden;
+    background: #E7ECE8; border: 2px solid var(--vert-clair);
+    touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer;
+  }
+  .cadrage.pret { cursor: grab; }
+  .cadrage canvas { display: block; width: 100%; height: 100%; }
+  .guide { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .2s; }
+  .cadrage.pret .guide { opacity: 1; }
+  .guide svg { width: 100%; height: 100%; }
+  .vide {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px;
+    color: var(--vert); font-weight: 800; font-size: 15px; text-align: center; padding: 20px;
+  }
+  .vide svg { width: 64px; height: 64px; }
+  .cadrage.pret .vide { display: none; }
+  .indice { text-align: center; font-size: 13px; color: var(--gris); margin: 10px 0 0; }
+
+  .zoom { display: flex; align-items: center; gap: 12px; max-width: 300px; margin: 12px auto 0; }
+  .zoom button {
+    flex: none; width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid var(--ligne); background: #fff; font-size: 22px; font-weight: 700; cursor: pointer;
+  }
+  .zoom input { flex: 1; accent-color: var(--vert-clair); height: 28px; }
+
+  .alerte {
+    margin: 14px 0 0; padding: 12px 14px; border-radius: 12px;
+    background: #FBE4E1; color: #7A1A14; font-size: 14px;
+  }
+  .conseils { margin: 14px 0 0; padding: 0; list-style: none; font-size: 14px; color: var(--gris); }
+  .conseils li { padding-left: 22px; position: relative; margin-bottom: 4px; }
+  .conseils li::before { content: ""; position: absolute; left: 4px; top: .6em; width: 8px; height: 8px; border-radius: 50%; background: var(--vert-clair); }
+
+  /* apercu de la carte */
+  .carte {
+    display: block; width: 100%; height: auto; aspect-ratio: 1016 / 638;
+    border-radius: 12px; background: #fff;
+    box-shadow: 0 18px 40px -18px rgba(20, 50, 28, .55);
+  }
+  .legende { text-align: center; font-size: 12px; color: var(--gris); margin: 10px 0 0; }
+
+  .envoyer {
+    width: 100%; height: 58px; margin-top: 26px; border: 0; border-radius: 14px;
+    background: var(--vert); color: #fff; font-weight: 800; font-size: 17px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .envoyer:disabled { opacity: .55; cursor: default; }
+  .secondaire {
+    height: 46px; padding: 0 18px; border-radius: 12px; cursor: pointer;
+    border: 1.5px solid var(--vert); background: transparent; font-weight: 700; font-size: 15px;
+  }
+  .choisir { display: flex; justify-content: center; margin-top: 14px; }
+  .note { margin-top: 14px; font-size: 12.5px; color: var(--gris); text-align: center; }
+  .note a { color: inherit; }
+  .masque { display: none !important; }
+
+  .fini { text-align: center; padding-top: 18px; }
+  .fini .coche {
+    width: 64px; height: 64px; margin: 10px auto 12px; border-radius: 50%;
+    background: var(--vert-clair); display: grid; place-items: center;
+  }
+  .fini h2 { margin: 0 0 8px; font-size: 24px; font-weight: 900; }
+  .fini p { margin: 0 auto 20px; max-width: 26em; color: var(--gris); }
+
+  @keyframes tourne { to { transform: rotate(360deg); } }
+  .roue { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: tourne .8s linear infinite; }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="/logo-web.png" alt="Sceau du REMAO" width="58" height="58">
+  <div class="sur">CELLULE REMAO GUINÉE</div>
+  <h1>Ma carte de membre</h1>
+  <p>Remplissez ce formulaire pour recevoir votre carte de membre de la Cellule.</p>
+</header>
+
+<main>
+  <form id="formulaire" novalidate>
+
+    <section class="etape masque" id="bloc-code">
+      <h2><span>0</span>Code d'accès</h2>
+      <label>
+        <b>Code communiqué par la Cellule</b>
+        <input type="text" id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="CARTE-0000">
+      </label>
+    </section>
+
+    <section class="etape">
+      <h2><span>1</span>Vos informations</h2>
+      <div class="deux">
+        <label><b>Nom</b>
+          <input type="text" id="nom" autocomplete="family-name" maxlength="60" placeholder="DIALLO"></label>
+        <label><b>Prénom(s)</b>
+          <input type="text" id="prenom" autocomplete="given-name" maxlength="60" placeholder="Mamadou Aliou"></label>
+      </div>
+      <label><b>Université</b>
+        <select id="universite" required>
+          <option value="" disabled selected>Choisissez votre université</option>
+          <option value="Gamal Abdel Nasser">Université Gamal Abdel Nasser de Conakry</option>
+          <option value="Kofi Annan de Guinée">Université Kofi Annan de Guinée</option>
+          <option value="La Source">Université La Source</option>
+        </select>
+      </label>
+      <label><b>Téléphone</b>
+        <input type="tel" id="telephone" autocomplete="tel" maxlength="30" placeholder="+224 6XX XX XX XX"></label>
+    </section>
+
+    <section class="etape">
+      <h2><span>2</span>Votre photo</h2>
+      <div class="cadrage" id="cadrage">
+        <canvas id="toile" width="600" height="694"></canvas>
+        <div class="guide" aria-hidden="true">
+          <svg viewBox="0 0 250 289">
+            <ellipse cx="125" cy="118" rx="64" ry="82" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="4 4" opacity=".9"/>
+          </svg>
+        </div>
+        <div class="vide">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="32" cy="24" r="11"/><path d="M12 56c2-11 10-17 20-17s18 6 20 17"/>
+          </svg>
+          Toucher pour choisir une photo
+        </div>
+      </div>
+      <p class="indice masque" id="indice">Glissez pour placer le visage dans l'ovale · pincez pour zoomer</p>
+      <div class="zoom masque" id="zoom">
+        <button type="button" id="moins" aria-label="Dézoomer">−</button>
+        <input type="range" id="curseur" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+        <button type="button" id="plus" aria-label="Zoomer">+</button>
+      </div>
+      <div class="choisir"><button type="button" class="secondaire" id="choisir">Choisir une photo</button></div>
+      <input type="file" id="fichier" accept="image/*" hidden>
+      <div class="alerte masque" id="alerte-photo"></div>
+      <ul class="conseils">
+        <li>Photo de face, visage bien éclairé, sans lunettes de soleil</li>
+        <li>Un fond clair et uni, si possible</li>
+        <li>Une vraie photo, pas une capture d'écran de WhatsApp</li>
+      </ul>
+    </section>
+
+    <section class="etape">
+      <h2><span>3</span>Votre carte</h2>
+      <canvas class="carte" id="carte" width="1016" height="638" aria-label="Aperçu de la carte de membre"></canvas>
+      <p class="legende">Aperçu : la carte imprimée reprend exactement ces informations.</p>
+    </section>
+
+    <div class="alerte masque" id="alerte"></div>
+    <button type="submit" class="envoyer" id="envoyer">Envoyer pour ma carte</button>
+    <p class="note">Votre photo sert uniquement à fabriquer votre carte de membre et est effacée ensuite.
+      <a href="/confidentialite/">Données personnelles</a></p>
+  </form>
+
+  <section class="fini masque" id="fini">
+    <div class="coche"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h2>C'est envoyé</h2>
+    <p>Merci ! Votre carte sera préparée avec ces informations. Une erreur ? Renvoyez simplement le formulaire : la dernière version remplace la précédente.</p>
+    <button type="button" class="secondaire" id="corriger">Corriger mes informations</button>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------------------------------------------------------------- code d'accès
+  // Le lien diffusé aux membres porte le code après le # : il n'est jamais transmis au serveur web.
+  var codeInput = document.getElementById('code');
+  var m = /code=([^&]+)/i.exec(location.hash);
+  if (m) codeInput.value = decodeURIComponent(m[1]).toUpperCase();
+  else document.getElementById('bloc-code').classList.remove('masque');
+
+  var champs = ['nom', 'prenom', 'universite', 'telephone'].reduce(function (o, k) {
+    o[k] = document.getElementById(k); return o;
+  }, {});
+
+  function propre(s) { return s.trim().replace(/\s+/g, ' '); }
+  // « mamadou aliou » -> « Mamadou Aliou » ; les traits d'union et apostrophes sont respectés
+  function prenomPropre(s) {
+    return propre(s).toLocaleLowerCase('fr')
+      .replace(/(^|[\s\-'’])(\p{L})/gu, function (_, a, b) { return a + b.toLocaleUpperCase('fr'); });
+  }
+  function nomPropre(s) { return propre(s).toLocaleUpperCase('fr'); }
+  // Numéro guinéen à 9 chiffres -> « +224 6XX XX XX XX », comme sur les cartes déjà faites.
+  function telPropre(s) {
+    var t = propre(s), n = t.replace(/[^\d]/g, '');
+    if (/^(00)?224\d{9}$/.test(n)) n = n.slice(-9);
+    if (/^6\d{8}$/.test(n)) return '+224 ' + n.slice(0, 3) + ' ' + n.slice(3, 5) + ' ' + n.slice(5, 7) + ' ' + n.slice(7);
+    return t;
+  }
+
+  // ---------------------------------------------------------------- aperçu de la carte
+  // Coordonnées relevées dans « carte membre 2.psd » (1016 x 638 px, 300 dpi).
+  var carte = document.getElementById('carte'), cctx = carte.getContext('2d');
+  var fond = new Image(), fondPret = false;
+  fond.onload = function () { fondPret = true; majCarte(); };
+  fond.src = 'fond.jpg';
+  var CADRE = { x: 752, y: 225, w: 250, h: 289 };
+  var BORD_TEXTE = 735;                 // le texte ne doit pas mordre sur la photo
+  var CORPS = 41.7, ENCRE = '#242424', POLICE = '"Source Sans 3", "Myriad Pro", sans-serif';
+  var LIGNES = [
+    { y: 296, lib: 'Nom:', val: function () { return nomPropre(champs.nom.value); }, vide: 'NOM' },
+    { y: 354, lib: 'Prénom:', val: function () { return prenomPropre(champs.prenom.value); }, vide: 'PRÉNOM' },
+    { y: 412, lib: 'Université:', val: function () { return champs.universite.value; }, vide: 'UNIVERSITÉ' },
+    { y: 470, lib: 'Tél:', val: function () { return telPropre(champs.telephone.value); }, vide: '+224 6XX XX XX XX' }
+  ];
+
+  function majCarte() {
+    var W = carte.width, H = carte.height;
+    cctx.fillStyle = '#fff'; cctx.fillRect(0, 0, W, H);
+    if (fondPret) cctx.drawImage(fond, 0, 0, W, H);
+    if (photo) {
+      cctx.imageSmoothingQuality = 'high';
+      cctx.drawImage(toile, CADRE.x, CADRE.y, CADRE.w, CADRE.h);
+    } else {
+      cctx.fillStyle = '#EDEDED'; cctx.fillRect(CADRE.x, CADRE.y, CADRE.w, CADRE.h);
+      cctx.fillStyle = '#B5B5B5'; cctx.font = '700 26px Montserrat, sans-serif';
+      cctx.textAlign = 'center'; cctx.fillText('PHOTO', CADRE.x + CADRE.w / 2, CADRE.y + CADRE.h / 2 + 9);
+      cctx.textAlign = 'left';
+    }
+    cctx.textBaseline = 'alphabetic';
+    LIGNES.forEach(function (l) {
+      cctx.font = '400 ' + CORPS + 'px ' + POLICE;
+      cctx.fillStyle = ENCRE; cctx.globalAlpha = 1;
+      cctx.fillText(l.lib, 26, l.y);
+      var x = 26 + cctx.measureText(l.lib).width + 10;
+      var v = l.val(), saisi = !!v;
+      v = (v || l.vide).toLocaleUpperCase('fr');
+      // valeur trop longue : on réduit le corps, comme on le ferait à la main dans Photoshop
+      var corps = CORPS;
+      cctx.font = '600 ' + corps + 'px ' + POLICE;
+      var large = cctx.measureText(v).width, dispo = BORD_TEXTE - x;
+      if (large > dispo) { corps = Math.max(CORPS * 0.62, CORPS * dispo / large); cctx.font = '600 ' + corps + 'px ' + POLICE; }
+      cctx.globalAlpha = saisi ? 1 : 0.22;
+      cctx.fillText(v, x, l.y);
+    });
+    cctx.globalAlpha = 1;
+  }
+  Object.keys(champs).forEach(function (k) {
+    var ev = k === 'universite' ? 'change' : 'input';
+    champs[k].addEventListener(ev, function () { champs[k].classList.remove('faux'); majCarte(); });
+  });
+  if (document.fonts && document.fonts.load) {
+    Promise.all([
+      document.fonts.load('400 42px "Source Sans 3"'),
+      document.fonts.load('600 42px "Source Sans 3"')
+    ]).then(majCarte, majCarte);
+  }
+
+  // ---------------------------------------------------------------- recadrage
+  var W = 600, H = 694;                 // photo envoyée : 2,4 fois le cadre de la carte imprimée
+  var ZOOM_MAX = 4;
+  var toile = document.getElementById('toile'), ctx = toile.getContext('2d');
+  var cadrage = document.getElementById('cadrage');
+  var fichier = document.getElementById('fichier');
+  var curseur = document.getElementById('curseur');
+  var alertePhoto = document.getElementById('alerte-photo');
+  var photo = null, z = 1, ox = 0, oy = 0;
+
+  function base() { return Math.max(W / photo.width, H / photo.height); }
+  function borner() {
+    var k = base() * z;
+    var mx = Math.max(0, (photo.width * k - W) / 2), my = Math.max(0, (photo.height * k - H) / 2);
+    ox = Math.min(mx, Math.max(-mx, ox));
+    oy = Math.min(my, Math.max(-my, oy));
+  }
+  function dessiner() {
+    ctx.fillStyle = '#E7ECE8'; ctx.fillRect(0, 0, W, H);
+    if (photo) {
+      var k = base() * z;
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(photo, W / 2 + ox - photo.width * k / 2, H / 2 + oy - photo.height * k / 2, photo.width * k, photo.height * k);
+      // largeur de la photo d'origine réellement visible dans le cadre
+      if (W / k < 220) {
+        alertePhoto.textContent = "Cette photo est trop petite ou trop zoomée : elle serait floue sur la carte. Dézoomez, ou prenez une photo de meilleure qualité.";
+        alertePhoto.classList.remove('masque');
+      } else {
+        alertePhoto.classList.add('masque');
+      }
+    }
+    majCarte();
+  }
+
+  // Réduit par moitiés successives : un grand saut d'échelle crénelle sous Safari.
+  function reduire(img) {
+    var cible = 1600;
+    var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, src = img;
+    while (Math.max(w, h) > cible * 2) {
+      w = Math.round(w / 2); h = Math.round(h / 2);
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var cc = c.getContext('2d'); cc.imageSmoothingQuality = 'high';
+      cc.drawImage(src, 0, 0, w, h); src = c;
+    }
+    var r = Math.min(1, cible / Math.max(w, h));
+    var out = document.createElement('canvas');
+    out.width = Math.round(w * r); out.height = Math.round(h * r);
+    var oc = out.getContext('2d'); oc.imageSmoothingQuality = 'high';
+    oc.drawImage(src, 0, 0, out.width, out.height);
+    return out;
+  }
+
+  // Certains téléphones ouvrent une image que le navigateur ne décode pas : elle sort vide.
+  function imageVide(c) {
+    var p = document.createElement('canvas'); p.width = 24; p.height = 24;
+    var pc = p.getContext('2d'); pc.drawImage(c, 0, 0, 24, 24);
+    var d = pc.getImageData(0, 0, 24, 24).data, min = 765, max = 0;
+    for (var i = 0; i < d.length; i += 4) {
+      if (d[i + 3] < 10) continue;
+      var s = d[i] + d[i + 1] + d[i + 2];
+      if (s < min) min = s; if (s > max) max = s;
+    }
+    return max - min < 12;
+  }
+
+  function charger(f) {
+    if (!f) return;
+    var url = URL.createObjectURL(f), img = new Image();
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      var r = reduire(img);
+      if (imageVide(r)) {
+        alertePhoto.textContent = "Cette image n'a pas pu être lue correctement. Essayez une autre photo, au format JPG ou PNG.";
+        alertePhoto.classList.remove('masque');
+        return;
+      }
+      photo = r;
+      z = 1; ox = 0; curseur.value = 1;
+      // un portrait se cadre sur le haut : on remonte d'un cran
+      oy = Math.max(0, (photo.height * base() - H) / 2) * 0.4;
+      borner(); dessiner();
+      cadrage.classList.add('pret');
+      document.getElementById('indice').classList.remove('masque');
+      document.getElementById('zoom').classList.remove('masque');
+      document.getElementById('choisir').textContent = 'Changer de photo';
+    };
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      alertePhoto.textContent = "Cette image n'a pas pu être ouverte. Essayez une photo au format JPG ou PNG.";
+      alertePhoto.classList.remove('masque');
+    };
+    img.src = url;
+  }
+
+  document.getElementById('choisir').onclick = function () { fichier.click(); };
+  fichier.onchange = function () { charger(fichier.files[0]); fichier.value = ''; };
+  cadrage.addEventListener('click', function () { if (!photo) fichier.click(); });
+  cadrage.addEventListener('dragover', function (e) { e.preventDefault(); });
+  cadrage.addEventListener('drop', function (e) { e.preventDefault(); charger(e.dataTransfer.files[0]); });
+
+  function zoomer(nz) { if (!photo) return; z = Math.min(ZOOM_MAX, Math.max(1, nz)); curseur.value = z; borner(); dessiner(); }
+  curseur.oninput = function () { zoomer(parseFloat(curseur.value)); };
+  document.getElementById('plus').onclick = function () { zoomer(z * 1.15); };
+  document.getElementById('moins').onclick = function () { zoomer(z / 1.15); };
+
+  var pts = {}, depart = null;
+  function echelle() { return W / cadrage.getBoundingClientRect().width; }
+  function etat() {
+    var ids = Object.keys(pts), a = pts[ids[0]], b = pts[ids[1]];
+    var s = { x: a.x, y: a.y, z: z, ox: ox, oy: oy, d: 0 };
+    if (b) { s.x = (a.x + b.x) / 2; s.y = (a.y + b.y) / 2; s.d = Math.hypot(a.x - b.x, a.y - b.y); }
+    return s;
+  }
+  cadrage.addEventListener('pointerdown', function (e) {
+    if (!photo) return;
+    cadrage.setPointerCapture(e.pointerId);
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    depart = etat();
+  });
+  cadrage.addEventListener('pointermove', function (e) {
+    if (!photo || !pts[e.pointerId]) return;
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var s = etat(), k = echelle();
+    if (s.d && depart.d) { z = Math.min(ZOOM_MAX, Math.max(1, depart.z * s.d / depart.d)); curseur.value = z; }
+    ox = depart.ox + (s.x - depart.x) * k;
+    oy = depart.oy + (s.y - depart.y) * k;
+    borner(); dessiner();
+  });
+  function lacher(e) { delete pts[e.pointerId]; if (Object.keys(pts).length) depart = etat(); }
+  cadrage.addEventListener('pointerup', lacher);
+  cadrage.addEventListener('pointercancel', lacher);
+  cadrage.addEventListener('wheel', function (e) {
+    if (!photo) return;
+    e.preventDefault();
+    zoomer(z * Math.exp(-e.deltaY * 0.0015));
+  }, { passive: false });
+
+  dessiner();
+
+  // ---------------------------------------------------------------- envoi
+  var form = document.getElementById('formulaire');
+  var bouton = document.getElementById('envoyer');
+  var alerte = document.getElementById('alerte');
+
+  function erreur(msg, champ) {
+    alerte.textContent = msg; alerte.classList.remove('masque');
+    if (champ) { champ.classList.add('faux'); champ.focus(); }
+    else alerte.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    alerte.classList.add('masque');
+    var code = codeInput.value.trim().toUpperCase();
+    if (!code) { document.getElementById('bloc-code').classList.remove('masque'); return erreur("Saisissez le code d'accès communiqué par la Cellule.", codeInput); }
+    if (!champs.nom.value.trim()) return erreur('Indiquez votre nom.', champs.nom);
+    if (!champs.prenom.value.trim()) return erreur('Indiquez votre prénom.', champs.prenom);
+    if (!champs.universite.value) return erreur('Choisissez votre université.', champs.universite);
+    if (champs.telephone.value.replace(/[^\d]/g, '').length < 8) return erreur('Indiquez votre numéro de téléphone.', champs.telephone);
+    if (!photo) return erreur('Ajoutez votre photo.');
+
+    bouton.disabled = true;
+    bouton.innerHTML = '<span class="roue"></span>Envoi en cours…';
+
+    var donnees = {
+      p_code: code,
+      p_nom: nomPropre(champs.nom.value),
+      p_prenom: prenomPropre(champs.prenom.value),
+      p_universite: champs.universite.value,
+      p_telephone: telPropre(champs.telephone.value),
+      p_photo: toile.toDataURL('image/jpeg', 0.88)
+    };
+
+    fetch(window.SUPA_URL + '/rest/v1/rpc/soumettre_carte_membre', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: window.SUPA_KEY, Authorization: 'Bearer ' + window.SUPA_KEY },
+      body: JSON.stringify(donnees)
+    }).then(function (r) {
+      if (r.ok) return;
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        throw new Error(j && j.code === '28000' ? 'code' : 'serveur');
+      });
+    }).then(function () {
+      form.classList.add('masque');
+      document.getElementById('fini').classList.remove('masque');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }).catch(function (err) {
+      if (err.message === 'code') {
+        document.getElementById('bloc-code').classList.remove('masque');
+        erreur("Ce code d'accès n'est pas le bon. Vérifiez-le auprès de la Cellule.", codeInput);
+      } else {
+        erreur("L'envoi n'a pas abouti. Vérifiez votre connexion internet et réessayez.");
+      }
+    }).then(function () {
+      bouton.disabled = false;
+      bouton.textContent = 'Envoyer pour ma carte';
+    });
+  });
+
+  document.getElementById('corriger').onclick = function () {
+    document.getElementById('fini').classList.add('masque');
+    form.classList.remove('masque');
+  };
+})();
+</script>
+</body>
+</html>
