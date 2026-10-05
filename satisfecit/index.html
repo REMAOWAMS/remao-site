@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REMAO Conakry 2026 · Ton satisfecit</title>
+<meta name="description" content="Télécharge ton satisfecit des XXIe Assises du REMAO, Conakry, 13 au 22 octobre 2026, avec la clé de ton badge.">
+<meta name="theme-color" content="#2C1A0E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Télécharge ton satisfecit · REMAO Conakry 2026">
+<meta property="og:description" content="XXIe Assises du REMAO · 13-22 octobre 2026, Conakry">
+<meta property="og:url" content="https://remao.org/satisfecit/">
+<link rel="canonical" href="https://remao.org/satisfecit/">
+<meta property="og:image" content="https://remao.org/satisfecit/apercu.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arizonia&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<style>
+  :root {
+    --brun: #2C1A0E;
+    --nuit: #150B04;
+    --or: #DB9D3A;
+    --or-clair: #E9B967;
+    --creme: #F5EFE6;
+    --gris: #B9A893;
+    --trait: rgba(219,157,58,.28);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; color: var(--creme);
+    background: radial-gradient(120% 70% at 50% 0%, #3A2414 0%, var(--brun) 45%, var(--nuit) 100%) fixed, var(--nuit);
+    font-family: Montserrat, system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  .liseré { height: 5px; background: var(--or); }
+  main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 20px 16px 32px; flex: 1; }
+
+  .tete { display: flex; justify-content: center; }
+  .carte { display: flex; align-items: center; gap: 14px; background: #fff; border-radius: 14px; padding: 8px 16px; }
+  .carte img { height: 46px; width: auto; display: block; }
+  .carte i { width: 1.5px; height: 34px; background: #D5CCC0; }
+
+  .page { max-width: 760px; margin: 0 auto; }
+  .intro { margin-top: 28px; }
+  @media (max-width: 899px) { .tete { display: none; } .intro { margin-top: 4px; } }
+
+  .rang { margin: 0 0 8px; font-size: 11.5px; font-weight: 800; letter-spacing: .22em; color: var(--or); }
+  .rang sup { font-size: .62em; letter-spacing: 0; }
+  h1 { margin: 0 0 10px; font-weight: 900; font-size: clamp(30px, 8vw, 44px); line-height: 1.02; letter-spacing: -.01em; text-transform: uppercase; }
+  h1 span { color: var(--or); display: block; }
+  .chapeau { margin: 0; font-size: 15px; line-height: 1.55; color: var(--gris); font-weight: 500; }
+  .chapeau b { color: var(--creme); font-weight: 700; }
+
+  form { display: grid; gap: 12px; margin-top: 22px; }
+  @media (min-width: 560px) { form { grid-template-columns: 1fr auto; align-items: end; } form .aide, form .etat { grid-column: 1 / -1; } }
+  label { display: grid; gap: 7px; font-size: 12px; font-weight: 800; letter-spacing: .16em; color: var(--or); text-transform: uppercase; }
+  input[type=text] {
+    font: inherit; font-size: 20px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--creme); background: rgba(21,11,4,.55); border: 0; border-radius: 12px;
+    min-height: 56px; padding: 0 16px; box-shadow: inset 0 0 0 1.5px var(--trait); width: 100%;
+  }
+  input[type=text]::placeholder { color: rgba(185,168,147,.5); }
+  input[type=text]:focus { outline: none; box-shadow: inset 0 0 0 2px var(--or); }
+  .aide { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--gris); }
+
+  button {
+    font: inherit; font-weight: 700; font-size: 16px; border-radius: 12px; min-height: 56px;
+    padding: 0 22px; border: 0; cursor: pointer; display: flex; align-items: center; color: inherit;
+    justify-content: center; gap: 10px; width: 100%; transition: transform .08s, background .2s, opacity .2s;
+    -webkit-tap-highlight-color: transparent; white-space: nowrap;
+  }
+  button:active { transform: scale(.985); }
+  button svg { width: 20px; height: 20px; flex: none; }
+  .principal { background: var(--or); color: var(--nuit); }
+  .principal:hover { background: var(--or-clair); }
+  button:disabled { opacity: .45; cursor: default; transform: none; }
+  button:focus-visible { outline: 3px solid var(--creme); outline-offset: 2px; }
+  .etat { min-height: 1.4em; margin: 0; font-size: 13.5px; font-weight: 600; line-height: 1.45; color: var(--or-clair); }
+  .etat.erreur { color: #F0A28E; }
+
+  .resultats { display: grid; gap: 28px; margin-top: 14px; scroll-margin-top: 16px; }
+  .bonjour { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.5; }
+  .bonjour b { color: var(--or); }
+  .sat { display: grid; gap: 12px; }
+  .sat h2 { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .2em; color: var(--or); text-transform: uppercase; }
+  .scene {
+    border-radius: 6px; overflow: hidden; background: #FBF7F0;
+    box-shadow: 0 0 0 1px var(--trait), 0 24px 50px -20px rgba(0,0,0,.8);
+  }
+  .scene canvas { display: block; width: 100%; height: auto; aspect-ratio: 297 / 210; }
+  .note { margin: 22px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--gris); display: flex; gap: 8px; align-items: flex-start; }
+  .note svg { flex: none; width: 16px; height: 16px; margin-top: 1px; color: var(--or); }
+  .masque { display: none !important; }
+  footer { text-align: center; font-size: 12px; color: var(--gris); padding: 0 16px 22px; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+<div class="liseré" aria-hidden="true"></div>
+<main>
+  <header class="tete">
+    <div class="carte">
+      <img src="logo-remao.png" alt="REMAO">
+      <i aria-hidden="true"></i>
+      <img src="logo-assises.png" alt="XXIe Assises du REMAO, Conakry 2026">
+    </div>
+  </header>
+  <div class="page">
+    <section class="intro">
+      <p class="rang">XXI<sup>e</sup> ASSISES DU REMAO</p>
+      <h1>Ton satisfecit <span>Conakry 2026</span></h1>
+      <p class="chapeau">Tu as pris part aux Assises du <b>13 au 22 octobre 2026</b> à <b>Conakry</b>. Entre la clé imprimée en bas de ton badge pour télécharger ton satisfecit en PDF.</p>
+      <form id="formulaire" novalidate>
+        <label>Ta clé
+          <input type="text" id="cle" maxlength="16" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="REMAO-XX-XX">
+        </label>
+        <button type="submit" class="principal" id="chercher">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg>
+          Retrouver
+        </button>
+        <p class="aide">La clé est en bas de ton badge, sous la forme REMAO-XX-XX.</p>
+        <p class="etat" id="etat" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <section class="resultats masque" id="resultats"></section>
+    <p class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      Le PDF est fabriqué directement dans ton navigateur.
+    </p>
+  </div>
+</main>
+<footer>Réseau des étudiants en médecine de l'Afrique de l'Ouest</footer>
+<script>
+(function () {
+  /* Repères relevés sur les gabarits Photoshop (satisfecit.jsx), en pixels 300 dpi,
+     format fini 297 x 210 mm (3508 x 2480), fond perdu déjà retiré. */
+  var W = 3508, H = 2480, NUIT = "#150B04";
+  var NOM = { x: 1365, base: 1137, corps: 180, max: 1933 };
+  var CHAMP = { base: 1516, corps: 40 };
+  var MODELES = {
+    participant: { titre: "Satisfecit de participation", fond: "fond-participant.jpg",
+      champs: [{ cle: "pays", x: 1462, max: 1830 }] },
+    cno: { titre: "Satisfecit du Comité National d'Organisation", fond: "fond-cno.jpg",
+      champs: [{ cle: "commission", x: 1592, max: 650 }, { cle: "poste", x: 2478, max: 840 }] }
+  };
+
+  var form = document.getElementById("formulaire");
+  var champCle = document.getElementById("cle");
+  var bouton = document.getElementById("chercher");
+  var etat = document.getElementById("etat");
+  var zone = document.getElementById("resultats");
+  var fonds = {};
+
+  function dire(texte, erreur) { etat.textContent = texte; etat.classList.toggle("erreur", !!erreur); }
+
+  // Accepte « remao 7w pz », « 7WPZ », « REMAO-7W-PZ »…
+  function normaliser(s) {
+    var c = String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^REMAO/, "");
+    return c.length === 4 ? "REMAO-" + c.slice(0, 2) + "-" + c.slice(2) : null;
+  }
+
+  // Les fiches sont rangées sous l'empreinte SHA-256 de la clé : la liste des clés ne se lit pas sur le site.
+  function empreinte(cle) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(cle)).then(function (b) {
+      return Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("").slice(0, 40);
+    });
+  }
+
+  function chargerFond(nom) {
+    if (!fonds[nom]) fonds[nom] = new Promise(function (ok, ko) {
+      var im = new Image(); im.onload = function () { ok(im); }; im.onerror = ko; im.src = nom;
+    });
+    return fonds[nom];
+  }
+
+  // Même garde-fou que le gabarit : un texte long est composé plus petit, jamais coupé.
+  function ajuster(ctx, texte, police, corps, max) {
+    ctx.font = police.replace("{c}", corps);
+    var w = ctx.measureText(texte).width;
+    if (w > max) ctx.font = police.replace("{c}", corps * max / w * 0.98);
+  }
+
+  function dessiner(c, sat, fond) {
+    var m = MODELES[sat.type], ctx = c.getContext("2d"), k = c.width / W;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(fond, 0, 0, c.width, c.height);
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+    ctx.fillStyle = NUIT; ctx.textBaseline = "alphabetic";
+    ajuster(ctx, sat.nom, "{c}px Arizonia", NOM.corps, NOM.max);
+    ctx.fillText(sat.nom, NOM.x, NOM.base);
+    m.champs.forEach(function (f) {
+      var t = sat[f.cle] || "";
+      if (!t) return;
+      ajuster(ctx, t, "600 {c}px Montserrat", CHAMP.corps, f.max);
+      ctx.fillText(t, f.x, CHAMP.base);
+    });
+  }
+
+  function nomFichier(sat) {
+    var base = sat.nom.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    return "Satisfecit-" + (sat.type === "cno" ? "CNO" : "participation") + "-REMAO-Conakry-2026-" + base + ".pdf";
+  }
+
+  function telecharger(sat, fond, btn, info) {
+    if (!window.jspdf) { info.textContent = "Connexion trop lente : recharge la page puis réessaie."; return; }
+    btn.disabled = true; info.textContent = "Préparation du PDF…";
+    setTimeout(function () {
+      try {
+        var g = document.createElement("canvas"); g.width = W; g.height = H;
+        dessiner(g, sat, fond);
+        var doc = new window.jspdf.jsPDF({ orientation: "landscape", unit: "mm", format: "a4", compress: true });
+        doc.setProperties({ title: MODELES[sat.type].titre + " · XXIe Assises du REMAO · " + sat.nom, author: "REMAO · Comité National d'Organisation" });
+        doc.addImage(g.toDataURL("image/jpeg", 0.9), "JPEG", 0, 0, 297, 210);
+        doc.save(nomFichier(sat));
+        info.textContent = "C'est prêt. Le PDF est dans tes téléchargements.";
+      } catch (e) {
+        info.textContent = "Le PDF n'a pas pu être créé sur cet appareil. Essaie depuis un autre navigateur.";
+      }
+      btn.disabled = false;
+    }, 30);
+  }
+
+  var ICONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
+
+  function afficher(liste) {
+    liste = liste.filter(function (s) { return MODELES[s.type]; });
+    zone.innerHTML = "";
+    var b = document.createElement("p"); b.className = "bonjour";
+    var nom = document.createElement("b"); nom.textContent = liste[0].nom;
+    b.append("Bonjour ", nom, liste.length > 1 ? ", tu as " + liste.length + " satisfecits." : ", voici ton satisfecit.");
+    zone.appendChild(b);
+    liste.forEach(function (sat) {
+      var m = MODELES[sat.type];
+      var art = document.createElement("article"); art.className = "sat";
+      var h = document.createElement("h2"); h.textContent = m.titre;
+      var sc = document.createElement("div"); sc.className = "scene";
+      var c = document.createElement("canvas"); c.width = 1754; c.height = 1240;
+      c.setAttribute("aria-label", "Aperçu : " + m.titre);
+      sc.appendChild(c);
+      var btn = document.createElement("button"); btn.type = "button"; btn.className = "principal"; btn.disabled = true;
+      btn.innerHTML = ICONE + "Télécharger en PDF";
+      var info = document.createElement("p"); info.className = "etat"; info.setAttribute("role", "status");
+      art.append(h, sc, btn, info);
+      zone.appendChild(art);
+      chargerFond(m.fond).then(function (fond) {
+        dessiner(c, sat, fond);
+        btn.disabled = false;
+        btn.addEventListener("click", function () { telecharger(sat, fond, btn, info); });
+      }, function () { info.textContent = "Le modèle n'a pas pu être chargé. Recharge la page."; });
+    });
+    zone.classList.remove("masque");
+    zone.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Les polices doivent être chargées avant de dessiner, sinon le nom sort dans une police de repli.
+  var polices = document.fonts && document.fonts.load
+    ? Promise.all([document.fonts.load("180px Arizonia"), document.fonts.load("600 40px Montserrat")]).catch(function () {})
+    : Promise.resolve();
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var cle = normaliser(champCle.value);
+    if (!cle) { dire("Une clé a la forme REMAO-XX-XX : vérifie les 4 caractères de ton badge.", true); return; }
+    if (!window.crypto || !crypto.subtle) { dire("Ton navigateur est trop ancien pour cette page. Essaie avec Chrome.", true); return; }
+    champCle.value = cle;
+    bouton.disabled = true; dire("Recherche…");
+    empreinte(cle).then(function (h) {
+      return fetch("c/" + h + ".json", { cache: "no-store" });
+    }).then(function (r) {
+      if (r.status === 404) throw new Error("absente");
+      if (!r.ok) throw new Error("reseau");
+      return r.json();
+    }).then(function (d) {
+      return polices.then(function () { dire(""); afficher(d.satisfecits); });
+    }).catch(function (err) {
+      zone.classList.add("masque");
+      dire(err.message === "absente"
+        ? "Clé introuvable. Vérifie les 4 caractères sur ton badge."
+        : "Connexion impossible pour le moment. Réessaie dans un instant.", true);
+    }).then(function () { bouton.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
