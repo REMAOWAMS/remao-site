@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REMAO Conakry 2026 · Tes images des Assises</title>
+<meta name="description" content="Envoie les vidéos et les photos que tu as prises pendant les XXIe Assises du REMAO à Conakry. Elles feront le film de l'édition.">
+<meta name="theme-color" content="#2C1A0E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tes images font le film des Assises">
+<meta property="og:description" content="Envoie tes vidéos et photos des XXIe Assises du REMAO · Conakry 2026">
+<meta property="og:url" content="https://remao.org/souvenirs/">
+<link rel="canonical" href="https://remao.org/souvenirs/">
+<meta property="og:image" content="https://remao.org/souvenirs/apercu.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brun: #2C1A0E;
+    --nuit: #150B04;
+    --or: #DB9D3A;
+    --or-clair: #E9B967;
+    --creme: #F5EFE6;
+    --gris: #B9A893;
+    --vert: #7FBF7A;
+    --rouge: #E2826B;
+    --trait: rgba(219,157,58,.28);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; color: var(--creme);
+    background: radial-gradient(120% 70% at 50% 0%, #3A2414 0%, var(--brun) 45%, var(--nuit) 100%) fixed, var(--nuit);
+    font-family: Montserrat, system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  .liseré { height: 5px; background: var(--or); }
+  main { width: 100%; max-width: 560px; margin: 0 auto; padding: 20px 16px 32px; flex: 1; }
+
+  .tete { display: flex; justify-content: center; }
+  .carte { display: flex; align-items: center; gap: 14px; background: #fff; border-radius: 14px; padding: 8px 16px; }
+  .carte img { height: 46px; width: auto; display: block; }
+  .carte i { width: 1.5px; height: 34px; background: #D5CCC0; }
+
+  .intro { margin-top: 30px; }
+  .rang { margin: 0 0 8px; font-size: 11.5px; font-weight: 800; letter-spacing: .22em; color: var(--or); }
+  .rang sup { font-size: .62em; letter-spacing: 0; }
+  h1 {
+    margin: 0 0 12px; font-weight: 900; color: var(--creme);
+    font-size: clamp(30px, 8.6vw, 46px); line-height: 1.02; letter-spacing: -.01em; text-transform: uppercase;
+  }
+  h1 span { color: var(--or); display: block; }
+  .chapeau { margin: 0; font-size: 15px; line-height: 1.55; color: var(--gris); font-weight: 500; }
+  .chapeau b { color: var(--creme); font-weight: 700; }
+
+  form { margin-top: 26px; display: grid; gap: 14px; }
+  .champs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  label { display: grid; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gris); }
+  label small { text-transform: none; letter-spacing: 0; font-weight: 500; }
+  input[type=text], select {
+    font: inherit; font-size: 16px; font-weight: 600; color: var(--creme); background: rgba(21,11,4,.55);
+    border: 0; box-shadow: inset 0 0 0 1.5px var(--trait); border-radius: 12px; height: 50px; padding: 0 14px; width: 100%;
+    appearance: none; -webkit-appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23DB9D3A' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; padding-right: 38px;
+  }
+  select option { background: var(--brun); }
+  input[type=text]:focus, select:focus { outline: none; box-shadow: inset 0 0 0 2px var(--or); }
+
+  .depot {
+    position: relative; display: grid; place-items: center; text-align: center; gap: 8px;
+    border-radius: 16px; padding: 30px 18px; cursor: pointer;
+    background: rgba(219,157,58,.07); box-shadow: inset 0 0 0 2px var(--trait);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='1' y='1' width='calc(100%25 - 2px)' height='calc(100%25 - 2px)' rx='15' fill='none' stroke='%23DB9D3A' stroke-width='2' stroke-dasharray='8 8'/%3E%3C/svg%3E");
+    transition: background-color .2s;
+  }
+  .depot:hover, .depot.survol { background-color: rgba(219,157,58,.14); }
+  .depot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+  .depot svg { width: 38px; height: 38px; color: var(--or); }
+  .depot strong { font-size: 17px; font-weight: 800; }
+  .depot span { font-size: 13px; color: var(--gris); font-weight: 500; }
+  .depot:focus-within { box-shadow: inset 0 0 0 2px var(--or); }
+
+  .accord { font-size: 12.5px; line-height: 1.5; color: var(--gris); margin: 0; }
+  .accord a { color: var(--or-clair); }
+
+  .liste { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 10px; }
+  .liste:empty { display: none; }
+  .fichier {
+    display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center;
+    background: rgba(21,11,4,.55); border-radius: 14px; padding: 12px; box-shadow: inset 0 0 0 1px var(--trait);
+  }
+  .vignette { width: 44px; height: 44px; border-radius: 9px; background: var(--brun) center / cover no-repeat; display: grid; place-items: center; overflow: hidden; }
+  .vignette svg { width: 20px; height: 20px; color: var(--or); }
+  .vignette video, .vignette img { width: 100%; height: 100%; object-fit: cover; }
+  .infos { min-width: 0; }
+  .nom { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .etat { font-size: 12px; color: var(--gris); font-weight: 500; margin-top: 3px; }
+  .barre { height: 5px; border-radius: 99px; background: rgba(245,239,230,.1); margin-top: 8px; overflow: hidden; }
+  .barre i { display: block; height: 100%; width: 0; background: var(--or); border-radius: inherit; transition: width .3s; }
+  .pct { font-size: 13px; font-weight: 800; color: var(--or); min-width: 42px; text-align: right; font-variant-numeric: tabular-nums; }
+  .fichier.fini .barre i { background: var(--vert); }
+  .fichier.fini .pct { color: var(--vert); }
+  .fichier.echec .pct { color: var(--rouge); }
+  .fichier.echec .etat { color: var(--rouge); }
+  .fichier.fini .etat { color: var(--vert); }
+
+  .bandeau {
+    display: none; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.5; font-weight: 500;
+    background: rgba(219,157,58,.12); border-radius: 12px; padding: 12px 14px; color: var(--creme);
+  }
+  .bandeau.visible { display: flex; }
+  .bandeau svg { flex: none; width: 18px; height: 18px; color: var(--or); margin-top: 1px; }
+  .bandeau.merci { background: rgba(127,191,122,.14); }
+  .bandeau.merci svg { color: var(--vert); }
+
+  .conseils { margin: 30px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+  .conseils li { display: flex; gap: 12px; font-size: 13.5px; line-height: 1.5; color: var(--gris); font-weight: 500; }
+  .conseils li b { color: var(--creme); font-weight: 700; }
+  .conseils li span {
+    flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--or); color: var(--nuit); font-size: 12px; font-weight: 800;
+  }
+
+  footer { text-align: center; font-size: 12px; color: var(--gris); padding: 0 16px 22px; letter-spacing: .04em; }
+  @media (max-width: 380px) { .champs { grid-template-columns: 1fr; } .carte img { height: 38px; } }
+</style>
+</head>
+<body>
+<div class="liseré" aria-hidden="true"></div>
+<main>
+  <header class="tete">
+    <div class="carte">
+      <img src="logo-remao.png" alt="REMAO">
+      <i aria-hidden="true"></i>
+      <img src="logo-assises.png" alt="XXIe Assises du REMAO, Conakry 2026">
+    </div>
+  </header>
+
+  <section class="intro">
+    <p class="rang">XXI<sup>E</sup> ASSISES · CONAKRY 2026</p>
+    <h1>Tes images <span>font le film</span></h1>
+    <p class="chapeau">Tu as filmé ou photographié les Assises ? Envoie-nous tes images : elles serviront au <b>film souvenir de l'édition</b>. Pas besoin de compte, et tes vidéos arrivent <b>en qualité d'origine</b>.</p>
+  </section>
+
+  <form id="formulaire" onsubmit="return false">
+    <div class="champs">
+      <label>Prénom <small>(facultatif)</small>
+        <input type="text" id="prenom" maxlength="40" autocomplete="given-name">
+      </label>
+      <label>Pays
+        <select id="pays">
+          <option value="">Choisir</option>
+          <option value="benin">Bénin</option>
+          <option value="burkina-faso">Burkina Faso</option>
+          <option value="cote-d-ivoire">Côte d'Ivoire</option>
+          <option value="guinee">Guinée</option>
+          <option value="mali">Mali</option>
+          <option value="niger">Niger</option>
+          <option value="senegal">Sénégal</option>
+          <option value="togo">Togo</option>
+          <option value="autre">Autre</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="depot" id="depot">
+      <input type="file" id="choix" accept="video/*,image/*" multiple aria-label="Choisir mes vidéos et photos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <strong>Choisir mes vidéos et photos</strong>
+      <span>Plusieurs à la fois · jusqu'à 4 Go par fichier</span>
+    </div>
+
+    <p class="accord">En envoyant tes images, tu acceptes que le REMAO les utilise dans ses vidéos et sur ses réseaux. <a href="/confidentialite/">Confidentialité</a></p>
+
+    <div class="bandeau" id="attente" role="status">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span id="attente-texte">Garde cette page ouverte jusqu'à la fin de l'envoi.</span>
+    </div>
+    <div class="bandeau merci" id="merci" role="status">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+      <span id="merci-texte">Merci ! Tes images sont bien arrivées.</span>
+    </div>
+
+    <ul class="liste" id="liste"></ul>
+  </form>
+
+  <ul class="conseils">
+    <li><span>1</span><div><b>Le Wi-Fi est conseillé</b> pour les longues vidéos : une minute filmée pèse souvent plus de 100 Mo.</div></li>
+    <li><span>2</span><div><b>Si la connexion coupe</b>, l'envoi reprend tout seul dès qu'elle revient.</div></li>
+    <li><span>3</span><div><b>Si tu as fermé la page</b>, rouvre-la et choisis à nouveau les mêmes fichiers : l'envoi repart là où il s'était arrêté.</div></li>
+  </ul>
+</main>
+<footer>Réseau des étudiants en médecine de l'Afrique de l'Ouest</footer>
+
+<script src="../supabase-config.js"></script>
+<script>
+(function () {
+  var API = window.SUPA_URL + "/functions/v1/souvenirs";
+  var PARALLELE = 3;
+  var ESSAIS_AVANT_RAFRAICHIR = 4;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var liste = $("liste"), choix = $("choix"), depot = $("depot");
+  var file = [], enCours = false, verrou = null, nbFinis = 0;
+
+  // Mémoire locale : envois en cours (pour reprendre) et fichiers déjà arrivés (pour ne pas doubler).
+  function lire(k) { try { return JSON.parse(localStorage.getItem(k) || "{}"); } catch (e) { return {}; } }
+  function ecrire(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function empreinte(f) { return f.name + "|" + f.size + "|" + f.lastModified; }
+
+  try { var p = localStorage.getItem("souvenirs-prenom"); if (p) $("prenom").value = p; } catch (e) {}
+  try { var y = localStorage.getItem("souvenirs-pays"); if (y) $("pays").value = y; } catch (e) {}
+
+  function taille(o) {
+    if (o >= 1e9) return (o / 1e9).toFixed(1).replace(".", ",") + " Go";
+    if (o >= 1e6) return Math.round(o / 1e6) + " Mo";
+    return Math.max(1, Math.round(o / 1e3)) + " Ko";
+  }
+
+  function appel(corps) {
+    return fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) { var e = new Error(j.erreur || "Erreur " + r.status); e.definitif = r.status === 400; throw e; }
+          return j;
+        });
+      });
+  }
+
+  function attendre(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
+  function enLigne() {
+    if (navigator.onLine !== false) return Promise.resolve();
+    return new Promise(function (ok) { window.addEventListener("online", function f() { window.removeEventListener("online", f); ok(); }); });
+  }
+
+  function envoyerMorceau(url, blob, surProgres) {
+    return new Promise(function (ok, ko) {
+      var x = new XMLHttpRequest();
+      x.open("PUT", url);
+      x.upload.onprogress = function (e) { surProgres(e.loaded); };
+      x.onload = function () { if (x.status >= 200 && x.status < 300) ok(); else { var e = new Error("HTTP " + x.status); e.statut = x.status; ko(e); } };
+      x.onerror = x.ontimeout = function () { ko(new Error("réseau")); };
+      x.send(blob);
+    });
+  }
+
+  var ICONE_VIDEO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>';
+
+  function ligne(f) {
+    var li = document.createElement("li");
+    li.className = "fichier";
+    li.innerHTML = '<div class="vignette">' + ICONE_VIDEO + '</div><div class="infos"><div class="nom"></div><div class="etat">En attente</div><div class="barre"><i></i></div></div><div class="pct">0 %</div>';
+    li.querySelector(".nom").textContent = f.name;
+    if (/^image\//.test(f.type) && f.size < 30e6) {
+      var u = URL.createObjectURL(f);
+      li.querySelector(".vignette").innerHTML = "";
+      li.querySelector(".vignette").style.backgroundImage = "url(" + u + ")";
+    }
+    liste.appendChild(li);
+    return {
+      etat: function (t) { li.querySelector(".etat").textContent = t; },
+      progres: function (r) { var v = Math.floor(r * 100); li.querySelector(".barre i").style.width = v + "%"; li.querySelector(".pct").textContent = v + " %"; },
+      fini: function () { li.classList.add("fini"); li.querySelector(".barre i").style.width = "100%"; li.querySelector(".pct").textContent = "✓"; },
+      echec: function (t) { li.classList.add("echec"); li.querySelector(".pct").textContent = "!"; li.querySelector(".etat").textContent = t; }
+    };
+  }
+
+  function televerser(f, vue) {
+    var cle = empreinte(f), encours = lire("souvenirs-encours"), sess = encours[cle];
+    var debut = sess
+      ? appel({ action: "reprendre", cle: sess.cle, uploadId: sess.uploadId, taille: f.size })
+          .then(function (r) { return { cle: sess.cle, uploadId: sess.uploadId, tailleMorceau: sess.tailleMorceau, urls: r.urls, faits: r.faits }; })
+          .catch(function (e) { if (!e.definitif) throw e; delete encours[cle]; ecrire("souvenirs-encours", encours); return null; })
+      : Promise.resolve(null);
+
+    return debut.then(function (s) {
+      if (s) return s;
+      return appel({ action: "demarrer", nom: f.name, taille: f.size, type: f.type || "video/mp4", prenom: $("prenom").value, pays: $("pays").value })
+        .then(function (r) {
+          encours = lire("souvenirs-encours");
+          encours[cle] = { cle: r.cle, uploadId: r.uploadId, tailleMorceau: r.tailleMorceau };
+          ecrire("souvenirs-encours", encours);
+          r.faits = [];
+          return r;
+        });
+    }).then(function (s) {
+      var T = s.tailleMorceau, n = Math.max(1, Math.ceil(f.size / T));
+      var recu = {}, total = 0, urls = s.urls, restants = [];
+      for (var i = 1; i <= n; i++) {
+        if (s.faits.indexOf(i) >= 0) { recu[i] = Math.min(T, f.size - (i - 1) * T); }
+        else restants.push(i);
+      }
+      function maj() {
+        total = 0; for (var k in recu) total += recu[k];
+        vue.progres(total / f.size);
+        vue.etat(taille(total) + " sur " + taille(f.size));
+      }
+      maj();
+
+      var rafraichir = null;
+      function nouvellesAdresses() {
+        if (!rafraichir) rafraichir = appel({ action: "reprendre", cle: s.cle, uploadId: s.uploadId, taille: f.size })
+          .then(function (r) { for (var k in r.urls) urls[k] = r.urls[k]; rafraichir = null; });
+        return rafraichir;
+      }
+
+      function un(num, essai) {
+        var blob = f.slice((num - 1) * T, Math.min(num * T, f.size));
+        return enLigne()
+          .then(function () { return envoyerMorceau(urls[num], blob, function (o) { recu[num] = o; maj(); }); })
+          .then(function () { recu[num] = blob.size; maj(); })
+          .catch(function (e) {
+            recu[num] = 0; maj();
+            vue.etat("Connexion instable, nouvel essai…");
+            var pause = Math.min(30000, 1500 * Math.pow(2, essai));
+            var suite = (e.statut === 403 || essai + 1 >= ESSAIS_AVANT_RAFRAICHIR) ? attendre(pause).then(nouvellesAdresses) : attendre(pause);
+            return suite.then(function () { return un(num, essai + 1 >= ESSAIS_AVANT_RAFRAICHIR ? 0 : essai + 1); },
+                              function () { return attendre(pause).then(function () { return un(num, essai); }); });
+          });
+      }
+
+      function ouvrier() {
+        var num = restants.shift();
+        if (!num) return Promise.resolve();
+        return un(num, 0).then(ouvrier);
+      }
+      var equipe = [];
+      for (var w = 0; w < Math.min(PARALLELE, restants.length); w++) equipe.push(ouvrier());
+
+      return Promise.all(equipe).then(function () {
+        vue.etat("Finalisation…");
+        return appel({ action: "terminer", cle: s.cle, uploadId: s.uploadId, taille: f.size });
+      }).then(function () {
+        var e2 = lire("souvenirs-encours"); delete e2[cle]; ecrire("souvenirs-encours", e2);
+        var faits = lire("souvenirs-envoyes"); faits[cle] = 1; ecrire("souvenirs-envoyes", faits);
+      });
+    });
+  }
+
+  function verrouillerEcran() {
+    if (!("wakeLock" in navigator) || verrou) return;
+    navigator.wakeLock.request("screen").then(function (v) { verrou = v; v.addEventListener("release", function () { verrou = null; }); }).catch(function () {});
+  }
+  document.addEventListener("visibilitychange", function () { if (enCours && document.visibilityState === "visible") verrouillerEcran(); });
+
+  function suivant() {
+    var t = file.shift();
+    if (!t) {
+      enCours = false;
+      if (verrou) verrou.release().catch(function () {});
+      $("attente").classList.remove("visible");
+      if (nbFinis) {
+        $("merci-texte").textContent = nbFinis > 1 ? "Merci ! Tes " + nbFinis + " fichiers sont bien arrivés. Tu peux en ajouter d'autres." : "Merci ! Ton fichier est bien arrivé. Tu peux en ajouter d'autres.";
+        $("merci").classList.add("visible");
+      }
+      return;
+    }
+    t.vue.etat("Préparation…");
+    televerser(t.f, t.vue).then(function () {
+      nbFinis++; t.vue.fini(); t.vue.etat(taille(t.f.size) + " · bien arrivé");
+    }, function (e) {
+      t.vue.echec(e.definitif ? e.message : "Envoi impossible pour l'instant. Choisis à nouveau ce fichier pour réessayer.");
+    }).then(suivant);
+  }
+
+  function ajouter(fichiers) {
+    try { localStorage.setItem("souvenirs-prenom", $("prenom").value); localStorage.setItem("souvenirs-pays", $("pays").value); } catch (e) {}
+    var deja = lire("souvenirs-envoyes");
+    $("merci").classList.remove("visible");
+    Array.prototype.forEach.call(fichiers, function (f) {
+      var vue = ligne(f);
+      if (deja[empreinte(f)]) { vue.fini(); vue.etat("Déjà envoyé, merci !"); return; }
+      if (!/^(video|image)\//.test(f.type || "video/")) { vue.echec("Seules les vidéos et les photos sont acceptées."); return; }
+      if (f.size > 4 * 1024 * 1024 * 1024) { vue.echec("Ce fichier dépasse 4 Go."); return; }
+      file.push({ f: f, vue: vue });
+    });
+    if (!enCours && file.length) {
+      enCours = true;
+      $("attente").classList.add("visible");
+      verrouillerEcran();
+      suivant();
+    }
+  }
+
+  choix.addEventListener("change", function () { ajouter(choix.files); choix.value = ""; });
+  ["dragenter", "dragover"].forEach(function (t) { depot.addEventListener(t, function (e) { e.preventDefault(); depot.classList.add("survol"); }); });
+  ["dragleave", "drop"].forEach(function (t) { depot.addEventListener(t, function () { depot.classList.remove("survol"); }); });
+  depot.addEventListener("drop", function (e) { e.preventDefault(); ajouter(e.dataTransfer.files); });
+
+  window.addEventListener("beforeunload", function (e) { if (enCours) { e.preventDefault(); e.returnValue = ""; } });
+})();
+</script>
+</body>
+</html>
