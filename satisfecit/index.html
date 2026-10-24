@@ -191,6 +191,7 @@
     var m = MODELES[sat.type], ctx = c.getContext("2d"), k = c.width / W;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.drawImage(fond, 0, 0, c.width, c.height);
+    if (!m) return; // certificat de lauréat : l'image est déjà nominative et signée
     ctx.setTransform(k, 0, 0, k, 0, 0);
     ctx.fillStyle = NUIT; ctx.textBaseline = "alphabetic";
     ajuster(ctx, sat.nom, "{c}px Arizonia", NOM.corps, NOM.max);
@@ -204,6 +205,7 @@
   }
 
   function nomFichier(sat) {
+    if (sat.fichier) return sat.fichier;
     var base = sat.nom.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "");
     return "Satisfecit-" + (sat.type === "cno" ? "CNO" : "participation") + "-REMAO-Conakry-2026-" + base + ".pdf";
   }
@@ -216,7 +218,7 @@
         var g = document.createElement("canvas"); g.width = W; g.height = H;
         dessiner(g, sat, fond);
         var doc = new window.jspdf.jsPDF({ orientation: "landscape", unit: "mm", format: "a4", compress: true });
-        doc.setProperties({ title: MODELES[sat.type].titre + " · XXIe Assises du REMAO · " + sat.nom, author: "REMAO · Comité National d'Organisation" });
+        doc.setProperties({ title: titreDe(sat) + " · XXIe Assises du REMAO · " + sat.nom, author: "REMAO · Comité National d'Organisation" });
         doc.addImage(g.toDataURL("image/jpeg", 0.9), "JPEG", 0, 0, 297, 210);
         doc.save(nomFichier(sat));
         info.textContent = "C'est prêt. Le PDF est dans tes téléchargements.";
@@ -229,15 +231,22 @@
 
   var ICONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
 
-  function afficher(liste) {
-    liste = liste.filter(function (s) { return MODELES[s.type]; });
+  function titreDe(sat) { return sat.titre || MODELES[sat.type].titre; }
+
+  function afficher(d) {
+    var sats = d.satisfecits.filter(function (s) { return MODELES[s.type]; });
+    var certifs = (d.certificats || []).filter(function (s) { return s.image; });
+    var liste = sats.concat(certifs);
     zone.innerHTML = "";
     var b = document.createElement("p"); b.className = "bonjour";
-    var nom = document.createElement("b"); nom.textContent = liste[0].nom;
-    b.append("Bonjour ", nom, liste.length > 1 ? ", tu as " + liste.length + " satisfecits." : ", voici ton satisfecit.");
+    var nom = document.createElement("b"); nom.textContent = sats[0].nom;
+    var phrase = sats.length > 1 ? ", tu as " + sats.length + " satisfecits" : ", voici ton satisfecit";
+    if (certifs.length) phrase += certifs.length > 1 ? " et " + certifs.length + " certificats." : " et ton certificat.";
+    else phrase += ".";
+    b.append("Bonjour ", nom, phrase);
     zone.appendChild(b);
     liste.forEach(function (sat) {
-      var m = MODELES[sat.type];
+      var m = { titre: titreDe(sat), fond: sat.image || MODELES[sat.type].fond };
       var art = document.createElement("article"); art.className = "sat";
       var h = document.createElement("h2"); h.textContent = m.titre;
       var sc = document.createElement("div"); sc.className = "scene";
@@ -278,7 +287,7 @@
       if (!r.ok) throw new Error("reseau");
       return r.json();
     }).then(function (d) {
-      return polices.then(function () { dire(""); afficher(d.satisfecits); });
+      return polices.then(function () { dire(""); afficher(d); });
     }).catch(function (err) {
       zone.classList.add("masque");
       dire(err.message === "absente"
