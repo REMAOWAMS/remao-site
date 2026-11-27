@@ -18,37 +18,16 @@
      Les titres eux-mêmes se modifient dans sync-pages.sh, pas ici.
      ========================================================================== -->
 <!-- SEO:DEBUT -->
-<title>XXIe Assises Scientifiques, Culturelles et Sportives du REMAO</title>
-<meta name="description" content="Jeunesse, innovation et transformation des systèmes de santé en Afrique de l'Ouest: vers une couverture santé universelle.">
+<title>Assises du REMAO</title>
+<meta name="description" content="Le grand rendez-vous annuel du réseau : congrès scientifique, compétitions sportives et soirées culturelles réunissant les délégations des huit pays membres.">
 <link rel="canonical" href="https://remao.org/assises/">
-<meta property="og:title" content="XXIe Assises Scientifiques, Culturelles et Sportives du REMAO">
-<meta property="og:description" content="Jeunesse, innovation et transformation des systèmes de santé en Afrique de l'Ouest: vers une couverture santé universelle.">
+<meta property="og:title" content="Assises du REMAO">
+<meta property="og:description" content="Le grand rendez-vous annuel du réseau : congrès scientifique, compétitions sportives et soirées culturelles réunissant les délégations des huit pays membres.">
 <meta property="og:url" content="https://remao.org/assises/">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://aohfgaxmahcowatzlvyi.supabase.co/storage/v1/object/public/medias/assises-img/1784482093099-p5n5a.jpg">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Event",
-  "name": "XXIe Assises Scientifiques, Culturelles et Sportives du REMAO",
-  "startDate": "2026-10-13",
-  "endDate": "2026-10-22",
-  "eventStatus": "https://schema.org/EventScheduled",
-  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-  "description": "Jeunesse, innovation et transformation des systèmes de santé en Afrique de l'Ouest: vers une couverture santé universelle.",
-  "url": "https://remao.org/assises/",
-  "image": "https://aohfgaxmahcowatzlvyi.supabase.co/storage/v1/object/public/medias/assises-img/1784482093099-p5n5a.jpg",
-  "location": {
-    "@type": "Place",
-    "name": "Conakry"
-  },
-  "organizer": {
-    "@type": "Organization",
-    "name": "Réseau des Étudiants en Médecine de l'Afrique de l'Ouest",
-    "url": "https://remao.org/"
-  }
-}
-</script>
+<meta property="og:image" content="https://remao.org/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <!-- SEO:FIN -->
 <!-- Toujours déclarer les icônes : sans cela, le navigateur retombe sur le favicon mis en
      cache pour l'origine github.io du compte, celui d'un autre site.
@@ -522,6 +501,8 @@
   .member b { display:block; font-size:16px; margin:6px 0 2px; }
   .member small { color:var(--gray); font-size:12.5px; }
   .member .av.photo { background:var(--paper-2) center / cover no-repeat; }
+  .member .av.silhouette { background:var(--paper-2); color:#a9b0ab; overflow:hidden; place-items:end center; }
+  .member .av.silhouette svg { width:74%; height:74%; }
 
   /* Documents officiels */
   .docs { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
@@ -2726,14 +2707,14 @@
       if(by.membre && by.membre.length){
         var host=document.getElementById("bureauTeam"), fb=document.getElementById("bureauFallback");
         if(host){
-          var ORDRE=["Président","Vice-président","Secrétaire administratif",
+          var ORDRE=["Président","Vice-président","Secrétaire général","Secrétaire administratif",
             "Premier secrétaire administratif adjoint","Deuxième secrétaire administratif adjoint",
             "Président de la Commission A","Président de la Commission B","Président de la Commission C",
             "Président de la Commission D","Président de la Commission E","Président de la Commission F",
             "Commissaire principal au contrôle","Commissaire adjoint au contrôle"];
           var GROUPES=[
             { titre:"Direction", test:function(p){ return /^(Président|Vice-président)$/.test(p); } },
-            { titre:"Secrétariat administratif", test:function(p){ return /secrétaire administratif/i.test(p); } },
+            { titre:"Secrétariat administratif", test:function(p){ return /secrétaire (administratif|général)/i.test(p); } },
             { titre:"Présidents des commissions permanentes", test:function(p){ return /^Président de la Commission/i.test(p); } },
             { titre:"Commissariat au contrôle", test:function(p){ return /au contrôle$/i.test(p); } },
             { titre:"Commissaires", test:function(){ return true; } }
@@ -2754,7 +2735,10 @@
             var initiales=nom.trim().split(/\s+/).slice(0,2).map(function(m){ return m.charAt(0).toUpperCase(); }).join("");
             var el=document.createElement("div");
             el.className="card member"+(/Commission E/i.test(poste)?" red":"");
-            el.innerHTML = avatarHtml(d.image, initiales, nom)+'<div class="role">'+esc(court)+'</div><b>'+esc(nom)+'</b><small>'+esc(bas)+'</small>'
+            // Sans photo : une silhouette neutre plutôt que des initiales, en attendant le portrait.
+            var av=d.image ? avatarHtml(d.image, initiales, nom)
+              : '<div class="av silhouette" role="img" aria-label="'+esc(nom)+'"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8.2" r="4.2"/><path d="M3.6 21.5c.6-4.6 4.1-7.6 8.4-7.6s7.8 3 8.4 7.6z"/></svg></div>';
+            el.innerHTML = av+'<div class="role">'+esc(court)+'</div><b>'+esc(nom)+'</b><small>'+esc(bas)+'</small>'
               +contactChipsFor(d.tel||"", d.mail||"");
             poserPhotos(el);
             return el;
