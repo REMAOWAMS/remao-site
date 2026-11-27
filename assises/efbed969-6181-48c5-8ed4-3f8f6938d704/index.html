@@ -258,6 +258,17 @@
   /* Bannière réelle posée depuis l'admin : la photo remplace les aplats décoratifs,
      mais on garde le voile ::after qui assure la lisibilité du titre par-dessus. */
   .hero-photo.has-photo .ph { background:var(--paper-2) center / cover no-repeat; opacity:1; }
+  /* Diaporama : plusieurs bannières d'accueil se relaient en fondu, avec un lent zoom
+     arrière. La couche active passe au-dessus, la précédente s'efface dessous. */
+  .hero-photo.diapo .ph { opacity:0; transform:scale(1.07); transition:opacity 1.8s var(--ease-out), transform 9s linear; }
+  .hero-photo.diapo .ph.on { opacity:1; transform:scale(1); z-index:1; }
+  .hero-photo.diapo .ph.sortie { opacity:0; transform:scale(1); transition:opacity 1.8s var(--ease-out); }
+  .hero-photo::after { z-index:2; }
+  .hero-puces { position:absolute; z-index:3; left:50%; bottom:18px; transform:translateX(-50%); display:flex; gap:8px; }
+  .hero-puces button { width:8px; height:8px; padding:0; border-radius:999px; border:0; cursor:pointer;
+    background:color-mix(in srgb,var(--ink) 25%,transparent); transition:width .5s var(--ease), background .3s; }
+  .hero-puces button.on { width:26px; background:var(--green); }
+  @media (prefers-reduced-motion: reduce){ .hero-photo.diapo .ph { transition:opacity .01s; transform:none; } }
   .hero-photo::after { content:""; position:absolute; inset:0;
     background:linear-gradient(90deg, var(--paper) 20%, color-mix(in srgb,var(--paper) 40%,transparent) 48%, transparent 78%),
       linear-gradient(0deg, var(--paper) 3%, transparent 42%); }
@@ -351,6 +362,48 @@
     padding:20px 10px; text-align:center; }
   .cd-cell .v { font-family:var(--font-mono); font-size:clamp(30px,5vw,44px); font-weight:700; line-height:1; font-variant-numeric:tabular-nums; }
   .cd-cell .k { font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:rgba(255,255,255,.65); margin-top:8px; }
+
+  /* Photo de l'édition en fond de l'encart sombre. Le voile garde la gauche lisible
+     (titre, ville, dates) et laisse respirer la photo à droite. */
+  .assises .band { z-index:2; }
+  .assises-inner { z-index:1; }
+  .assises-photo { position:absolute; inset:0; background:#14251a center / cover no-repeat; opacity:0; transition:opacity .8s var(--ease-out); }
+  .assises-photo.on { opacity:1; }
+  .assises-photo::after { content:""; position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(12,26,17,.95) 0%, rgba(12,26,17,.82) 42%, rgba(12,26,17,.30) 100%),
+      linear-gradient(0deg, color-mix(in srgb,var(--red) 38%,transparent) 0%, transparent 42%); }
+  .assises .pal-vainqueur { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); box-shadow:none; }
+
+  /* Cartes « D'autres éditions » : vignette photo, numéro posé dessus. */
+  .ed-carte { padding:0; text-align:left; cursor:pointer; font:inherit; color:inherit; width:100%; overflow:hidden; display:flex; flex-direction:column; }
+  .ed-vignette { position:relative; display:block; aspect-ratio:16/9; background:
+      radial-gradient(120% 120% at 10% 0%, var(--green-700) 0%, transparent 60%), #14251a; background-size:cover; background-position:center; }
+  .ed-vignette.photo::after { content:""; position:absolute; inset:0; background:linear-gradient(0deg, rgba(10,20,14,.62) 0%, transparent 55%); }
+  .ed-num { position:absolute; left:18px; bottom:12px; z-index:1; font-family:var(--font-mono); font-size:30px; font-weight:700; color:#fff; line-height:1; }
+  .ed-statut { position:absolute; top:12px; right:12px; z-index:1; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.12em;
+    color:#fff; background:var(--red); padding:5px 10px; border-radius:999px; }
+  .ed-corps { display:block; padding:16px 20px 20px; }
+  .ed-corps b { display:block; font-size:17px; }
+  .ed-corps small { color:var(--gray); }
+  .ed-carte .ed-vignette.photo { transition:transform .9s var(--ease-out); }
+  .ed-carte:hover .ed-vignette.photo { transform:scale(1.03); }
+
+  /* Retour sur la dernière édition : une mosaïque de cinq photos, une grande et quatre petites. */
+  .retour { display:grid; grid-template-columns:1.7fr 1fr 1fr; grid-template-rows:repeat(2, clamp(150px,16vw,220px)); gap:14px; }
+  .retour figure { margin:0; position:relative; overflow:hidden; border-radius:var(--r-lg); background:var(--paper-2);
+    box-shadow:var(--shadow-sm); cursor:pointer; }
+  .retour figure:first-child { grid-row:span 2; }
+  .retour img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 1.1s var(--ease-out); }
+  .retour figure:hover img { transform:scale(1.045); }
+  .retour figure:first-child::after { content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(0deg, rgba(10,20,14,.72) 0%, transparent 48%); }
+  .retour-legende { position:absolute; left:clamp(18px,2.4vw,28px); right:18px; bottom:clamp(16px,2.2vw,26px); z-index:1; color:#fff; }
+  .retour-legende small { display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.16em; opacity:.85; }
+  .retour-legende b { display:block; font-size:clamp(22px,2.6vw,32px); font-weight:800; line-height:1.1; margin-top:6px; letter-spacing:-.01em; }
+  .retour-pied { margin-top:22px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; }
+  .retour-pied .pal-vainqueur { margin:0; flex:1 1 320px; max-width:520px; }
+  .retour-pied .hero-actions { margin:0; }
 
   /* Countries */
   .countries { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
@@ -464,7 +517,7 @@
   .subhero { padding-top:40px; position:relative; }
   /* Fond photo du sous-hero : voile clair par-dessus, sinon le titre en encre
      sombre devient illisible dès que l'image est chargée. */
-  .subhero-photo { position:absolute; inset:0; z-index:0; background:var(--paper-2) center / cover no-repeat; }
+  .subhero-photo { position:absolute; inset:0; z-index:0; background:var(--paper-2) center 22% / cover no-repeat; }
   .subhero-photo::after { content:""; position:absolute; inset:0;
     background:linear-gradient(90deg, var(--paper) 22%, color-mix(in srgb,var(--paper) 55%,transparent) 55%, color-mix(in srgb,var(--paper) 25%,transparent) 100%),
       linear-gradient(0deg, var(--paper) 4%, transparent 45%); }
@@ -609,6 +662,7 @@
     .hero-seal { order:-1; width:100%; max-width:none; margin:0; justify-items:center; }
     .seal-frame { width:min(280px,66vw); }
     .about-grid, .assises-inner, .join { grid-template-columns:1fr; }
+    .assises-photo::after { background:linear-gradient(0deg, rgba(12,26,17,.96) 0%, rgba(12,26,17,.80) 55%, rgba(12,26,17,.45) 100%); }
     .grid-3, .pillars, .team, .docs { grid-template-columns:1fr; }
     .foot-grid { grid-template-columns:1fr 1fr; }
     .hero-photo::after { background:linear-gradient(0deg, var(--paper) 10%, color-mix(in srgb,var(--paper) 55%,transparent) 62%, transparent 100%); }
@@ -619,8 +673,14 @@
   }
   @media (max-width:560px){
     :root { --pad:18px; }
-    .stats, .countries, .partners, .grid-2, .foot-grid { grid-template-columns:1fr; }
+    .countries, .partners, .grid-2, .foot-grid { grid-template-columns:1fr; }
+    /* Quatre chiffres courts : deux par ligne suffisent, une colonne allongeait l'accueil d'un écran. */
+    .stats { grid-template-columns:repeat(2,1fr); gap:12px; }
+    .stat { padding:20px 16px; }
     .countdown { grid-template-columns:repeat(2,1fr); }
+    .retour { grid-template-columns:1fr 1fr; grid-template-rows:none; grid-auto-rows:clamp(110px,30vw,160px); gap:10px; }
+    .retour figure:first-child { grid-column:span 2; grid-row:span 2; }
+    .retour-pied .hero-actions { width:100%; }
     .prog-row { grid-template-columns:1fr; gap:6px; }
     .chrono { padding-left:0; }
     .chrono::before { display:none; }
@@ -804,8 +864,8 @@
     <div class="wrap">
       <div class="stats">
         <div class="stat reveal"><div class="num" data-count="8">0</div><div class="lbl">Pays membres permanents</div></div>
-        <div class="stat reveal"><div class="num" data-count="28" data-suffix="+">0</div><div class="lbl">Années d'existence (depuis 1997)</div></div>
-        <div class="stat reveal"><div class="num" data-count="21">0</div><div class="lbl">Éditions des Assises tenues</div></div>
+        <div class="stat reveal"><div class="num" data-count="29" id="statAnnees">0</div><div class="lbl">Années d'existence (depuis 1997)</div></div>
+        <div class="stat reveal"><div class="num" data-count="21" id="statEditions">0</div><div class="lbl">Éditions des Assises tenues</div></div>
         <div class="stat reveal"><div class="num" data-count="3">0</div><div class="lbl">Piliers : science, culture, sport</div></div>
       </div>
     </div>
@@ -822,7 +882,7 @@
         <span class="eyebrow"><span class="dot"></span>Qui sommes-nous</span>
         <h2 style="font-size:clamp(28px,4vw,46px);font-weight:800;margin-top:16px">Plus de 25 ans à apprendre les uns des autres, au-delà des frontières.</h2>
         <ul class="about-list">
-          <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span><div><b>Une structure fédérative</b><p>Un Bureau Exécutif de onze membres, six commissions permanentes, un secrétariat au siège de Niamey, et une association nationale par pays membre.</p></div></li>
+          <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span><div><b>Une structure fédérative</b><p>Un Bureau Exécutif élu pour deux ans, six commissions permanentes, un secrétariat au siège de Niamey et une association nationale par pays membre.</p></div></li>
           <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span><div><b>Les Assises comme rendez-vous annuel</b><p>Journées scientifiques, culturelles et sportives accueillies tour à tour par un pays membre.</p></div></li>
           <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></span><div><b>Un futur commun pour la médecine ouest-africaine</b><p>Nous construisons dès aujourd'hui les collaborations qui amélioreront la santé de demain.</p></div></li>
         </ul>
@@ -856,6 +916,29 @@
               <div class="cd-cell"><div class="v" data-cd="secs">--</div><div class="k">Secondes</div></div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Retour sur la dernière édition archivée : visible seulement quand l'édition mise en
+       avant est une autre (la suivante) et que la précédente a au moins cinq photos. -->
+  <section class="section" id="retourHome" style="padding-top:0" hidden>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow"><span class="dot"></span>Retour sur la dernière édition</span>
+        <h2 data-retour-titre>Les dernières Assises en images.</h2>
+        <p data-retour-texte></p>
+      </div>
+      <div class="retour reveal" data-retour-grille></div>
+      <div class="retour-pied reveal">
+        <div data-retour-vainqueur></div>
+        <div class="hero-actions">
+          <a class="btn btn-green" data-retour-lien>Revivre l'édition
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+          <a class="btn btn-ghost" data-view="palmares">Le palmarès
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
         </div>
       </div>
     </div>
@@ -931,7 +1014,7 @@
       <div class="join reveal">
         <div class="join-copy">
           <span class="eyebrow red"><span class="dot"></span>Rejoindre le REMAO</span>
-          <h2>Ta faculté fait partie du réseau ? Ta place est ici.</h2>
+          <h2>Ta faculté fait partie du réseau&nbsp;? Ta place est&nbsp;ici.</h2>
           <p>L'adhésion se fait via la cellule nationale de ta faculté. Tu peux aussi nous écrire pour créer une nouvelle cellule dans ton pays.</p>
           <div class="hero-actions">
             <a class="btn btn-red" data-view="membre">Devenir membre
@@ -990,7 +1073,7 @@
         <div class="card" style="padding:26px 24px">
           <div class="role" style="color:var(--green);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.12em">Organe permanent</div>
           <b style="display:block;font-size:17px;margin:8px 0 6px">Le Bureau Exécutif</b>
-          <p style="color:var(--gray);font-size:14px;margin:0">Onze membres élus pour deux ans : un président, un vice-président, un secrétariat administratif de trois membres siégeant à Niamey, et les présidents des six commissions permanentes.</p>
+          <p style="color:var(--gray);font-size:14px;margin:0">Élu pour deux ans par l'Assemblée Générale : un président, un vice-président, un secrétariat administratif siégeant à Niamey et les présidents des six commissions permanentes.</p>
         </div>
         <div class="card" style="padding:26px 24px">
           <div class="role" style="color:var(--red);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.12em">Organe de contrôle</div>
@@ -1102,12 +1185,14 @@
     <div class="wrap">
       <div class="assises">
         <div class="band" aria-hidden="true"></div>
+        <div class="assises-photo" id="assisesPhoto" aria-hidden="true"></div>
         <div class="assises-inner">
           <div>
             <span class="eyebrow"><span class="dot"></span>Ville hôte</span>
             <h2 id="assisesVille">Conakry, Guinée</h2>
             <p class="theme-line" id="assisesDates">Du 13 au 22 octobre 2026.</p>
           </div>
+          <div id="assisesBilanVainqueur" hidden></div>
           <div class="cd-annonce" id="cdAnnonce2" hidden><b id="cdAnnonce2Titre">Rendez-vous bientôt</b><span id="cdAnnonce2Txt">Dates bientôt annoncées</span></div>
           <div class="countdown" id="countdown2" style="display:none">
             <div class="cd-cell"><div class="v" data-cd="days">--</div><div class="k">Jours</div></div>
@@ -1115,6 +1200,28 @@
             <div class="cd-cell"><div class="v" data-cd="mins">--</div><div class="k">Minutes</div></div>
             <div class="cd-cell"><div class="v" data-cd="secs">--</div><div class="k">Secondes</div></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Retour sur la dernière édition archivée : visible seulement quand l'édition mise en
+       avant est une autre (la suivante) et que la précédente a au moins cinq photos. -->
+  <section class="section" id="retourAssises" style="padding-top:0" hidden>
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow"><span class="dot"></span>Retour sur la dernière édition</span>
+        <h2 data-retour-titre>Les dernières Assises en images.</h2>
+        <p data-retour-texte></p>
+      </div>
+      <div class="retour reveal" data-retour-grille></div>
+      <div class="retour-pied reveal">
+        <div data-retour-vainqueur></div>
+        <div class="hero-actions">
+          <a class="btn btn-green" data-retour-lien>Revivre l'édition
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+          <a class="btn btn-ghost" data-view="palmares">Le palmarès
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
         </div>
       </div>
     </div>
@@ -1731,6 +1838,54 @@
       + '<span><b>'+esc(d.titre||"Document")+'</b><small>'+esc(d.categorie||"Document")+' · PDF</small></span>';
   }
 
+  /* ---------- Diaporama de l'accueil ----------
+     L'image suivante est chargée avant le fondu : sur une connexion lente, on attend
+     qu'elle soit prête plutôt que de fondre vers un aplat. Pause quand l'onglet est
+     masqué ; avec « réduire les animations », la première image reste fixe. */
+  function lancerDiapo(zone, premiere, urls){
+    if(reduce) return;
+    zone.classList.add("diapo");
+    var couches=[premiere];
+    urls.slice(1).forEach(function(){ var c=document.createElement("div"); c.className="ph"; zone.appendChild(c); couches.push(c); });
+    var charge=urls.map(function(u,i){ return i===0; });
+    function precharger(i, ok){
+      if(charge[i]){ ok(); return; }
+      var im=new Image();
+      im.onload=function(){ couches[i].style.backgroundImage="url("+JSON.stringify(urls[i])+")"; charge[i]=true; ok(); };
+      im.onerror=function(){ charge[i]=null; ok(); };
+      im.src=urls[i];
+    }
+    var puces=document.createElement("div"); puces.className="hero-puces";
+    urls.forEach(function(u,i){ var b=document.createElement("button"); b.type="button";
+      b.setAttribute("aria-label","Photo "+(i+1)+" sur "+urls.length);
+      b.addEventListener("click", function(){ aller(i); relancer(); });
+      puces.appendChild(b); });
+    zone.parentNode.appendChild(puces);
+    var cur=0, minuteur=null;
+    function marquer(){ Array.prototype.forEach.call(puces.children, function(b,i){ b.classList.toggle("on", i===cur); }); }
+    function aller(i){
+      if(i===cur) return;
+      precharger(i, function(){
+        if(charge[i]===null){ return; }
+        couches.forEach(function(c){ c.classList.remove("sortie"); });
+        couches[cur].classList.remove("on"); couches[cur].classList.add("sortie");
+        var n=couches[i]; n.style.transition="none"; n.classList.remove("on"); void n.offsetWidth; n.style.transition="";
+        n.classList.add("on"); cur=i; marquer();
+      });
+    }
+    function suivant(){
+      var i=cur, tours=0;
+      do { i=(i+1)%urls.length; tours++; } while(charge[i]===null && tours<urls.length);
+      aller(i);
+    }
+    function relancer(){ clearInterval(minuteur); minuteur=setInterval(function(){ if(!document.hidden) suivant(); }, 6500); }
+    premiere.classList.add("on"); marquer();
+    precharger(1, function(){});
+    relancer();
+  }
+  // La zone de la bannière accueille aussi les puces : il lui faut être positionnée.
+  (function(){ var h=document.querySelector(".hero"); if(h) h.style.position="relative"; })();
+
   /* ---------- Theme toggle ---------- */
   document.getElementById("themeBtn").addEventListener("click", function(){
     var cur = root.getAttribute("data-theme") || "light";
@@ -1749,6 +1904,9 @@
   } else { document.querySelectorAll(".reveal").forEach(function(el){ el.classList.add("in"); }); }
 
   /* ---------- Counters ---------- */
+  // Calculé plutôt qu'écrit en dur : le chiffre vieillissait d'un an sans que personne n'y touche.
+  (function(){ var sa=document.getElementById("statAnnees");
+    if(sa) sa.setAttribute("data-count", String(Math.max(1,new Date().getFullYear()-1997))); })();
   function animateCount(el){
     var target = parseFloat(el.getAttribute("data-count"));
     var suffix = el.getAttribute("data-suffix") || "";
@@ -1812,7 +1970,8 @@
   function setTxt(id,val){ var el=document.getElementById(id); if(el && val) el.textContent=val; }
   // Définie ici et non dans le chargeur Supabase : renderAssises s'en sert, et une
   // ReferenceError dans une promesse passe totalement inaperçue.
-  function strip(html){ var t=document.createElement("div"); t.innerHTML=html||""; return (t.textContent||"").replace(/\s+/g," ").trim(); }
+  function strip(html){ var t=document.createElement("div");
+    t.innerHTML=String(html||"").replace(/<(br|\/p|\/li|\/h[1-6]|\/div|\/blockquote|\/tr|\/td)\b[^>]*>/gi,"$& "); return (t.textContent||"").replace(/\s+/g," ").trim(); }
   // Coupe au dernier mot entier : un texte tronqué en plein milieu d'un mot se voit
   // sur les vignettes d'actualité comme dans les résultats de recherche Google, qui
   // reprennent ce résumé.
@@ -1909,6 +2068,70 @@
     return '<ol class="chrono">'+html+'</ol>';
   }
 
+  /* Dates d'une édition : calculées depuis l'ouverture et la clôture quand les deux sont
+     saisies, pour une écriture uniforme d'une édition à l'autre (et une seule source de
+     vérité : le champ texte avait gardé une année fausse sur une édition). */
+  var MOIS_LONG=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  function datesEdition(d){
+    if(!d) return "";
+    var a=String(d.date_debut||"").split("-"), b=String(d.date_fin||"").split("-");
+    if(a.length===3 && b.length===3){
+      var ja=parseInt(a[2],10), jb=parseInt(b[2],10), ma=parseInt(a[1],10)-1, mb=parseInt(b[1],10)-1;
+      if(!isNaN(ja) && !isNaN(jb) && MOIS_LONG[ma] && MOIS_LONG[mb]){
+        if(a[0]===b[0] && ma===mb) return ja+" au "+jb+" "+MOIS_LONG[ma]+" "+a[0];
+        if(a[0]===b[0]) return ja+" "+MOIS_LONG[ma]+" au "+jb+" "+MOIS_LONG[mb]+" "+a[0];
+        return ja+" "+MOIS_LONG[ma]+" "+a[0]+" au "+jb+" "+MOIS_LONG[mb]+" "+b[0];
+      }
+    }
+    return d.dates||"";
+  }
+  // Photo représentative d'une édition : la première de sa galerie.
+  function photoEdition(d){
+    var l = d && Array.isArray(d.photos) ? d.photos.filter(Boolean) : [];
+    return l.length ? lienExterne(l[0]) : "";
+  }
+  function anneeEdition(d){ return (String((d&&(d.date_debut||d.dates))||"").match(/\d{4}/)||[""])[0]; }
+
+  /* Mosaïque « Retour sur la dernière édition ». Sur l'accueil et sur la page d'une
+     édition à venir : entre deux éditions, la page ne doit pas rester vide de photos.
+     Les cinq premières photos de la galerie, dans l'ordre choisi dans l'admin. */
+  function derniereArchivee(){
+    return assisesListe.filter(function(d){
+      return d.statut==="Archivée" && Array.isArray(d.photos) && d.photos.filter(Boolean).length>=5;
+    })[0] || null;
+  }
+  function renderRetour(idSection, d){
+    var sec=document.getElementById(idSection); if(!sec) return;
+    if(!d){ sec.hidden=true; return; }
+    var photos=d.photos.filter(Boolean).map(lienExterne).filter(Boolean).slice(0,5);
+    if(photos.length<5){ sec.hidden=true; return; }
+    var an=anneeEdition(d), lieu=(d.ville||"")+(an?" "+an:"");
+    var titre=sec.querySelector("[data-retour-titre]"), texte=sec.querySelector("[data-retour-texte]");
+    if(titre) titre.textContent = d.ville ? ("Retour sur "+lieu+".") : "Les dernières Assises en images.";
+    if(texte){
+      var de=datesEdition(d);
+      texte.textContent = (d.numero?d.numero+"es Assises":"Les Assises")+(d.ville?" à "+d.ville:"")+(de?", du "+de:"")+"."
+        +(d.theme?" Thème : "+d.theme.replace(/\s*\.$/,"")+".":"");
+    }
+    var g=sec.querySelector("[data-retour-grille]");
+    if(g){
+      g.innerHTML = photos.map(function(u,i){
+        return '<figure><img src="'+esc(u)+'" alt="'+esc("Assises de "+lieu+", photo "+(i+1))+'" loading="lazy" decoding="async">'
+          +(i===0?'<figcaption class="retour-legende"><small>'+esc((d.numero?d.numero+"e édition":"Édition")+" · Les Assises en images")+'</small><b>'+esc(lieu)+'</b></figcaption>':'')
+          +'</figure>';
+      }).join("");
+      Array.prototype.forEach.call(g.querySelectorAll("figure"), function(f){
+        f.addEventListener("click", function(){ openAssises(d.id); });
+      });
+    }
+    var zv=sec.querySelector("[data-retour-vainqueur]");
+    if(zv){ zv.innerHTML=""; var v=vainqueurEl(d); if(v) zv.appendChild(v); }
+    var lien=sec.querySelector("[data-retour-lien]");
+    if(lien){ lien.onclick=function(e){ e.preventDefault(); openAssises(d.id); }; lien.setAttribute("href", "/assises/"+d.id+"/"); }
+    sec.querySelectorAll(".reveal").forEach(function(el){ el.classList.add("in"); });
+    sec.hidden=false;
+  }
+
   function renderAssises(d){
     if(!d) return;
     assisesCourante = d;
@@ -1919,7 +2142,22 @@
     var archivee = d.statut==="Archivée";
     setTxt("assisesTitre", d.titre);
     setTxt("assisesVille", d.ville);
-    setTxt("assisesDates", d.dates);
+    setTxt("assisesDates", datesEdition(d));
+
+    // Encart sombre : la photo de l'édition en fond, et la délégation lauréate à droite
+    // une fois l'édition archivée. Sans photo, le dégradé d'origine reste seul.
+    var fondEd=document.getElementById("assisesPhoto"), urlFond=archivee?photoEdition(d):"";
+    if(fondEd){
+      if(urlFond){ fondEd.style.backgroundImage="url("+JSON.stringify(urlFond)+")"; fondEd.classList.add("on"); }
+      else { fondEd.classList.remove("on"); fondEd.style.backgroundImage=""; }
+    }
+    var zbv=document.getElementById("assisesBilanVainqueur");
+    if(zbv){
+      zbv.innerHTML=""; var bv=archivee?vainqueurEl(d):null;
+      if(bv){ zbv.appendChild(bv); zbv.hidden=false; } else zbv.hidden=true;
+    }
+    // Édition à venir : on montre la précédente en images.
+    renderRetour("retourAssises", archivee ? null : derniereArchivee());
     setTxt("assisesTheme", d.theme);
 
     var eb=document.getElementById("assisesEyebrow");
@@ -2042,12 +2280,15 @@
     liste.innerHTML="";
     autres.forEach(function(d){
       var b=document.createElement("button");
-      b.className="card"; b.type="button";
-      b.setAttribute("style","padding:26px;text-align:left;cursor:pointer;font:inherit;color:inherit;width:100%");
-      b.innerHTML='<div style="font-family:var(--font-mono);font-size:30px;font-weight:700;color:var(--green)">'
-        +esc(d.numero||"?")+'<sup>e</sup></div>'
-        +'<b style="display:block;margin-top:8px">'+esc(d.ville||d.titre||"Édition")+'</b>'
-        +'<small style="color:var(--gray)">'+esc(d.dates||d.statut||"")+'</small>';
+      b.className="card ed-carte"; b.type="button";
+      var ph=photoEdition(d);
+      b.innerHTML='<span class="ed-vignette'+(ph?' photo':'')+'"'+(ph?' data-fond="'+esc(ph)+'"':'')+'>'
+        +'<span class="ed-num">'+esc(d.numero||"?")+'<sup>e</sup></span>'
+        +(d.statut && d.statut!=="Archivée" ? '<span class="ed-statut">'+esc(d.statut)+'</span>' : '')+'</span>'
+        +'<span class="ed-corps"><b>'+esc(d.ville||d.titre||"Édition")+'</b>'
+        +'<small>'+esc(datesEdition(d)||anneeEdition(d)||d.statut||"")+'</small></span>';
+      var vg=b.querySelector("[data-fond]");
+      if(vg){ vg.style.backgroundImage="url("+JSON.stringify(vg.getAttribute("data-fond"))+")"; vg.removeAttribute("data-fond"); }
       b.addEventListener("click", function(){ openAssises(d.id); });
       liste.appendChild(b);
     });
@@ -2321,9 +2562,12 @@
     // On ne montre que les trois plus récentes pour ne pas surcharger la page ;
     // la page Actualités (filtrable) donne accès à l'ensemble.
     lot.slice(0,3).forEach(function(n){ an.appendChild(newsCardEl(n)); });
-    setTxt("assisesNewsTitre", estVedette
+    var art = /^(Bénin|Burkina|Mali|Niger|Sénégal|Togo)/.test(d.ville||"") ? "le " : /^(Guinée|Côte)/.test(d.ville||"") ? "la " : "";
+    setTxt("assisesNewsTitre", d.statut==="En cours"
       ? "Suivez l'édition en cours, jour après jour."
-      : "Les temps forts de l'édition de "+(d.ville||"cette année")+".");
+      : d.statut==="À venir"
+        ? "En route vers "+(d.ville ? art+d.ville : "la prochaine édition")+"."
+        : "Les temps forts de l'édition de "+(d.ville||"cette année")+".");
     var plus=document.getElementById("assisesNewsPlus");
     if(plus) plus.style.display = lot.length>3 ? "" : "none";
     sec.style.display="";
@@ -2727,17 +2971,22 @@
           return l.length ? l[0].data.image : "";
         };
 
-        var ban=img("Bannière d'accueil");
+        // Toutes les bannières d'accueil, de la plus récente à la plus ancienne : une seule
+        // donne une image fixe, plusieurs donnent un diaporama en fondu.
+        var bans=by.banniere.filter(function(r){ var d=r.data||{};
+          return (d.emplacement||"Bannière d'accueil")==="Bannière d'accueil" && lienExterne(d.image); })
+          .map(function(r){ return lienExterne(r.data.image); });
         var zone=document.querySelector(".hero-photo"), ph=zone&&zone.querySelector(".ph");
-        if(ban && ph){
-          ph.style.backgroundImage="url("+JSON.stringify(ban)+")";
+        if(bans.length && ph){
+          ph.style.backgroundImage="url("+JSON.stringify(bans[0])+")";
           zone.classList.add("has-photo");
+          if(bans.length>1) lancerDiapo(zone, ph, bans.slice(0,8));
         }
 
         var illu=img("Illustration « Qui sommes-nous »");
         var media=document.querySelector(".about-media"), scene=media&&media.querySelector(".scene");
         if(illu && scene){
-          scene.style.background="var(--card-2) center / cover no-repeat url("+JSON.stringify(illu)+")";
+          scene.style.background="var(--card-2) center 62% / cover no-repeat url("+JSON.stringify(illu)+")";
           media.classList.add("has-photo");
         }
 
@@ -2863,7 +3112,7 @@
         if(vedette){
           setTxt("homeAssisesTitre", vedette.titre);
           setTxt("homeAssisesVille", vedette.ville);
-          setTxt("homeAssisesDates", vedette.dates);
+          setTxt("homeAssisesDates", datesEdition(vedette));
           setTxt("homeAssisesTheme", vedette.theme);
           setTxt("homeAssisesEtat", "Événement phare · "+(vedette.statut==="En cours"?"Édition en cours":vedette.statut==="À venir"?"Prochaine édition":"Dernière édition"));
           var anVed=(String(vedette.date_debut||vedette.dates||"").match(/\d{4}/)||[""])[0];
@@ -2876,6 +3125,13 @@
         var et=history.state;
         renderAssises((et && et.vue==="assises" && et.param && assisesParId[et.param]) ? assisesParId[et.param] : vedette);
         renderEditions();
+        var arch=derniereArchivee();
+        renderRetour("retourHome", (arch && vedette && arch.id!==vedette.id) ? arch : null);
+        // Éditions tenues = numéro de la plus récente édition archivée.
+        var nbEd=assisesListe.filter(function(x){ return x.statut==="Archivée"; })
+          .reduce(function(m,x){ return Math.max(m, parseInt(x.numero,10)||0); },0);
+        var se=document.getElementById("statEditions");
+        if(se && nbEd){ se.setAttribute("data-count",String(nbEd)); if(se.textContent!=="0") se.textContent=String(nbEd); }
         // La page Palmarès se construit à partir de toutes les éditions chargées.
         renderPalmares();
       }
