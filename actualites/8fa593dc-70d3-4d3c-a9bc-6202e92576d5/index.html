@@ -283,13 +283,14 @@
   .flag-stack .fchip:first-child { margin-left:0; }
   .fchip svg, .country .flag svg, .flag svg { width:100%; height:100%; display:block; }
 
-  .hero-seal { position:relative; display:grid; place-items:center; }
+  /* Sceau plus petit et calé en haut à droite : il laisse voir le centre des photos du diaporama. */
+  .hero-seal { position:relative; display:grid; place-items:center; justify-self:end; align-self:start; margin-top:clamp(8px,3vw,40px); }
   .seal-halo { position:absolute; width:104%; height:104%; border-radius:50%;
     background:conic-gradient(from 210deg,var(--green),var(--red),var(--ink),var(--green)); filter:blur(30px);
     opacity:.20; animation:spin 30s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
   @media (prefers-reduced-motion: reduce){ .seal-halo { animation:none; } }
-  .seal-frame { position:relative; width:min(400px,78vw); aspect-ratio:1; border-radius:50%;
+  .seal-frame { position:relative; width:min(260px,60vw); aspect-ratio:1; border-radius:50%;
     background:#fff; box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.5); display:grid; place-items:center; padding:12px; }
   .hero-logo { width:100%; height:100%; border-radius:50%; background:#fff var(--logo) center / 104% no-repeat; }
 
@@ -657,7 +658,7 @@
     .nav-links { display:none; } .burger { display:block; } .nav-cta .btn-red { display:none; }
     .hero-grid { grid-template-columns:1fr; }
     .hero-seal { order:-1; width:100%; max-width:none; margin:0; justify-items:center; }
-    .seal-frame { width:min(280px,66vw); }
+    .seal-frame { width:min(200px,50vw); }
     .about-grid, .assises-inner, .join { grid-template-columns:1fr; }
     .assises-photo::after { background:linear-gradient(0deg, rgba(12,26,17,.96) 0%, rgba(12,26,17,.80) 55%, rgba(12,26,17,.45) 100%); }
     .grid-3, .pillars, .team, .docs { grid-template-columns:1fr; }
@@ -689,7 +690,7 @@
     .section { padding-block:clamp(48px,12vw,72px); }
     .section-head { margin-bottom:34px; }
     .hero { padding-top:24px; }
-    .seal-frame { width:min(230px,62vw); }
+    .seal-frame { width:min(170px,46vw); }
     .hero-copy h1 { font-size:clamp(31px,8.6vw,44px); }
     .hero-lede { font-size:16.5px; margin:18px 0 24px; }
     .hero-actions { gap:12px; }
