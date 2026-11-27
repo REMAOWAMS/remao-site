@@ -320,6 +320,9 @@
   .assises-actions { margin-top:30px; display:flex; gap:14px; flex-wrap:wrap; }
   .assises .btn-ghost { background:rgba(255,255,255,.1); color:#fff; border-color:rgba(255,255,255,.22); box-shadow:none; }
   .assises .btn-ghost .ic { background:rgba(255,255,255,.16); }
+  .cd-annonce { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); border-radius:var(--r-md); padding:26px 24px; text-align:center; }
+  .cd-annonce b { display:block; font-size:clamp(26px,4vw,38px); font-weight:800; line-height:1.1; letter-spacing:-.01em; }
+  .cd-annonce span { display:block; margin-top:12px; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.14em; color:rgba(255,255,255,.72); }
   .countdown { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
   .cd-cell { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); border-radius:var(--r-md);
     padding:20px 10px; text-align:center; }
@@ -757,7 +760,7 @@
         <div class="hero-actions">
           <a class="btn btn-red" data-view="membre">Rejoindre le REMAO
             <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-          <a class="btn btn-ghost" data-view="assises">21e Assises · Conakry 2026
+          <a class="btn btn-ghost" data-view="assises"><span id="heroAssises">22e Assises · Bénin 2027</span>
             <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
         </div>
         <div class="hero-trust">
@@ -779,7 +782,7 @@
       <div class="stats">
         <div class="stat reveal"><div class="num" data-count="8">0</div><div class="lbl">Pays membres permanents</div></div>
         <div class="stat reveal"><div class="num" data-count="28" data-suffix="+">0</div><div class="lbl">Années d'existence (depuis 1997)</div></div>
-        <div class="stat reveal"><div class="num" data-count="21" data-suffix="e">0</div><div class="lbl">Édition des Assises en 2026</div></div>
+        <div class="stat reveal"><div class="num" data-count="21">0</div><div class="lbl">Éditions des Assises tenues</div></div>
         <div class="stat reveal"><div class="num" data-count="3">0</div><div class="lbl">Piliers : science, culture, sport</div></div>
       </div>
     </div>
@@ -812,9 +815,9 @@
         <div class="band" aria-hidden="true"></div>
         <div class="assises-inner">
           <div>
-            <span class="eyebrow"><span class="dot"></span>Événement phare · Édition en cours</span>
-            <h2 id="homeAssisesTitre">21<sup>es</sup> Assises du REMAO</h2>
-            <div class="host"><b id="homeAssisesVille">Conakry, Guinée</b><span>·</span><span id="homeAssisesDates">13 au 22 octobre 2026</span></div>
+            <span class="eyebrow"><span class="dot"></span><span id="homeAssisesEtat">Événement phare · Prochaine édition</span></span>
+            <h2 id="homeAssisesTitre">22<sup>es</sup> Assises du REMAO</h2>
+            <div class="host"><b id="homeAssisesVille">Bénin</b><span>·</span><span id="homeAssisesDates">2027</span></div>
             <p class="theme-line" id="homeAssisesTheme">Des centaines d'étudiants réunis autour de communications scientifiques, de compétitions sportives et de soirées culturelles.</p>
             <div class="assises-actions">
               <a class="btn btn-red" data-view="assises">Voir les Assises
@@ -822,7 +825,8 @@
             </div>
           </div>
           <div>
-            <div class="countdown" id="countdown">
+            <div class="cd-annonce" id="cdAnnonce"><b id="cdAnnonceTitre">On se retrouve au Bénin</b><span id="cdAnnonceTxt">Dates bientôt annoncées</span></div>
+            <div class="countdown" id="countdown" style="display:none">
               <div class="cd-cell"><div class="v" data-cd="days">--</div><div class="k">Jours</div></div>
               <div class="cd-cell"><div class="v" data-cd="hours">--</div><div class="k">Heures</div></div>
               <div class="cd-cell"><div class="v" data-cd="mins">--</div><div class="k">Minutes</div></div>
@@ -1081,7 +1085,8 @@
             <h2 id="assisesVille">Conakry, Guinée</h2>
             <p class="theme-line" id="assisesDates">Du 13 au 22 octobre 2026.</p>
           </div>
-          <div class="countdown" id="countdown2">
+          <div class="cd-annonce" id="cdAnnonce2" hidden><b id="cdAnnonce2Titre">Rendez-vous bientôt</b><span id="cdAnnonce2Txt">Dates bientôt annoncées</span></div>
+          <div class="countdown" id="countdown2" style="display:none">
             <div class="cd-cell"><div class="v" data-cd="days">--</div><div class="k">Jours</div></div>
             <div class="cd-cell"><div class="v" data-cd="hours">--</div><div class="k">Heures</div></div>
             <div class="cd-cell"><div class="v" data-cd="mins">--</div><div class="k">Minutes</div></div>
@@ -1476,7 +1481,7 @@
         </div>
       </div>
       <div class="foot-col"><h4>Le réseau</h4><a data-view="qsn">Qui sommes-nous</a><a data-nav="home" data-scroll-target="pays">Nos pays membres</a><a data-nav="home" data-scroll-target="programmes">Programmes</a><a data-view="qsn">Bureau Exécutif</a></div>
-      <div class="foot-col"><h4>S'engager</h4><a data-view="assises">Assises 2026</a><a data-view="palmares" data-lien-section="palmares" hidden>Palmarès</a><a data-view="revue" data-lien-section="revue" hidden>Revue scientifique</a><a data-view="membre">Devenir membre</a><a data-view="cellule">Créer une cellule</a><a data-view="actualites">Actualités</a></div>
+      <div class="foot-col"><h4>S'engager</h4><a data-view="assises">Les Assises</a><a data-view="palmares" data-lien-section="palmares" hidden>Palmarès</a><a data-view="revue" data-lien-section="revue" hidden>Revue scientifique</a><a data-view="membre">Devenir membre</a><a data-view="cellule">Créer une cellule</a><a data-view="actualites">Actualités</a></div>
       <div class="foot-col"><h4>Contact</h4><a href="mailto:remao.wams@gmail.com">remao.wams@gmail.com</a><a href="tel:+22799320761">+227 99 32 07 61</a><span>Siège : Niamey, Niger</span></div>
     </div>
     <div class="foot-bottom"><span>© 2026 REMAO · WAMS-Web. Tous droits réservés.</span><span><a href="/confidentialite/">Confidentialité et données personnelles</a></span></div>
@@ -1747,6 +1752,23 @@
     var t = new Date(iso+"T09:00:00+00:00").getTime();
     if(!isNaN(t)){ target = t; tick(); }
   }
+  /* Compte à rebours seulement pour une édition à venir dont la date d'ouverture est
+     saisie. Sans date, une annonce prend sa place : un compteur figé à 00 laisserait
+     croire que l'événement a lieu aujourd'hui. Édition passée : ni l'un ni l'autre. */
+  function majCompteur(d, idCd, idAnn, idTitre, idTxt){
+    var cd=document.getElementById(idCd), an=document.getElementById(idAnn);
+    var archivee = !d || d.statut==="Archivée";
+    var actif = !archivee && !!d.date_debut;
+    if(cd) cd.style.display = actif ? "" : "none";
+    if(an){
+      an.hidden = actif || archivee;
+      if(!an.hidden){
+        var v=String(d.ville||"").trim();
+        setTxt(idTitre, v ? "On se retrouve "+(/^(Bénin|Burkina|Mali|Niger|Sénégal|Togo)/.test(v)?"au ":/^(Guinée|Côte)/.test(v)?"en ":"à ")+v : "Rendez-vous bientôt");
+        setTxt(idTxt, "Dates bientôt annoncées");
+      }
+    }
+  }
   function tick(){
     var d = target - Date.now(); if(d<0) d=0;
     var days=Math.floor(d/864e5), hours=Math.floor(d%864e5/36e5), mins=Math.floor(d%36e5/6e4), secs=Math.floor(d%6e4/1e3);
@@ -1900,11 +1922,11 @@
     }
 
     // Compte à rebours et inscription : sans objet sur une édition passée.
-    var cd=document.getElementById("countdown2");
-    if(cd) cd.style.display = archivee ? "none" : "";
+    majCompteur(d, "countdown2", "cdAnnonce2", "cdAnnonce2Titre", "cdAnnonce2Txt");
     var cta=document.getElementById("assisesCta");
     if(cta){
-      if(archivee){ cta.style.display="none"; }
+      // Ni date ni lien d'inscription : il n'y a encore rien à quoi s'inscrire.
+      if(archivee || (!d.date_debut && !lienExterne(d.lien))){ cta.style.display="none"; }
       else {
         cta.style.display="";
         var inscription=lienExterne(d.lien);
@@ -2820,7 +2842,11 @@
           setTxt("homeAssisesVille", vedette.ville);
           setTxt("homeAssisesDates", vedette.dates);
           setTxt("homeAssisesTheme", vedette.theme);
+          setTxt("homeAssisesEtat", "Événement phare · "+(vedette.statut==="En cours"?"Édition en cours":vedette.statut==="À venir"?"Prochaine édition":"Dernière édition"));
+          var anVed=(String(vedette.date_debut||vedette.dates||"").match(/\d{4}/)||[""])[0];
+          setTxt("heroAssises", (vedette.numero?vedette.numero+"e Assises":"Les Assises")+(vedette.ville?" · "+vedette.ville:"")+(anVed?" "+anVed:""));
           majDateAssises(vedette.date_debut);
+          majCompteur(vedette, "countdown", "cdAnnonce", "cdAnnonceTitre", "cdAnnonceTxt");
         }
 
         // Si on est déjà sur une édition précise (lien direct), on la garde.
