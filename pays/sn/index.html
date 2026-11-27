@@ -234,7 +234,8 @@
     opacity:.55; }
   /* Bannière réelle posée depuis l'admin : la photo remplace les aplats décoratifs,
      mais on garde le voile ::after qui assure la lisibilité du titre par-dessus. */
-  .hero-photo.has-photo .ph { background:var(--paper-2) center / cover no-repeat; opacity:1; }
+  /* Cadrage bas : sur ces photos de groupe, les gens sont dans la moitié inférieure. */
+  .hero-photo.has-photo .ph { background:var(--paper-2) center 64% / cover no-repeat; opacity:1; }
   /* Diaporama : plusieurs bannières d'accueil se relaient en fondu, avec un lent zoom
      arrière. La couche active passe au-dessus, la précédente s'efface dessous. */
   .hero-photo.diapo .ph { opacity:0; transform:scale(1.07); transition:opacity 1.8s var(--ease-out), transform 9s linear; }
